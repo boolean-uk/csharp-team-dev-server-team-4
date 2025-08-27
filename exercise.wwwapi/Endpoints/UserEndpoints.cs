@@ -42,16 +42,23 @@ namespace exercise.wwwapi.EndPoints
         }
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
-        private static async Task<IResult> Register(RegisterRequestDTO request, IRepository<User> service, IValidator<RegisterRequestDTO> emailValidator)
+        private static async Task<IResult> Register(RegisterRequestDTO request, IRepository<User> service, IValidator<RegisterRequestDTO> validator)
         {
             //user exists
-            if (service.GetAll().Where(u => u.Email == request.email).Any()) return Results.Conflict(new ResponseDTO<RegisterFailureDTO>() { Status = "Fail" });
+            if (service.GetAll().Where(u => u.Email == request.email)
+                .Any()) return Results.Conflict(new ResponseDTO<RegisterFailureDTO>() { Status = "Fail" });
 
             // validate email
-            var validation = await emailValidator.ValidateAsync(request);
+            var validation = await validator.ValidateAsync(request);
             ResponseDTO<RegisterFailureDTO> failResponse = new ResponseDTO<RegisterFailureDTO>();
-            failResponse.Data.email = "Invalid email format";
-            if (!validation.IsValid) {  return Results.BadRequest(failResponse); }
+            if (!validation.IsValid) 
+            {  
+                var errors = validation.Errors;
+
+                failResponse.Data.Errors = errors.ToString()!;
+
+                return Results.BadRequest(failResponse); 
+            }
 
             string passwordHash = BCrypt.Net.BCrypt.HashPassword(request.password);
 
