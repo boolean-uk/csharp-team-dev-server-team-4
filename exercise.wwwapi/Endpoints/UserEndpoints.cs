@@ -45,19 +45,25 @@ namespace exercise.wwwapi.EndPoints
         private static async Task<IResult> Register(RegisterRequestDTO request, IRepository<User> service, IValidator<RegisterRequestDTO> validator)
         {
             //user exists
-            if (service.GetAll().Where(u => u.Email == request.email)
-                .Any()) return Results.Conflict(new ResponseDTO<RegisterFailureDTO>() { Status = "Fail" });
-
+            //if (service.GetAll().Where(u => u.Email == request.email)
+              //  .Any()) return Results.Conflict(new ResponseDTO<RegisterFailureDTO>() { Status = "Fail" });
+            
             // validate email
             var validation = await validator.ValidateAsync(request);
-            ResponseDTO<RegisterFailureDTO> failResponse = new ResponseDTO<RegisterFailureDTO>();
-            if (!validation.IsValid) 
-            {  
-                var errors = validation.Errors;
+            if (!validation.IsValid)
+            {
+                var failureDto = new RegisterFailureDTO();
 
-                failResponse.Data.Errors = errors.ToString()!;
+                foreach (var error in validation.Errors)
+                {
+                    if (error.PropertyName.Equals("email", StringComparison.OrdinalIgnoreCase))
+                        failureDto.EmailErrors.Add(error.ErrorMessage);
+                    else if (error.PropertyName.Equals("password", StringComparison.OrdinalIgnoreCase))
+                        failureDto.PasswordErrors.Add(error.ErrorMessage);
+                }
 
-                return Results.BadRequest(failResponse); 
+                var failResponse = new ResponseDTO<RegisterFailureDTO> { Status = "fail", Data = failureDto };
+                return Results.BadRequest(failResponse);
             }
 
             string passwordHash = BCrypt.Net.BCrypt.HashPassword(request.password);

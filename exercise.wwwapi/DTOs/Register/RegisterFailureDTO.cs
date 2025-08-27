@@ -2,6 +2,7 @@
 {
     public class RegisterFailureDTO
     {
-        public string Errors { get; set; }
+        public List<string> EmailErrors { get; set; } = new();
+        public List<string> PasswordErrors { get; set; } = new();
     }
 }

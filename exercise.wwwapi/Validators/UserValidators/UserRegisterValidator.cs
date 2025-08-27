@@ -15,15 +15,12 @@ namespace exercise.wwwapi.Validators.UserValidators
                 .WithMessage("Password too short");
 
             RuleFor(x => x.password)
-                .MinimumLength(8)
                 .Matches(@"[A-Z]+").WithMessage("Password must contain at least one uppercase letter.");
 
             RuleFor(x => x.password)
-                .MinimumLength(8)
                 .Matches(@"\d+").WithMessage("Password must contain at least one number");
 
             RuleFor(x => x.password)
-                .MinimumLength(8)
                 .Matches(@"[^a-zA-Z0-9\s]+").WithMessage("Password must contain at least one special character");
         }
     }
