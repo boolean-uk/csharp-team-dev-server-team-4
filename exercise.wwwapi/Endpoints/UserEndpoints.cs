@@ -6,6 +6,7 @@ using exercise.wwwapi.DTOs.Register;
 using exercise.wwwapi.Helpers;
 using exercise.wwwapi.Models;
 using exercise.wwwapi.Repository;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
@@ -41,12 +42,16 @@ namespace exercise.wwwapi.EndPoints
         }
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
-        private static async Task<IResult> Register(RegisterRequestDTO request, IRepository<User> service)
+        private static async Task<IResult> Register(RegisterRequestDTO request, IRepository<User> service, IValidator<RegisterRequestDTO> emailValidator)
         {
             //user exists
             if (service.GetAll().Where(u => u.Email == request.email).Any()) return Results.Conflict(new ResponseDTO<RegisterFailureDTO>() { Status = "Fail" });
-            
 
+            // validate email
+            var validation = await emailValidator.ValidateAsync(request);
+            ResponseDTO<RegisterFailureDTO> failResponse = new ResponseDTO<RegisterFailureDTO>();
+            failResponse.Data.email = "Invalid email format";
+            if (!validation.IsValid) {  return Results.BadRequest(failResponse); }
 
             string passwordHash = BCrypt.Net.BCrypt.HashPassword(request.password);
 
@@ -59,6 +64,7 @@ namespace exercise.wwwapi.EndPoints
             user.LastName = !string.IsNullOrEmpty(request.lastName) ? request.lastName : string.Empty;
             user.Bio = !string.IsNullOrEmpty(request.bio) ? request.bio : string.Empty;
             user.GithubUrl = !string.IsNullOrEmpty(request.githubUrl) ? request.githubUrl : string.Empty;
+            user.Role = Role.Student;
 
             service.Insert(user);
             service.Save();
