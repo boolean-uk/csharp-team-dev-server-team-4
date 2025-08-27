@@ -45,8 +45,8 @@ namespace exercise.wwwapi.EndPoints
         private static async Task<IResult> Register(RegisterRequestDTO request, IRepository<User> service, IValidator<RegisterRequestDTO> validator)
         {
             //user exists
-            //if (service.GetAll().Where(u => u.Email == request.email)
-              //  .Any()) return Results.Conflict(new ResponseDTO<RegisterFailureDTO>() { Status = "Fail" });
+            if (service.GetAll().Where(u => u.Email == request.email)
+                .Any()) return Results.Conflict(new ResponseDTO<RegisterFailureDTO>() { Status = "Fail" });
             
             // validate email
             var validation = await validator.ValidateAsync(request);
