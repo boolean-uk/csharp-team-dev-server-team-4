@@ -3,11 +3,13 @@ using exercise.wwwapi.DTOs;
 using exercise.wwwapi.DTOs.GetUsers;
 using exercise.wwwapi.DTOs.Login;
 using exercise.wwwapi.DTOs.Register;
+using exercise.wwwapi.DTOs.UpdateUser;
 using exercise.wwwapi.Helpers;
 using exercise.wwwapi.Models;
 using exercise.wwwapi.Repository;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ActionConstraints;
@@ -16,11 +18,14 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using static System.Net.WebRequestMethods;
 
 namespace exercise.wwwapi.EndPoints
 {
     public static class UserEndpoints
     {
+        private const string GithubUrl = "github.com/";
+
         public static void ConfigureAuthApi(this WebApplication app)
         {
             var users = app.MapGroup("users");
@@ -130,15 +135,44 @@ namespace exercise.wwwapi.EndPoints
            
         }
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public static async Task<IResult> GetUserById(int id)
+        public static async Task<IResult> GetUserById(IRepository<User> service, int id)
         {
+            var user = await service.GetByIdAsync(id);
+            if (user is null)
+            {
+                return TypedResults.NotFound();
+            }
+
             return TypedResults.Ok();
         }
+
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public static async Task<IResult> UpdateUser(int id)
+        public static async Task<IResult> UpdateUser(IRepository<User> service, int id, UpdateUserRequestDTO request)
         {
+            // TODO check if request json maps onto DTO
+
+            var user = await service.GetByIdAsync(id);
+            if (user is null)
+            {
+                return TypedResults.NotFound();
+            }
+            // todo validation email, mobilenr, password
+
+
+            if (request.Username is not null) user.Username = request.Username;
+            if (request.Email is not null) user.Email = request.Email;
+            if (request.Password is not null) user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
+            if (request.MobileNumber is not null) user.MobileNumber = request.MobileNumber;
+            if (request.Bio is not null) user.Bio = request.Bio;
+            if (request.GithubName is not null) user.GithubUrl = GithubUrl + request.GithubName;
+            if (request.FirstName is not null) user.FirstName = request.FirstName;
+            if (request.LastName is not null) user.LastName = request.LastName;
+
+
+            // TODO return dto
             return TypedResults.Ok();
         }
+
         private static string CreateToken(User user, IConfigurationSettings config)
         {
             List<Claim> claims = new List<Claim>

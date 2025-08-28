@@ -28,5 +28,7 @@ namespace exercise.wwwapi.Models
         
         [Column("role")]
         public Role Role { get; set; }
+        [Column("mobileNumber")]
+        public string MobileNumber { get; set; }
     }
 }
