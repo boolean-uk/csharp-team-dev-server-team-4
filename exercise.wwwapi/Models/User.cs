@@ -25,5 +25,8 @@ namespace exercise.wwwapi.Models
         [NotMapped]
         [Column("githubUrl")]
         public string GithubUrl { get; set; } = string.Empty;
+        
+        [Column("role")]
+        public Role Role { get; set; }
     }
 }
