@@ -54,7 +54,7 @@ namespace exercise.wwwapi.EndPoints
             if (users.Where(u => u.Email == request.email)
                 .Any()) return Results.Conflict(new ResponseDTO<RegisterFailureDTO>() { Status = "Fail" });
             
-            // validate email
+            // validate
             var validation = await validator.ValidateAsync(request);
             if (!validation.IsValid)
             {
@@ -84,9 +84,12 @@ namespace exercise.wwwapi.EndPoints
             user.Bio = !string.IsNullOrEmpty(request.bio) ? request.bio : string.Empty;
             user.GithubUrl = !string.IsNullOrEmpty(request.githubUrl) ? request.githubUrl : string.Empty;
             user.Role = Role.Student;
+            user.MobileNumber = string.Empty;
 
             service.Insert(user);
             service.Save();
+
+            //TODO get user again from db to get true id
 
             ResponseDTO<RegisterSuccessDTO> response = new ResponseDTO<RegisterSuccessDTO>();
             response.Status = "success";
@@ -96,7 +99,6 @@ namespace exercise.wwwapi.EndPoints
             response.Data.user.GithubUrl = user.GithubUrl;
             response.Data.user.Username = user.Username;
             response.Data.user.Email = user.Email;
-
 
             return Results.Ok(response);
         }
@@ -182,16 +184,20 @@ namespace exercise.wwwapi.EndPoints
             if (request.FirstName is not null) user.FirstName = request.FirstName;
             if (request.LastName is not null) user.LastName = request.LastName;
 
+            service.Update(user);
+            await service.SaveAsync();
+            var updatedUser = await service.GetByIdAsync(id);
+
             ResponseDTO<UpdateUserSuccessDTO> response = new ResponseDTO<UpdateUserSuccessDTO>();
             response.Status = "success";
-            response.Data.user.Id = user.Id;
-            response.Data.user.Email = user.Email;
-            response.Data.user.FirstName = user.FirstName;
-            response.Data.user.LastName = user.LastName;
-            response.Data.user.Bio = user.Bio;
-            response.Data.user.GithubUrl = user.GithubUrl;
-            response.Data.user.Username = user.Username;
-            response.Data.user.MobileNumber = user.MobileNumber;
+            response.Data.user.Id = updatedUser.Id;
+            response.Data.user.Email = updatedUser.Email;
+            response.Data.user.FirstName = updatedUser.FirstName;
+            response.Data.user.LastName = updatedUser.LastName;
+            response.Data.user.Bio = updatedUser.Bio;
+            response.Data.user.GithubUrl = updatedUser.GithubUrl;
+            response.Data.user.Username = updatedUser.Username;
+            response.Data.user.MobileNumber = updatedUser.MobileNumber;
 
             return TypedResults.Ok(response);
         }
