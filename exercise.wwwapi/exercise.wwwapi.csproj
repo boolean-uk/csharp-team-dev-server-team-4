@@ -29,7 +29,6 @@
 
   <ItemGroup>
     <Folder Include="DTOs\GetUserById\" />
-    <Folder Include="DTOs\UpdateUser\" />
     <Folder Include="Migrations\" />
   </ItemGroup>
 

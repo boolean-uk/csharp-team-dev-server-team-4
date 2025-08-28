@@ -90,12 +90,12 @@ namespace exercise.wwwapi.EndPoints
 
             ResponseDTO<RegisterSuccessDTO> response = new ResponseDTO<RegisterSuccessDTO>();
             response.Status = "success";
-            response.Data.user.firstName = user.FirstName;
-            response.Data.user.lastName = user.LastName;
-            response.Data.user.bio = user.Bio;
-            response.Data.user.githubUrl = user.GithubUrl;
-            response.Data.user.username = user.Username;
-            response.Data.user.email = user.Email;
+            response.Data.user.FirstName = user.FirstName;
+            response.Data.user.LastName = user.LastName;
+            response.Data.user.Bio = user.Bio;
+            response.Data.user.GithubUrl = user.GithubUrl;
+            response.Data.user.Username = user.Username;
+            response.Data.user.Email = user.Email;
 
 
             return Results.Ok(response);
@@ -147,17 +147,31 @@ namespace exercise.wwwapi.EndPoints
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public static async Task<IResult> UpdateUser(IRepository<User> service, int id, UpdateUserRequestDTO request)
+        public static async Task<IResult> UpdateUser(IRepository<User> service, int id, UpdateUserRequestDTO request, IValidator<UpdateUserRequestDTO> validator)
         {
-            // TODO check if request json maps onto DTO
 
             var user = await service.GetByIdAsync(id);
             if (user is null)
             {
                 return TypedResults.NotFound();
             }
-            // todo validation email, mobilenr, password
 
+            var validation = await validator.ValidateAsync(request);
+            if (!validation.IsValid)
+            {
+                var failureDto = new UpdateUserFailureDTO();
+                foreach (var error in validation.Errors)
+                {
+                    if (error.PropertyName.Equals("Email", StringComparison.OrdinalIgnoreCase))
+                        failureDto.EmailErrors.Add(error.ErrorMessage);
+                    else if (error.PropertyName.Equals("Password", StringComparison.OrdinalIgnoreCase))
+                        failureDto.PasswordErrors.Add(error.ErrorMessage);
+                    else if (error.PropertyName.Equals("MobileNumber", StringComparison.OrdinalIgnoreCase))
+                        failureDto.MobileNumberErrors.Add(error.ErrorMessage);
+                }
+                var failResponse = new ResponseDTO<UpdateUserFailureDTO> { Status = "fail", Data = failureDto };
+                return Results.BadRequest(failResponse);
+            }
 
             if (request.Username is not null) user.Username = request.Username;
             if (request.Email is not null) user.Email = request.Email;
@@ -168,9 +182,18 @@ namespace exercise.wwwapi.EndPoints
             if (request.FirstName is not null) user.FirstName = request.FirstName;
             if (request.LastName is not null) user.LastName = request.LastName;
 
+            ResponseDTO<UpdateUserSuccessDTO> response = new ResponseDTO<UpdateUserSuccessDTO>();
+            response.Status = "success";
+            response.Data.user.Id = user.Id;
+            response.Data.user.Email = user.Email;
+            response.Data.user.FirstName = user.FirstName;
+            response.Data.user.LastName = user.LastName;
+            response.Data.user.Bio = user.Bio;
+            response.Data.user.GithubUrl = user.GithubUrl;
+            response.Data.user.Username = user.Username;
+            response.Data.user.MobileNumber = user.MobileNumber;
 
-            // TODO return dto
-            return TypedResults.Ok();
+            return TypedResults.Ok(response);
         }
 
         private static string CreateToken(User user, IConfigurationSettings config)

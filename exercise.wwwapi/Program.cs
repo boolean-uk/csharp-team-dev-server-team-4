@@ -1,6 +1,7 @@
 using exercise.wwwapi.Configuration;
 using exercise.wwwapi.Data;
 using exercise.wwwapi.DTOs.Register;
+using exercise.wwwapi.DTOs.UpdateUser;
 using exercise.wwwapi.Endpoints;
 using exercise.wwwapi.EndPoints;
 using exercise.wwwapi.Helpers;
@@ -27,6 +28,7 @@ builder.Services.AddScoped<IConfigurationSettings, ConfigurationSettings>();
 builder.Services.AddScoped<IRepository<User>, Repository<User>>();
 builder.Services.AddScoped<ILogger, Logger<string>>();
 builder.Services.AddScoped<IValidator<RegisterRequestDTO>, UserRegisterValidator>();
+builder.Services.AddScoped<IValidator<UpdateUserRequestDTO>, UserUpdateValidator>();
 
 builder.Services.AddDbContext<DataContext>(options => {
     
