@@ -1,5 +1,6 @@
 ﻿using exercise.wwwapi.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using System.Linq.Expressions;
 
 namespace exercise.wwwapi.Repository
@@ -61,6 +62,44 @@ namespace exercise.wwwapi.Repository
         {
             _db.SaveChanges();
         }
+
+        public async Task<IEnumerable<T>> GetAllAsync()
+        {
+            return await _table.ToListAsync();
+        }
+
+        public async Task<IEnumerable<T>> GetAllAsync(params Expression<Func<T, object>>[] includeExpressions)
+        {
+            if (includeExpressions.Any())
+            {
+                var set = includeExpressions
+                    .Aggregate<Expression<Func<T, object>>, IQueryable<T>>
+                     (_table, (current, expression) => current.Include(expression));
+            }
+            return await _table.ToListAsync();
+        }
+
+        public async Task<T> GetByIdAsync(object id)
+        {
+            return await _table.FindAsync(id);
+        }
+
+        public async Task InsertAsync(T obj)
+        {
+            await _table.AddAsync(obj);
+        }
+
+        public async Task DeleteAsync(object id)
+        {
+            T existing = await _table.FindAsync(id);
+            _table.Remove(existing);
+        }
+
+        public async Task SaveAsync()
+        {
+            await _db.SaveChangesAsync();
+        }
+
         public DbSet<T> Table { get { return _table; } }
 
     }
