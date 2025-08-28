@@ -52,8 +52,15 @@ namespace exercise.wwwapi.EndPoints
             //user exists
             var users = await service.GetAllAsync();
             if (users.Where(u => u.Email == request.email)
-                .Any()) return Results.Conflict(new ResponseDTO<RegisterFailureDTO>() { Status = "Fail" });
-            
+                .Any())
+            {
+                var failureDto = new RegisterFailureDTO();
+                failureDto.EmailErrors.Add("Email already exists");
+  
+                var failResponse = new ResponseDTO<RegisterFailureDTO> { Status = "fail", Data = failureDto };
+                return Results.Conflict(failResponse);
+            }
+
             // validate
             var validation = await validator.ValidateAsync(request);
             if (!validation.IsValid)
@@ -93,12 +100,14 @@ namespace exercise.wwwapi.EndPoints
 
             ResponseDTO<RegisterSuccessDTO> response = new ResponseDTO<RegisterSuccessDTO>();
             response.Status = "success";
+            response.Data.user.Id = user.Id;
             response.Data.user.FirstName = user.FirstName;
             response.Data.user.LastName = user.LastName;
             response.Data.user.Bio = user.Bio;
             response.Data.user.GithubUrl = user.GithubUrl;
             response.Data.user.Username = user.Username;
             response.Data.user.Email = user.Email;
+            response.Data.user.MobileNumber = user.MobileNumber;
 
             return Results.Ok(response);
         }
