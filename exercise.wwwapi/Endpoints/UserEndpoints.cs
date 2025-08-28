@@ -110,7 +110,8 @@ namespace exercise.wwwapi.EndPoints
             //if (string.IsNullOrEmpty(request.username)) request.username = request.email;
 
             //user doesn't exist
-            if (!service.GetAll().Where(u => u.Email == request.email).Any()) return Results.BadRequest(new Payload<Object>() { status = "User does not exist", data = new { email="Invalid email and/or password provided"} });
+            if (!service.GetAll().Where(u => u.Email == request.email).Any()) 
+                return Results.BadRequest(new Payload<Object>() { status = "User does not exist", data = new { email="Invalid email and/or password provided"} });
 
             User user = service.GetAll().FirstOrDefault(u => u.Email == request.email)!;
            
@@ -129,6 +130,7 @@ namespace exercise.wwwapi.EndPoints
             response.Data.user.LastName = user.LastName;
             response.Data.user.Bio = user.Bio;
             response.Data.user.GithubUrl = user.GithubUrl;
+            response.Data.user.MobileNumber = user.MobileNumber;
 
 
             response.Data.token = token;
