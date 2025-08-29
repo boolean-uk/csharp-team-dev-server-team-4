@@ -49,19 +49,7 @@ namespace exercise.wwwapi.EndPoints
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         private static async Task<IResult> Register(RegisterRequestDTO request, IRepository<User> service, IValidator<RegisterRequestDTO> validator)
         {
-            //user exists
-            var users = await service.GetAllAsync();
-            if (users.Where(u => u.Email == request.email)
-                .Any())
-            {
-                var failureDto = new RegisterFailureDTO();
-                failureDto.EmailErrors.Add("Email already exists");
-  
-                var failResponse = new ResponseDTO<RegisterFailureDTO> { Status = "fail", Data = failureDto };
-                return Results.Conflict(failResponse);
-            }
-
-            // validate
+           // validate
             var validation = await validator.ValidateAsync(request);
             if (!validation.IsValid)
             {
@@ -77,6 +65,18 @@ namespace exercise.wwwapi.EndPoints
 
                 var failResponse = new ResponseDTO<RegisterFailureDTO> { Status = "fail", Data = failureDto };
                 return Results.BadRequest(failResponse);
+            }
+
+            //user exists
+            var users = await service.GetAllAsync();
+            if (users.Where(u => u.Email == request.email)
+                .Any())
+            {
+                var failureDto = new RegisterFailureDTO();
+                failureDto.EmailErrors.Add("Email already exists");
+
+                var failResponse = new ResponseDTO<RegisterFailureDTO> { Status = "fail", Data = failureDto };
+                return Results.Conflict(failResponse);
             }
 
             string passwordHash = BCrypt.Net.BCrypt.HashPassword(request.password);
@@ -162,13 +162,6 @@ namespace exercise.wwwapi.EndPoints
         [ProducesResponseType(StatusCodes.Status200OK)]
         public static async Task<IResult> UpdateUser(IRepository<User> service, int id, UpdateUserRequestDTO request, IValidator<UpdateUserRequestDTO> validator)
         {
-
-            var user = await service.GetByIdAsync(id);
-            if (user is null)
-            {
-                return TypedResults.NotFound();
-            }
-
             var validation = await validator.ValidateAsync(request);
             if (!validation.IsValid)
             {
@@ -184,6 +177,12 @@ namespace exercise.wwwapi.EndPoints
                 }
                 var failResponse = new ResponseDTO<UpdateUserFailureDTO> { Status = "fail", Data = failureDto };
                 return Results.BadRequest(failResponse);
+            }
+
+            var user = await service.GetByIdAsync(id);
+            if (user is null)
+            {
+                return TypedResults.NotFound();
             }
 
             if (request.Username is not null) user.Username = request.Username;
