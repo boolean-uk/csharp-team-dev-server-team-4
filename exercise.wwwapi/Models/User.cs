@@ -28,5 +28,18 @@ namespace exercise.wwwapi.Models
         
         [Column("role")]
         public Role Role { get; set; }
+        
+        [ForeignKey("Cohort")]
+        [Column("cohort_id", TypeName = "int")]
+        public int CohortId { get; set; }
+        
+        [NotMapped]
+        public Cohort Cohort { get; set; }
+        
+        [NotMapped]
+        public ICollection<Post> Posts { get; set; }
+        
+        [NotMapped]
+        public ICollection<Comment> Comments { get; set; }
     }
 }
