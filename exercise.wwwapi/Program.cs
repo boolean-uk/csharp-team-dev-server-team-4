@@ -1,10 +1,14 @@
 using exercise.wwwapi.Configuration;
 using exercise.wwwapi.Data;
+using exercise.wwwapi.DTOs.Register;
+using exercise.wwwapi.DTOs.UpdateUser;
 using exercise.wwwapi.Endpoints;
 using exercise.wwwapi.EndPoints;
 using exercise.wwwapi.Helpers;
 using exercise.wwwapi.Models;
 using exercise.wwwapi.Repository;
+using exercise.wwwapi.Validators.UserValidators;
+using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -23,6 +27,9 @@ var config = new ConfigurationSettings();
 builder.Services.AddScoped<IConfigurationSettings, ConfigurationSettings>();
 builder.Services.AddScoped<IRepository<User>, Repository<User>>();
 builder.Services.AddScoped<ILogger, Logger<string>>();
+builder.Services.AddScoped<IValidator<RegisterRequestDTO>, UserRegisterValidator>();
+builder.Services.AddScoped<IValidator<UpdateUserRequestDTO>, UserUpdateValidator>();
+
 builder.Services.AddDbContext<DataContext>(options => {
     
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
@@ -130,3 +137,5 @@ app.ConfigureCohortEndpoints();
 app.ConfigurePostEndpoints();
 
 app.Run();
+
+public partial class Program { } // needed for testing - please ignore
