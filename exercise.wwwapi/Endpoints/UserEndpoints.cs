@@ -33,7 +33,7 @@ namespace exercise.wwwapi.EndPoints
             users.MapGet("/", GetUsers).WithSummary("Get all users by first name if provided");
             users.MapGet("/{id}", GetUserById).WithSummary("Get user by user id");
             app.MapPost("/login", Login).WithSummary("Localhost Login");
-            app.MapPatch("/{id}", UpdateUser).WithSummary("Update a user");
+            users.MapPatch("/{id}", UpdateUser).WithSummary("Update a user");
         }
         [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]

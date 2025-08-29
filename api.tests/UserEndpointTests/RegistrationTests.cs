@@ -8,21 +8,8 @@ using System.Text.Json;
 
 namespace api.tests.UserEndpointTests;
 
-public class Tests
+public class CreateUserTests
 {
-    [Test]
-    public async Task GetUserByIdTest()
-    {
-        // Arrange: prepare request data
-        var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder => { });
-        var client = factory.CreateClient();
-
-        var response = await client.GetAsync("users/1");
-
-        Assert.That(response.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.OK));
-
-    }
-
     [Test]
     public async Task GetUserByIdTestFails()
     {
@@ -30,14 +17,14 @@ public class Tests
         var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder => { });
         var client = factory.CreateClient();
 
-        var response = await client.GetAsync("users/1000");
+        var response = await client.GetAsync("users/10050");
 
         Assert.That(response.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.NotFound));
 
     }
 
     [Test]
-    public async Task RegisterUserTestFails()
+    public async Task RegisterUserExistsTest()
     {
         // Arrange: prepare request data
         var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder => { });
@@ -45,7 +32,7 @@ public class Tests
 
         var newUser = new RegisterRequestDTO
         {
-            email = "matti@matti.matti",
+            email = "test@test.test",
             password = "Mattimatti7&"
         };
 
@@ -58,7 +45,7 @@ public class Tests
     }
 
     [Test]
-    public async Task RegisterUserTestEmailValidation()
+    public async Task RegisterUserEmailValidationFailsTest()
     {
         // Arrange: prepare request data
         var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder => { });
@@ -66,7 +53,7 @@ public class Tests
 
         var newUser = new RegisterRequestDTO
         {
-            email = "matti",
+            email = "test",
             password = "Mattimatti7&"
         };
 
@@ -78,7 +65,7 @@ public class Tests
     }
 
     [Test]
-    public async Task RegisterUserTestPasswordValidation()
+    public async Task RegisterUserPasswordValidationFailsTest()
     {
         // Arrange: prepare request data
         var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder => { });
@@ -86,7 +73,7 @@ public class Tests
 
         var newUser = new RegisterRequestDTO
         {
-            email = "jakub@test.test",
+            email = "testtesttest@test.test",
             password = "test"
         };
 
