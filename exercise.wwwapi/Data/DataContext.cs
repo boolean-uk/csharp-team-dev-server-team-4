@@ -18,43 +18,11 @@ namespace exercise.wwwapi.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Setup Tables
-            modelBuilder.Entity<User>().ToTable("users");
-            modelBuilder.Entity<Cohort>().ToTable("cohorts");
-            
+            // Timestamps are generated in Postgres so it's not mixing client/server times.
+            modelBuilder.Entity<Post>().Property(p => p.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            modelBuilder.Entity<Comment>().Property(c => c.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
             // Setup Keys
-            
-            // Setup Relations
-            
-            // Cohorts <=> Course
-            modelBuilder.Entity<Cohort>()
-                .HasOne(cohort => cohort.Course)
-                .WithMany(course => course.Cohorts)
-                .HasForeignKey(cohort => cohort.CourseId);
-            
-            // Cohort <=> Users
-            modelBuilder.Entity<Cohort>()
-                .HasMany(cohort => cohort.Users)
-                .WithOne(cohort => cohort.Cohort)
-                .HasForeignKey(cohort => cohort.CohortId);
-            
-            // Post <=> Comments
-            modelBuilder.Entity<Post>()
-                .HasMany(post => post.Comments)
-                .WithOne(comment => comment.Post)
-                .HasForeignKey(comment => comment.PostId);
-            
-            // Comments <=> User
-            modelBuilder.Entity<Comment>()
-                .HasOne(comment => comment.User)
-                .WithMany(user => user.Comments)
-                .HasForeignKey(comment => comment.UserId);
-            
-            // Posts <=> User
-            modelBuilder.Entity<Post>()
-                .HasOne(post => post.User)
-                .WithMany(user => user.Posts)
-                .HasForeignKey(post => post.UserId);
-            
+                     
             // Seed ???
         }
         
@@ -66,8 +34,15 @@ namespace exercise.wwwapi.Data
         }
    
         public DbSet<User> Users { get; set; }
-        public DbSet<Cohort> Cohorts { get; set; }
+        public DbSet<Credential> Credentials { get; set; }
+        public DbSet<Profile> Profiles { get; set; }
         public DbSet<Post> Posts { get; set; }
         public DbSet<Comment> Comments { get; set; }
+        public DbSet<Course> Courses { get; set; }
+        public DbSet<Module> Modules { get; set; }
+        public DbSet<Unit> Units { get; set; }
+        public DbSet<Exercise> Exercises { get; set; }
+        public DbSet<Cohort> Cohorts { get; set; }
+        public DbSet<CohortMember> CohortMembers { get; set; }
     }
 }

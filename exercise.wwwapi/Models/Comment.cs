@@ -1,26 +1,31 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace exercise.wwwapi.Models;
 
+[Table("comments")]
 public class Comment
 {
-    [Column("id", TypeName = "int")]
+    [Column("id")]
     public int Id { get; set; }
-    
-    [Column("content", TypeName = "varchar(500)")]
-    public string Content { get; set; }
-    
-    [ForeignKey("Post")]
-    [Column("post_id", TypeName = "int")]
+
+    [Column("post_id")]
+    [ForeignKey(nameof(Post))]
     public int PostId { get; set; }
-    
-    [Column("post")]
-    public Post Post { get; set; }
-    
-    [ForeignKey("User")]
-    [Column("user_id", TypeName = "int")]
+
+    [Column("user_id")]
+    [ForeignKey(nameof(User))]
     public int UserId { get; set; }
-    
-    [Column("user")]
-    public User User { get; set; }
+
+    [Required]
+    [Column("body")]
+    public string Body { get; set; } = null!;
+
+    [Column("create_at")]
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    public Post Post { get; set; } = null!;
+    public User User { get; set; } = null!;
+
+
 }

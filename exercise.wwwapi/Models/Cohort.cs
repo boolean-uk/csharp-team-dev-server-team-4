@@ -1,22 +1,20 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace exercise.wwwapi.Models;
 
+[Table("cohorts")]
 public class Cohort
 {
-    [Column("id", TypeName = "int")]
+    [Key]
+    [Column("id")]
     public int Id { get; set; }
-    
-    [Column("number", TypeName = "int")]
-    public int Number { get; set; }
-    
-    [ForeignKey("Course")]
-    [Column("course_id", TypeName = "int")]
+
+    [Column("course_id")]
+    [ForeignKey(nameof(Course))]
     public int CourseId { get; set; }
 
-    [Column("course")]
-    public Course Course { get; set; }
-    
-    [Column("users")]
-    public ICollection<User> Users { get; set; }
+
+    public Course Course { get; set; } = null!;
+    public ICollection<CohortMember> Members { get; set; } = new List<CohortMember>();
 }

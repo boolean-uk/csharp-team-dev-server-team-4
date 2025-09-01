@@ -69,7 +69,7 @@ namespace exercise.wwwapi.EndPoints
 
             //user exists
             var users = await service.GetAllAsync();
-            if (users.Where(u => u.Email == request.email)
+            if (users.Where(u => u.Credential.Email == request.email)
                 .Any())
             {
                 var failureDto = new RegisterFailureDTO();

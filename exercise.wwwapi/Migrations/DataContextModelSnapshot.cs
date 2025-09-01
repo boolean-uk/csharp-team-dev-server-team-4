@@ -26,46 +26,74 @@ namespace exercise.wwwapi.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("integer")
                         .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("CourseId")
-                        .HasColumnType("int")
+                        .HasColumnType("integer")
                         .HasColumnName("course_id");
-
-                    b.Property<int>("Number")
-                        .HasColumnType("int")
-                        .HasColumnName("number");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CourseId");
 
-                    b.ToTable("cohorts", (string)null);
+                    b.ToTable("cohorts");
+                });
+
+            modelBuilder.Entity("exercise.wwwapi.Models.CohortMember", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CohortId")
+                        .HasColumnType("integer")
+                        .HasColumnName("cohort_id");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CohortId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("cohortmembers");
                 });
 
             modelBuilder.Entity("exercise.wwwapi.Models.Comment", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("integer")
                         .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Content")
+                    b.Property<string>("Body")
                         .IsRequired()
-                        .HasColumnType("varchar(500)")
-                        .HasColumnName("content");
+                        .HasColumnType("text")
+                        .HasColumnName("body");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_at")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<int>("PostId")
-                        .HasColumnType("int")
+                        .HasColumnType("integer")
                         .HasColumnName("post_id");
 
                     b.Property<int>("UserId")
-                        .HasColumnType("int")
+                        .HasColumnType("integer")
                         .HasColumnName("user_id");
 
                     b.HasKey("Id");
@@ -74,59 +102,205 @@ namespace exercise.wwwapi.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Comments");
+                    b.ToTable("comments");
                 });
 
             modelBuilder.Entity("exercise.wwwapi.Models.Course", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("integer")
                         .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Name")
+                    b.Property<string>("CourseName")
                         .IsRequired()
-                        .HasColumnType("varchar(100)")
-                        .HasColumnName("name");
+                        .HasColumnType("text")
+                        .HasColumnName("course_name");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Course");
+                    b.ToTable("course");
+                });
+
+            modelBuilder.Entity("exercise.wwwapi.Models.Credential", b =>
+                {
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer")
+                        .HasColumnName("user_id");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("email");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("password_hash");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("integer")
+                        .HasColumnName("role");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("username");
+
+                    b.HasKey("UserId");
+
+                    b.ToTable("credentials");
+                });
+
+            modelBuilder.Entity("exercise.wwwapi.Models.Exercise", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text")
+                        .HasColumnName("description");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("title");
+
+                    b.Property<int>("UnitId")
+                        .HasColumnType("integer")
+                        .HasColumnName("unit_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UnitId");
+
+                    b.ToTable("exercise");
+                });
+
+            modelBuilder.Entity("exercise.wwwapi.Models.Module", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CourseId")
+                        .HasColumnType("integer")
+                        .HasColumnName("course_id");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("title");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CourseId");
+
+                    b.ToTable("modules");
                 });
 
             modelBuilder.Entity("exercise.wwwapi.Models.Post", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("integer")
                         .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Content")
+                    b.Property<int>("AuthorId")
+                        .HasColumnType("integer")
+                        .HasColumnName("author_id");
+
+                    b.Property<string>("Body")
                         .IsRequired()
-                        .HasColumnType("varchar(500)")
-                        .HasColumnName("content");
+                        .HasColumnType("text")
+                        .HasColumnName("body");
 
-                    b.Property<DateTime>("CreateMoment")
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
-                    b.Property<int>("LikeCount")
-                        .HasColumnType("int")
-                        .HasColumnName("like_count");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int")
-                        .HasColumnName("user_id");
+                    b.Property<int>("Likes")
+                        .HasColumnType("integer")
+                        .HasColumnName("likes");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("AuthorId");
 
-                    b.ToTable("Posts");
+                    b.ToTable("posts");
+                });
+
+            modelBuilder.Entity("exercise.wwwapi.Models.Profile", b =>
+                {
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer")
+                        .HasColumnName("user_id");
+
+                    b.Property<string>("Bio")
+                        .HasColumnType("text")
+                        .HasColumnName("bio");
+
+                    b.Property<string>("FirstName")
+                        .HasColumnType("text")
+                        .HasColumnName("first_name");
+
+                    b.Property<string>("Github")
+                        .HasColumnType("text")
+                        .HasColumnName("github");
+
+                    b.Property<string>("LastName")
+                        .HasColumnType("text")
+                        .HasColumnName("last_name");
+
+                    b.Property<string>("Phone")
+                        .HasColumnType("text")
+                        .HasColumnName("phone");
+
+                    b.Property<string>("PhotoUrl")
+                        .HasColumnType("text")
+                        .HasColumnName("photo_url");
+
+                    b.HasKey("UserId");
+
+                    b.ToTable("profile");
+                });
+
+            modelBuilder.Entity("exercise.wwwapi.Models.Unit", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ModuleId")
+                        .HasColumnType("integer")
+                        .HasColumnName("module_id");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("title");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ModuleId");
+
+                    b.ToTable("units");
                 });
 
             modelBuilder.Entity("exercise.wwwapi.Models.User", b =>
@@ -138,34 +312,9 @@ namespace exercise.wwwapi.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("CohortId")
-                        .HasColumnType("int")
-                        .HasColumnName("cohort_id");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("email");
-
-                    b.Property<string>("PasswordHash")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("passwordhash");
-
-                    b.Property<int>("Role")
-                        .HasColumnType("integer")
-                        .HasColumnName("role");
-
-                    b.Property<string>("Username")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("username");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("CohortId");
-
-                    b.ToTable("users", (string)null);
+                    b.ToTable("users");
                 });
 
             modelBuilder.Entity("exercise.wwwapi.Models.Cohort", b =>
@@ -177,6 +326,25 @@ namespace exercise.wwwapi.Migrations
                         .IsRequired();
 
                     b.Navigation("Course");
+                });
+
+            modelBuilder.Entity("exercise.wwwapi.Models.CohortMember", b =>
+                {
+                    b.HasOne("exercise.wwwapi.Models.Cohort", "Cohort")
+                        .WithMany("Members")
+                        .HasForeignKey("CohortId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("exercise.wwwapi.Models.User", "User")
+                        .WithMany("CohortMembers")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Cohort");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("exercise.wwwapi.Models.Comment", b =>
@@ -198,36 +366,87 @@ namespace exercise.wwwapi.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("exercise.wwwapi.Models.Post", b =>
+            modelBuilder.Entity("exercise.wwwapi.Models.Credential", b =>
                 {
                     b.HasOne("exercise.wwwapi.Models.User", "User")
-                        .WithMany("Posts")
-                        .HasForeignKey("UserId")
+                        .WithOne("Credential")
+                        .HasForeignKey("exercise.wwwapi.Models.Credential", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("exercise.wwwapi.Models.User", b =>
+            modelBuilder.Entity("exercise.wwwapi.Models.Exercise", b =>
                 {
-                    b.HasOne("exercise.wwwapi.Models.Cohort", "Cohort")
-                        .WithMany("Users")
-                        .HasForeignKey("CohortId")
+                    b.HasOne("exercise.wwwapi.Models.Unit", "Unit")
+                        .WithMany("Exercises")
+                        .HasForeignKey("UnitId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Cohort");
+                    b.Navigation("Unit");
+                });
+
+            modelBuilder.Entity("exercise.wwwapi.Models.Module", b =>
+                {
+                    b.HasOne("exercise.wwwapi.Models.Course", "Course")
+                        .WithMany("Modules")
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Course");
+                });
+
+            modelBuilder.Entity("exercise.wwwapi.Models.Post", b =>
+                {
+                    b.HasOne("exercise.wwwapi.Models.User", "Author")
+                        .WithMany("Posts")
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Author");
+                });
+
+            modelBuilder.Entity("exercise.wwwapi.Models.Profile", b =>
+                {
+                    b.HasOne("exercise.wwwapi.Models.User", "User")
+                        .WithOne("Profile")
+                        .HasForeignKey("exercise.wwwapi.Models.Profile", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("exercise.wwwapi.Models.Unit", b =>
+                {
+                    b.HasOne("exercise.wwwapi.Models.Module", "Module")
+                        .WithMany("Units")
+                        .HasForeignKey("ModuleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Module");
                 });
 
             modelBuilder.Entity("exercise.wwwapi.Models.Cohort", b =>
                 {
-                    b.Navigation("Users");
+                    b.Navigation("Members");
                 });
 
             modelBuilder.Entity("exercise.wwwapi.Models.Course", b =>
                 {
                     b.Navigation("Cohorts");
+
+                    b.Navigation("Modules");
+                });
+
+            modelBuilder.Entity("exercise.wwwapi.Models.Module", b =>
+                {
+                    b.Navigation("Units");
                 });
 
             modelBuilder.Entity("exercise.wwwapi.Models.Post", b =>
@@ -235,11 +454,24 @@ namespace exercise.wwwapi.Migrations
                     b.Navigation("Comments");
                 });
 
+            modelBuilder.Entity("exercise.wwwapi.Models.Unit", b =>
+                {
+                    b.Navigation("Exercises");
+                });
+
             modelBuilder.Entity("exercise.wwwapi.Models.User", b =>
                 {
+                    b.Navigation("CohortMembers");
+
                     b.Navigation("Comments");
 
+                    b.Navigation("Credential")
+                        .IsRequired();
+
                     b.Navigation("Posts");
+
+                    b.Navigation("Profile")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }
