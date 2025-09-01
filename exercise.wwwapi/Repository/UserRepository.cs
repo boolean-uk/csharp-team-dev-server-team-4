@@ -1,7 +1,5 @@
 ﻿using exercise.wwwapi.Data;
 using exercise.wwwapi.Models;
-using Microsoft.EntityFrameworkCore;
-
 namespace exercise.wwwapi.Repository;
 
 public class UserRepository : IUserRepository
@@ -13,29 +11,29 @@ public class UserRepository : IUserRepository
         _db = db;
     }
 
-    public Task<IEnumerable<User>> SearchUsersByName(string name)
+    public Task<IEnumerable<Profile>> SearchUsersByName(string name)
     {
         var split = name.Split(' ');
 
-        List<User> users = new List<User>();
+        List<Profile> profiles = new List<Profile>();
 
         if (split.Length > 1)
         {
-            users.AddRange(_db.Users.Where(user =>
-                (user.FirstName == split[0] || user.FirstName == split[0]) &&
-                (user.LastName == split[1] || user.FirstName == split[1])));
+            profiles.AddRange(_db.Profiles.Where(profile =>
+                (profile.FirstName == split[0] || profile.FirstName == split[0]) &&
+                (profile.LastName == split[1] || profile.FirstName == split[1])));
         }
 
-        if (users.Count == 0)
+        if (profiles.Count == 0)
         {
-            users.AddRange(_db.Users.Where(user => user.FirstName == name));
-            users.AddRange(_db.Users.Where(user => user.LastName == name));
+            profiles.AddRange(_db.Profiles.Where(profile => profile.FirstName == name));
+            profiles.AddRange(_db.Profiles.Where(profile => profile.LastName == name));
         }
 
-        return Task.FromResult<IEnumerable<User>>(users);
+        return Task.FromResult<IEnumerable<Profile>>(profiles);
     }
 
-    public Task<IEnumerable<User>> ListUsersInCohort(int cohortId)
+    public Task<IEnumerable<Profile>> ListUsersInCohort(int cohortId)
     {
         throw new NotImplementedException();
     }

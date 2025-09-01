@@ -35,7 +35,7 @@ namespace exercise.wwwapi.EndPoints
         private static async Task<IResult> GetUsers(IRepository<User> service, string? firstName, ClaimsPrincipal user)
         {
             IEnumerable<User> results = await service.Get();
-            UsersSuccessDTO userData = new UsersSuccessDTO() { Users = !string.IsNullOrEmpty(firstName) ? results.Where(i => i.Email.Contains(firstName)).ToList() : results.ToList() };
+            UsersSuccessDTO userData = new UsersSuccessDTO() { Users = !string.IsNullOrEmpty(firstName) ? results.Where(i => i.Credential.Email.Contains(firstName)).ToList() : results.ToList() };
             ResponseDTO<UsersSuccessDTO> response = new ResponseDTO<UsersSuccessDTO>() { Status = "success", Data = userData };
             return TypedResults.Ok(response);
         }
@@ -44,7 +44,7 @@ namespace exercise.wwwapi.EndPoints
         private static async Task<IResult> Register(RegisterRequestDTO request, IRepository<User> service)
         {
             //user exists
-            if (service.GetAll().Where(u => u.Email == request.email).Any()) return Results.Conflict(new ResponseDTO<RegisterFailureDTO>() { Status = "Fail" });
+            if (service.GetAll().Where(u => u.Credential.Email == request.email).Any()) return Results.Conflict(new ResponseDTO<RegisterFailureDTO>() { Status = "Fail" });
             
 
 
@@ -52,25 +52,25 @@ namespace exercise.wwwapi.EndPoints
 
             var user = new User();
 
-            user.Username = !string.IsNullOrEmpty(request.username) ? request.username : request.email;
-            user.PasswordHash = passwordHash;
-            user.Email = request.email;
-            user.FirstName = !string.IsNullOrEmpty(request.firstName) ? request.firstName : string.Empty;
-            user.LastName = !string.IsNullOrEmpty(request.lastName) ? request.lastName : string.Empty;
-            user.Bio = !string.IsNullOrEmpty(request.bio) ? request.bio : string.Empty;
-            user.GithubUrl = !string.IsNullOrEmpty(request.githubUrl) ? request.githubUrl : string.Empty;
+            user.Credential.Username = !string.IsNullOrEmpty(request.username) ? request.username : request.email;
+            user.Credential.PasswordHash = passwordHash;
+            user.Credential.Email = request.email;
+            user.Profile.FirstName = !string.IsNullOrEmpty(request.firstName) ? request.firstName : string.Empty;
+            user.Profile.LastName = !string.IsNullOrEmpty(request.lastName) ? request.lastName : string.Empty;
+            user.Profile.Bio = !string.IsNullOrEmpty(request.bio) ? request.bio : string.Empty;
+            user.Profile.Github = !string.IsNullOrEmpty(request.githubUrl) ? request.githubUrl : string.Empty;
 
             service.Insert(user);
             service.Save();
 
             ResponseDTO<RegisterSuccessDTO> response = new ResponseDTO<RegisterSuccessDTO>();
             response.Status = "success";
-            response.Data.user.firstName = user.FirstName;
-            response.Data.user.lastName = user.LastName;
-            response.Data.user.bio = user.Bio;
-            response.Data.user.githubUrl = user.GithubUrl;
-            response.Data.user.username = user.Username;
-            response.Data.user.email = user.Email;
+            response.Data.user.firstName = user.Profile.FirstName;
+            response.Data.user.lastName = user.Profile.LastName;
+            response.Data.user.bio = user.Profile.Bio;
+            response.Data.user.githubUrl = user.Profile.Github;
+            response.Data.user.username = user.Credential.Username;
+            response.Data.user.email = user.Credential.Email;
 
 
             return Results.Ok(response);
@@ -80,28 +80,35 @@ namespace exercise.wwwapi.EndPoints
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         private static async Task<IResult> Login(LoginRequestDTO request, IRepository<User> service, IConfigurationSettings config)
         {
+            var email = request.email?.Trim().ToLowerInvariant();
+            var password = request.password;
+
             //if (string.IsNullOrEmpty(request.username)) request.username = request.email;
 
             //user doesn't exist
-            if (!service.GetAll().Where(u => u.Email == request.email).Any()) return Results.BadRequest(new Payload<Object>() { status = "User does not exist", data = new { email="Invalid email and/or password provided"} });
+            if (!service.GetAll().Where(u => u.Credential.Email == request.email).Any()) return Results.BadRequest(new Payload<Object>() { status = "User does not exist", data = new { email="Invalid email and/or password provided"} });
 
-            User user = service.GetAll().FirstOrDefault(u => u.Email == request.email)!;
-           
+            var user = service.GetAll().FirstOrDefault(u => u.Credential.Email.ToLower() == email);
 
-            if (!BCrypt.Net.BCrypt.Verify(request.password, user.PasswordHash))
+            if (user is null)
+            {
+                return Results.BadRequest(new Payload<object> { status = "User does not exist", data = new { email = "Invalid email and/or password provided" }});
+            }
+
+            if (!BCrypt.Net.BCrypt.Verify(request.password, user.Credential.PasswordHash))
             {
                 return Results.BadRequest(new Payload<Object>() { status = "fail", data = new LoginFailureDTO() });
             }
 
             string token = CreateToken(user, config);
 
-            ResponseDTO<LoginSuccessDTO> response = new ResponseDTO<LoginSuccessDTO>();
+            var response = new ResponseDTO<LoginSuccessDTO>();
             response.Data.user.Id = user.Id;
-            response.Data.user.Email = user.Email;
-            response.Data.user.FirstName = user.FirstName;
-            response.Data.user.LastName = user.LastName;
-            response.Data.user.Bio = user.Bio;
-            response.Data.user.GithubUrl = user.GithubUrl;
+            response.Data.user.Credential.Email = user.Credential.Email;
+            response.Data.user.Profile.FirstName = user.Profile.FirstName;
+            response.Data.user.Profile.LastName = user.Profile.LastName;
+            response.Data.user.Profile.Bio = user.Profile.Bio;
+            response.Data.user.Profile.Github = user.Profile.Github;
 
 
             response.Data.token = token;
@@ -124,8 +131,8 @@ namespace exercise.wwwapi.EndPoints
             List<Claim> claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Sid, user.Id.ToString()),
-                new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.Email, user.Email)
+                new Claim(ClaimTypes.Name, user.Credential.Username),
+                new Claim(ClaimTypes.Email, user.Credential.Email)
                 
                 
             };

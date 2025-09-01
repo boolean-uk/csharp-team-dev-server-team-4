@@ -1,28 +1,29 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace exercise.wwwapi.Models;
 
+[Table("posts")]
 public class Post
 {
-    [Column("id", TypeName = "int")]
+    [Key]
+    [Column("id")]
     public int Id { get; set; }
-    
-    [Column("content", TypeName = "varchar(500)")]
-    public string Content { get; set; }
 
-    [Column("created_at", TypeName = "timestamp with time zone")]
-    public DateTime CreateMoment { get; init; } = DateTime.UtcNow;
-    
-    [Column("comments")]
-    public ICollection<Comment> Comments { get; set; }
-    
-    [Column("like_count", TypeName = "int")]
-    public int LikeCount { get; set; }
-    
-    [ForeignKey("User")]
-    [Column("user_id", TypeName = "int")]
-    public int UserId { get; set; }
-    
-    [Column("user")]
-    public User User { get; set; }
+    [Column("author_id")]
+    [ForeignKey(nameof(Author))]
+    public int AuthorId { get; set; }
+
+    [Required]
+    [Column("body")]
+    public string Body { get; set; } = string.Empty;
+
+    [Column("likes")]
+    public int Likes { get; set; }
+
+    [Column("created_at")]
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    public User Author { get; set; } = null!;
+    public ICollection<Comment> Comments { get; set; } = new List<Comment>();
 }

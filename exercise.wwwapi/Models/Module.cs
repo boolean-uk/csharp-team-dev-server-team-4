@@ -1,0 +1,25 @@
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace exercise.wwwapi.Models
+{
+    [Table("modules")]
+    public class Module
+    {
+        [Key]
+        [Column("id")]
+        public int Id { get; set; }
+
+        [Column("course_id")]
+        [ForeignKey(nameof(Course))]
+        public int CourseId { get; set; }
+
+        [Required]
+        [Column("title")]
+        public string Title { get; set; } = null!;
+
+
+        public Course Course { get; set; } = null!;
+        public ICollection<Unit> Units { get; set; } = new List<Unit>();
+    }
+}
