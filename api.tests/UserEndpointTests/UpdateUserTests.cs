@@ -18,15 +18,6 @@ namespace api.tests.UserEndpointTests;
 
 public class UpdateUserTests
 {
-    private TestContext testContextInstance;
-    // some test commented out until github actions db is setup
-
-    public TestContext TestContext
-    {
-        get { return testContextInstance; }
-        set { testContextInstance = value; }
-    }
-
     [Test]
     public async Task UpdateUser401UnauthorizedTest()
     {
@@ -67,7 +58,7 @@ public class UpdateUserTests
         }
 
         string jsonResponse = await loginResponse.Content.ReadAsStringAsync();
-        ResponseDTO<LoginSuccessDTO> result = JsonSerializer.Deserialize<ResponseDTO<LoginSuccessDTO>>(jsonResponse);
+        ResponseDTO<LoginSuccessDTO>? result = JsonSerializer.Deserialize<ResponseDTO<LoginSuccessDTO>>(jsonResponse);
 
         if (result is null)
         {
@@ -109,7 +100,7 @@ public class UpdateUserTests
         }
 
         string jsonResponse = await loginResponse.Content.ReadAsStringAsync();
-        ResponseDTO<LoginSuccessDTO> result = JsonSerializer.Deserialize<ResponseDTO<LoginSuccessDTO>>(jsonResponse);
+        ResponseDTO<LoginSuccessDTO>? result = JsonSerializer.Deserialize<ResponseDTO<LoginSuccessDTO>>(jsonResponse);
 
         if (result is null)
         {
@@ -151,7 +142,7 @@ public class UpdateUserTests
         }
 
         string jsonResponse = await loginResponse.Content.ReadAsStringAsync();
-        ResponseDTO<LoginSuccessDTO> result = JsonSerializer.Deserialize<ResponseDTO<LoginSuccessDTO>>(jsonResponse);
+        ResponseDTO<LoginSuccessDTO>? result = JsonSerializer.Deserialize<ResponseDTO<LoginSuccessDTO>>(jsonResponse);
 
         if (result is null)
         {
@@ -194,7 +185,7 @@ public class UpdateUserTests
         }
 
         string jsonResponse = await loginResponse.Content.ReadAsStringAsync();
-        ResponseDTO<LoginSuccessDTO> result = JsonSerializer.Deserialize<ResponseDTO<LoginSuccessDTO>>(jsonResponse);
+        ResponseDTO<LoginSuccessDTO>? result = JsonSerializer.Deserialize<ResponseDTO<LoginSuccessDTO>>(jsonResponse);
 
         if (result is null)
         {
@@ -236,7 +227,7 @@ public class UpdateUserTests
         }
 
         string jsonResponse = await loginResponse.Content.ReadAsStringAsync();
-        ResponseDTO<LoginSuccessDTO> result = JsonSerializer.Deserialize<ResponseDTO<LoginSuccessDTO>>(jsonResponse);
+        ResponseDTO<LoginSuccessDTO>? result = JsonSerializer.Deserialize<ResponseDTO<LoginSuccessDTO>>(jsonResponse);
 
         if (result is null)
         {
@@ -279,7 +270,7 @@ public class UpdateUserTests
         }
 
         string jsonResponse = await loginResponse.Content.ReadAsStringAsync();
-        ResponseDTO<LoginSuccessDTO> result = JsonSerializer.Deserialize<ResponseDTO<LoginSuccessDTO>>(jsonResponse);
+        ResponseDTO<LoginSuccessDTO>? result = JsonSerializer.Deserialize<ResponseDTO<LoginSuccessDTO>>(jsonResponse);
 
         if (result is null)
         {
@@ -322,7 +313,7 @@ public class UpdateUserTests
         }
 
         string jsonResponse = await loginResponse.Content.ReadAsStringAsync();
-        ResponseDTO<LoginSuccessDTO> result = JsonSerializer.Deserialize<ResponseDTO<LoginSuccessDTO>>(jsonResponse);
+        ResponseDTO<LoginSuccessDTO>? result = JsonSerializer.Deserialize<ResponseDTO<LoginSuccessDTO>>(jsonResponse);
 
         if (result is null)
         {
