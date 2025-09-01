@@ -33,8 +33,9 @@ namespace exercise.wwwapi.EndPoints
             users.MapGet("/", GetUsers).WithSummary("Get all users by first name if provided");
             users.MapGet("/{id}", GetUserById).WithSummary("Get user by user id");
             app.MapPost("/login", Login).WithSummary("Localhost Login");
-            users.MapPatch("/{id}", UpdateUser).WithSummary("Update a user");
+            users.MapPatch("/{id}", UpdateUser).RequireAuthorization().WithSummary("Update a user");
         }
+
         [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -45,11 +46,12 @@ namespace exercise.wwwapi.EndPoints
             ResponseDTO<UsersSuccessDTO> response = new ResponseDTO<UsersSuccessDTO>() { Status = "success", Data = userData };
             return TypedResults.Ok(response);
         }
+
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         private static async Task<IResult> Register(RegisterRequestDTO request, IRepository<User> service, IValidator<RegisterRequestDTO> validator)
         {
-           // validate
             var validation = await validator.ValidateAsync(request);
             if (!validation.IsValid)
             {
@@ -67,7 +69,6 @@ namespace exercise.wwwapi.EndPoints
                 return Results.BadRequest(failResponse);
             }
 
-            //user exists
             var users = await service.GetAllAsync();
             if (users.Where(u => u.Email == request.email)
                 .Any())
@@ -147,6 +148,7 @@ namespace exercise.wwwapi.EndPoints
             return Results.Ok(response) ;
            
         }
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public static async Task<IResult> GetUserById(IRepository<User> service, int id)
         {
@@ -159,9 +161,18 @@ namespace exercise.wwwapi.EndPoints
             return TypedResults.Ok();
         }
 
+        [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public static async Task<IResult> UpdateUser(IRepository<User> service, int id, UpdateUserRequestDTO request, IValidator<UpdateUserRequestDTO> validator)
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public static async Task<IResult> UpdateUser(IRepository<User> service, int id, UpdateUserRequestDTO request, IValidator<UpdateUserRequestDTO> validator, ClaimsPrincipal user)
         {
+            var userIdClaim = user.UserRealId();
+            if (userIdClaim == null || userIdClaim != id)
+            {
+                return Results.Unauthorized();
+            }
+
             var validation = await validator.ValidateAsync(request);
             if (!validation.IsValid)
             {
@@ -179,22 +190,22 @@ namespace exercise.wwwapi.EndPoints
                 return Results.BadRequest(failResponse);
             }
 
-            var user = await service.GetByIdAsync(id);
-            if (user is null)
+            var userEntity = await service.GetByIdAsync(id);
+            if (userEntity is null)
             {
                 return TypedResults.NotFound();
             }
 
-            if (request.Username is not null) user.Username = request.Username;
-            if (request.Email is not null) user.Email = request.Email;
-            if (request.Password is not null) user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
-            if (request.MobileNumber is not null) user.MobileNumber = request.MobileNumber;
-            if (request.Bio is not null) user.Bio = request.Bio;
-            if (request.GithubName is not null) user.GithubUrl = GithubUrl + request.GithubName;
-            if (request.FirstName is not null) user.FirstName = request.FirstName;
-            if (request.LastName is not null) user.LastName = request.LastName;
+            if (request.Username is not null) userEntity.Username = request.Username;
+            if (request.Email is not null) userEntity.Email = request.Email;
+            if (request.Password is not null) userEntity.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
+            if (request.MobileNumber is not null) userEntity.MobileNumber = request.MobileNumber;
+            if (request.Bio is not null) userEntity.Bio = request.Bio;
+            if (request.GithubName is not null) userEntity.GithubUrl = GithubUrl + request.GithubName;
+            if (request.FirstName is not null) userEntity.FirstName = request.FirstName;
+            if (request.LastName is not null) userEntity.LastName = request.LastName;
 
-            service.Update(user);
+            service.Update(userEntity);
             await service.SaveAsync();
             var updatedUser = await service.GetByIdAsync(id);
 
