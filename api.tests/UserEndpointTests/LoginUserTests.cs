@@ -19,17 +19,8 @@ namespace api.tests.UserEndpointTests
             var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder => { });
             var client = factory.CreateClient();
 
-            var email = "test@test5325253.test";
-            var password = "TESTtest7&";
-
-            var newUser = new RegisterRequestDTO
-            {
-                email = email,
-                password = password
-            };
-
-            var contentRegister = new StringContent(JsonSerializer.Serialize(newUser), System.Text.Encoding.UTF8, "application/json");
-            var registerResponse = await client.PostAsync("/users", contentRegister);
+            var email = "test1@test1";
+            var password = "Test1test1%";
 
             var loginUser = new LoginRequestDTO()
             {
@@ -48,8 +39,8 @@ namespace api.tests.UserEndpointTests
             var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder => { });
             var client = factory.CreateClient();
 
-            var email = "test@test5325253.test";
-            var password = "TESTtest7&";
+            var email = "test1@test1";
+            var password = "TESTtest7&aaaaaaaaaaaa";
 
             var newUser = new RegisterRequestDTO
             {
