@@ -11,6 +11,7 @@ using exercise.wwwapi.Validators.UserValidators;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -34,6 +35,7 @@ builder.Services.AddDbContext<DataContext>(options => {
     
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
     options.LogTo(message => Debug.WriteLine(message));
+    options.ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning));
 
 });
 
