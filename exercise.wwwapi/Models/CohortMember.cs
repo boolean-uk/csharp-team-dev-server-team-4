@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using exercise.wwwapi.Models.UserInfo;
 
 namespace exercise.wwwapi.Models
 {
@@ -17,7 +18,6 @@ namespace exercise.wwwapi.Models
         [Column("cohort_id")]
         [ForeignKey(nameof(Cohort))]
         public int CohortId { get; set; }
-
 
         public User User { get; set; } = null!;
         public Cohort Cohort { get; set; } = null!;

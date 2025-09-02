@@ -28,8 +28,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="DTOs\Posts\" />
-    <Folder Include="DTOs\GetUserById\" />
     <Folder Include="Migrations\" />
   </ItemGroup>
 

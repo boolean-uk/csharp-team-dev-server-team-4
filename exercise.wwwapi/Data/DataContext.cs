@@ -1,5 +1,5 @@
-﻿using System.Diagnostics;
-using exercise.wwwapi.Models;
+﻿using exercise.wwwapi.Models;
+using exercise.wwwapi.Models.UserInfo;
 using Microsoft.EntityFrameworkCore;
 
 namespace exercise.wwwapi.Data
@@ -28,9 +28,8 @@ namespace exercise.wwwapi.Data
         
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            //optionsBuilder.UseInMemoryDatabase(databaseName: "Database");
-            optionsBuilder.UseNpgsql(_connectionString);
-            optionsBuilder.LogTo(message => Debug.WriteLine(message));
+            // optionsBuilder.UseNpgsql(_connectionString);
+            // optionsBuilder.LogTo(message => Debug.WriteLine(message));
         }
    
         public DbSet<User> Users { get; set; }

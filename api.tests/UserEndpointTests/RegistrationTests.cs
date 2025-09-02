@@ -1,9 +1,5 @@
-﻿using exercise.wwwapi.DTOs;
-using exercise.wwwapi.DTOs.Register;
+﻿using exercise.wwwapi.DTOs.Register;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.VisualStudio.TestPlatform.TestHost;
-using System.ComponentModel.DataAnnotations;
-using System.Net.Http.Json;
 using System.Text.Json;
 
 namespace api.tests.UserEndpointTests;
@@ -56,15 +52,16 @@ public class CreateUserTests
 
         var newUser = new RegisterRequestDTO
         {
-            email = "test",
-            password = "Mattimatti7&"
+            Email = "test",
+            Password = "Mattimatti7&",
+            Username = "Matti"
         };
 
-        var content = new StringContent(JsonSerializer.Serialize(newUser), System.Text.Encoding.UTF8, "application/json");
+        var content = new StringContent(JsonSerializer.Serialize(newUser), System.Text.Encoding.UTF8,
+            "application/json");
         var response = await client.PostAsync("/users", content);
 
         Assert.That(response.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.BadRequest));
-
     }
 
     [Test]
@@ -76,14 +73,15 @@ public class CreateUserTests
 
         var newUser = new RegisterRequestDTO
         {
-            email = "testtesttest@test.test",
-            password = "test"
+            Email = "testtesttest@test.test",
+            Password = "test",
+            Username = "testtest"
         };
 
-        var content = new StringContent(JsonSerializer.Serialize(newUser), System.Text.Encoding.UTF8, "application/json");
+        var content = new StringContent(JsonSerializer.Serialize(newUser), System.Text.Encoding.UTF8,
+            "application/json");
         var response = await client.PostAsync("/users", content);
 
         Assert.That(response.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.BadRequest));
-
     }
 }

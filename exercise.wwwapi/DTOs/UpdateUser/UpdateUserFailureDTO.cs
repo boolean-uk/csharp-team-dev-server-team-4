@@ -2,9 +2,8 @@
 {
     public class UpdateUserFailureDTO
     {
-        public List<string> EmailErrors { get; set; } = new();
-        public List<string> PasswordErrors { get; set; } = new();
-
-        public List<string> MobileNumberErrors { get; set; } = new();
+        public List<string> EmailErrors { get; set; } = [];
+        public List<string> PasswordErrors { get; set; } = [];
+        public List<string> MobileNumberErrors { get; set; } = [];
     }
 }

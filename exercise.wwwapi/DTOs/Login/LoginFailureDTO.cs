@@ -2,6 +2,6 @@
 {
     public class LoginFailureDTO
     {
-        public string email { get; set; } = "Invalid email and/or password provided";
+        public string Email { get; set; } = "Invalid email and/or password provided";
     }
 }

@@ -1,6 +1,4 @@
-﻿using exercise.wwwapi.DTOs;
-using exercise.wwwapi.DTOs.Register;
-using exercise.wwwapi.DTOs.UpdateUser;
+﻿using exercise.wwwapi.DTOs.UpdateUser;
 using FluentValidation;
 
 namespace exercise.wwwapi.Validators.UserValidators
@@ -25,7 +23,7 @@ namespace exercise.wwwapi.Validators.UserValidators
             RuleFor(x => x.Password)
                 .Matches(@"[^a-zA-Z0-9\s]+").WithMessage("Password must contain at least one special character");
 
-            RuleFor(x => x.MobileNumber)
+            RuleFor(x => x.Phone)
                 .Matches(@"^+?\d{7,15}$").WithMessage("Phone must be a valid phone number.");
         }
     }

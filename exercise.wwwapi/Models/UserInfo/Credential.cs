@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace exercise.wwwapi.Models
+namespace exercise.wwwapi.Models.UserInfo
 {
     [Table("credentials")]
     public class Credential

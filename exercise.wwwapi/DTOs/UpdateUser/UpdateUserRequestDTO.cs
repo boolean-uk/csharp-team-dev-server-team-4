@@ -7,8 +7,8 @@
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
         public string? Bio { get; set; }
-        public string? GithubName { get; set; }
+        public string? Github { get; set; }
         public string? Username { get; set; }
-        public string? MobileNumber { get; set; }
+        public string? Phone { get; set; }
     }
 }

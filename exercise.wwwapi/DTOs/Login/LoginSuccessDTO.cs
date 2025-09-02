@@ -1,10 +1,10 @@
-﻿using exercise.wwwapi.Models;
+﻿using exercise.wwwapi.Models.UserInfo;
 
 namespace exercise.wwwapi.DTOs.Login
 {
     public class LoginSuccessDTO
     {
-        public string token { get; set; }
-        public User user { get; set; } = new User();
+        public string Token { get; set; } = string.Empty;
+        public User User { get; set; } = new();
     }
 }

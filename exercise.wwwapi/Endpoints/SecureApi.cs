@@ -1,10 +1,9 @@
 ﻿using exercise.wwwapi.Helpers;
-using exercise.wwwapi.Models;
 using exercise.wwwapi.Repository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Win32;
 using System.Security.Claims;
+using exercise.wwwapi.Models.UserInfo;
 
 namespace exercise.wwwapi.EndPoints
 {
@@ -21,7 +20,6 @@ namespace exercise.wwwapi.EndPoints
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         private static async Task<IResult> GetMessage(IRepository<User> service, ClaimsPrincipal user)
         {
-      
             return TypedResults.Ok(new { LoggedIn = true, UserId=user.UserRealId().ToString(), Email = $"{user.Email()}", Message = "Pulled the userid and email out of the claims" });
         }
     }

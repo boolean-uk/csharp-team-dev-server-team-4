@@ -5,12 +5,12 @@ namespace exercise.wwwapi.DTOs.Register
     [NotMapped]
     public class RegisterRequestDTO
     {
-        public required string email { get; set; }
-        public required string password { get; set; }
-        public string? firstName { get; set; }
-        public string? lastName { get; set; }
-        public string? bio { get; set; }
-        public string? githubUrl { get; set; }
-        public string? username { get; set; } 
+        public required string Email { get; set; }
+        public required string Password { get; set; }
+        public required string Username { get; set; } 
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
+        public string? Bio { get; set; }
+        public string? GithubUrl { get; set; }
     }
 }

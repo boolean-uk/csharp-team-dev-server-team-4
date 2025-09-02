@@ -1,10 +1,5 @@
-﻿using exercise.wwwapi.DTOs;
-using exercise.wwwapi.DTOs.Register;
-using exercise.wwwapi.DTOs.UpdateUser;
+﻿using exercise.wwwapi.DTOs.UpdateUser;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.VisualStudio.TestPlatform.TestHost;
-using System.ComponentModel.DataAnnotations;
-using System.Net.Http.Json;
 using System.Text.Json;
 
 namespace api.tests.UserEndpointTests;
@@ -22,11 +17,11 @@ public class UpdateUserTests
         {
             Email = "Test"
         };
-        var content = new StringContent(JsonSerializer.Serialize(updateUser), System.Text.Encoding.UTF8, "application/json");
+        var content = new StringContent(JsonSerializer.Serialize(updateUser), System.Text.Encoding.UTF8,
+            "application/json");
         var patchResponse = await client.PatchAsync("users/1", content);
 
         Assert.That(patchResponse.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.BadRequest));
-
     }
 
     [Test]
@@ -39,11 +34,11 @@ public class UpdateUserTests
         {
             Password = "Test"
         };
-        var content = new StringContent(JsonSerializer.Serialize(updateUser), System.Text.Encoding.UTF8, "application/json");
+        var content = new StringContent(JsonSerializer.Serialize(updateUser), System.Text.Encoding.UTF8,
+            "application/json");
         var patchResponse = await client.PatchAsync("/users/1", content);
 
         Assert.That(patchResponse.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.BadRequest));
-
     }
 
     [Test]
@@ -54,13 +49,13 @@ public class UpdateUserTests
 
         var updateUser = new UpdateUserRequestDTO
         {
-            MobileNumber = "Test"
+            Phone = "Test"
         };
-        var content = new StringContent(JsonSerializer.Serialize(updateUser), System.Text.Encoding.UTF8, "application/json");
+        var content = new StringContent(JsonSerializer.Serialize(updateUser), System.Text.Encoding.UTF8,
+            "application/json");
         var patchResponse = await client.PatchAsync("/users/1", content);
 
         Assert.That(patchResponse.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.BadRequest));
-
     }
 
     /*
