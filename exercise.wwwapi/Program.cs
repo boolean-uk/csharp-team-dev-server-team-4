@@ -9,6 +9,8 @@ using exercise.wwwapi.Models;
 using exercise.wwwapi.Repository;
 using exercise.wwwapi.Validators.UserValidators;
 using FluentValidation;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -42,6 +44,26 @@ builder.Services.AddAuthentication(x =>
     x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
     x.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+
+}).AddCookie().AddGoogle(options =>
+{
+    var clientId = builder.Configuration["Authentication:Google:ClientId"];
+
+    if (clientId == null)
+    {
+        throw new ArgumentException(nameof(clientId));
+    }
+
+    var clientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+
+    if (clientSecret == null)
+    {
+        throw new ArgumentException(nameof(clientSecret));
+    }
+
+    options.ClientId = clientId;
+    options.ClientSecret = clientSecret;
+    options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
 
 }).AddJwtBearer(x =>
 {
