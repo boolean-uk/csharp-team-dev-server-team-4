@@ -18,14 +18,12 @@ public class Comment
     public int UserId { get; set; }
 
     [Required]
-    [Column("body")]
-    public string Body { get; set; } = null!;
+    [Column("body", TypeName = "varchar(1000)")]
+    public string Body { get; set; }
 
     [Column("create_at")]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-    public Post Post { get; set; } = null!;
-    public User User { get; set; } = null!;
-
-
+    public Post Post { get; set; }
+    public User User { get; set; }
 }

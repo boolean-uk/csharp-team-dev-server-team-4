@@ -15,7 +15,7 @@ public class Post
     public int AuthorId { get; set; }
 
     [Required]
-    [Column("body")]
+    [Column("body", TypeName = "varchar(1000)")]
     public string Body { get; set; } = string.Empty;
 
     [Column("likes")]
