@@ -10,12 +10,10 @@ namespace api.tests.UserEndpointTests;
 
 public class CreateUserTests
 {
-    // some test commented out until github actions db is setup
-    /*
+
     [Test]
     public async Task GetUserByIdTestFails()
     {
-        // Arrange: prepare request data
         var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder => { });
         var client = factory.CreateClient();
 
@@ -23,34 +21,31 @@ public class CreateUserTests
 
         Assert.That(response.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.NotFound));
     }
-    */
 
-    /*
+    // TODO: add test "RegisterUser" that adds a user, check if the response is 201 Created and then delete the user again so we don't fill up the database
+
     [Test]
     public async Task RegisterUserExistsTest()
     {
-        // Arrange: prepare request data
         var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder => { });
         var client = factory.CreateClient();
 
         var newUser = new RegisterRequestDTO
         {
-            email = "test@test.test",
-            password = "Mattimatti7&"
+            email = "test1@test1",
+            password = "Test1test1%"
         };
 
         var content = new StringContent(JsonSerializer.Serialize(newUser), System.Text.Encoding.UTF8, "application/json");
-        var response1 = await client.PostAsync("/users", content);
-        var response2 = await client.PostAsync("/users", content);
+        var response = await client.PostAsync("/users", content);
 
-        Assert.That(response2.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.Conflict));
+        Assert.That(response.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.Conflict));
     }
-    */
+
 
     [Test]
     public async Task RegisterUserEmailValidationFailsTest()
     {
-        // Arrange: prepare request data
         var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder => { });
         var client = factory.CreateClient();
 

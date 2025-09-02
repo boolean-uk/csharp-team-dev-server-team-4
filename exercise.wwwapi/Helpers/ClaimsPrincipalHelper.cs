@@ -12,8 +12,7 @@ namespace exercise.wwwapi.Helpers
         {
             Claim? claim = user.FindFirst(ClaimTypes.Sid);
             return int.Parse(claim?.Value);
-            string name = user.Identity?.Name;
-            
+
         }
         public static string UserId(this ClaimsPrincipal user)
         {

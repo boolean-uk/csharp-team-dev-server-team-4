@@ -15,6 +15,13 @@ namespace exercise.wwwapi.Data
         {
             //optionsBuilder.UseInMemoryDatabase(databaseName: "Database");
         }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            ModelSeeder.Seed(modelBuilder);
+        }
    
         public DbSet<User> Users { get; set; }
     }
