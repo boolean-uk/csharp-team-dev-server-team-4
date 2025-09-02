@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace exercise.wwwapi.Models.UserInfo
 {
@@ -12,22 +13,22 @@ namespace exercise.wwwapi.Models.UserInfo
         public int UserId { get; set; }
 
         [Required]
-        [Column("email")]
-        public string Email { get; set; }
+        [Column("email", TypeName = "varchar(100)")]
+        public string Email { get; set; } = string.Empty;
+
+        [Required] [Column("username", TypeName = "varchar(100)")] 
+        public string Username { get; set; } = string.Empty;
 
         [Required]
-        [Column("username")]
-        public string Username { get; set; }
-
-        [Required]
-        [Column("password_hash")]
-        public string PasswordHash { get; set; } = null!;
+        [Column("password_hash", TypeName = "varchar(100)")]
+        public string PasswordHash { get; set; } = string.Empty;
 
         [Required]
         [Column("role")]
-
-
+        
         public Role Role { get; set; }
+        
+        [JsonIgnore]
         public User User { get; set; } = null!;
     }
 }

@@ -15,13 +15,12 @@ namespace exercise.wwwapi.Models
         public int UnitId { get; set; }
 
         [Required]
-        [Column("title")]
-        public string Title { get; set; } = null!;
+        [Column("title", TypeName = "varchar(100)")]
+        public string Title { get; set; } = string.Empty;
 
-        [Column("description")]
-        public string? Description { get; set; }
+        [Column("description", TypeName = "varchar(500)")] 
+        public string? Description { get; set; } = string.Empty;
 
-
-        public Unit Unit { get; set; } = null!;
+        public Unit Unit { get; set; }
     }
 }

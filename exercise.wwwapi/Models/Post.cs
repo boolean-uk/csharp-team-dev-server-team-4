@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using exercise.wwwapi.Models.UserInfo;
 
 namespace exercise.wwwapi.Models;
@@ -25,6 +26,7 @@ public class Post
     [Column("created_at")]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+    [JsonIgnore]
     public User Author { get; set; } = null!;
     public ICollection<Comment> Comments { get; set; } = new List<Comment>();
 }

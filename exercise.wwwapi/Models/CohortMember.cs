@@ -18,8 +18,7 @@ namespace exercise.wwwapi.Models
         [Column("cohort_id")]
         [ForeignKey(nameof(Cohort))]
         public int CohortId { get; set; }
-
-        public User User { get; set; } = null!;
-        public Cohort Cohort { get; set; } = null!;
+        public User User { get; set; }
+        public Cohort Cohort { get; set; }
     }
 }

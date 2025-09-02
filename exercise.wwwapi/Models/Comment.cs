@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using exercise.wwwapi.Models.UserInfo;
 
 namespace exercise.wwwapi.Models;
@@ -20,11 +21,14 @@ public class Comment
 
     [Required]
     [Column("body", TypeName = "varchar(1000)")]
-    public string Body { get; set; }
+    public string Body { get; set; } = string.Empty;
 
     [Column("create_at")]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+    [JsonIgnore]
     public Post Post { get; set; }
+    
+    [JsonIgnore]
     public User User { get; set; }
 }

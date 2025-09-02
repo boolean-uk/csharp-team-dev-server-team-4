@@ -16,10 +16,9 @@ namespace exercise.wwwapi.Models
 
         [Required]
         [Column("title")]
-        public string Title { get; set; } = null!;
-
-
-        public Module Module { get; set; } = null!;
+        public string Title { get; set; }
+        
+        public Module Module { get; set; }
         public ICollection<Exercise> Exercises { get; set; } = new List<Exercise>();
     }
 }

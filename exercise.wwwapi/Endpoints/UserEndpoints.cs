@@ -35,17 +35,22 @@ namespace exercise.wwwapi.EndPoints
         [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        private static async Task<IResult> GetUsers(IUserRepository userRepository, string? firstName, ClaimsPrincipal user)
+        private static async Task<IResult> GetUsers(IUserRepository userRepository, string? firstName,
+            ClaimsPrincipal user)
         {
-            var results = await userRepository.GetAllUsers();
+            var results = (await userRepository.GetAllUsers()).ToList();
+
             var userData = new UsersSuccessDTO
             {
                 Users = string.IsNullOrEmpty(firstName)
-                    ? results.ToList() : results.Where(i => i.Credential.Email.Contains(firstName)).ToList()
+                    ? results : results
+                        .Where(u => u.Profile.FirstName
+                            .Equals(firstName, StringComparison.OrdinalIgnoreCase))
+                        .ToList(),
             };
             var response = new ResponseDTO<UsersSuccessDTO>
             {
-                Status = "success", 
+                Status = "success",
                 Data = userData
             };
             return TypedResults.Ok(response);
@@ -132,7 +137,7 @@ namespace exercise.wwwapi.EndPoints
             {
                 return Results.BadRequest(new Payload<object>
                 {
-                    Status = "fail", 
+                    Status = "fail",
                     Data = new LoginFailureDTO()
                 });
             }
@@ -176,7 +181,8 @@ namespace exercise.wwwapi.EndPoints
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public static async Task<IResult> UpdateUser(IUserRepository userRepository, int id, UpdateUserRequestDTO request,
+        public static async Task<IResult> UpdateUser(IUserRepository userRepository, int id,
+            UpdateUserRequestDTO request,
             IValidator<UpdateUserRequestDTO> validator)
         {
             var validation = await validator.ValidateAsync(request);
@@ -195,7 +201,7 @@ namespace exercise.wwwapi.EndPoints
 
                 var failResponse = new ResponseDTO<UpdateUserFailureDTO>
                 {
-                    Status = "fail", 
+                    Status = "fail",
                     Data = failureDto
                 };
                 return Results.BadRequest(failResponse);

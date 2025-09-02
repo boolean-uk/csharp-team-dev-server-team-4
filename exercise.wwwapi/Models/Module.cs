@@ -16,10 +16,9 @@ namespace exercise.wwwapi.Models
 
         [Required]
         [Column("title")]
-        public string Title { get; set; } = null!;
-
-
-        public Course Course { get; set; } = null!;
+        public string Title { get; set; }
+        
+        public Course Course { get; set; }
         public ICollection<Unit> Units { get; set; } = new List<Unit>();
     }
 }

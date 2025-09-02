@@ -6,15 +6,13 @@ namespace exercise.wwwapi.Models;
 [Table("cohorts")]
 public class Cohort
 {
-    [Key]
-    [Column("id")]
+    [Key] 
+    [Column("id")] 
     public int Id { get; set; }
 
     [Column("course_id")]
     [ForeignKey(nameof(Course))]
     public int CourseId { get; set; }
-
-
     public Course Course { get; set; } = null!;
     public ICollection<CohortMember> Members { get; set; } = new List<CohortMember>();
 }
