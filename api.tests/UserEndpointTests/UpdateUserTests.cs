@@ -18,6 +18,8 @@ namespace api.tests.UserEndpointTests;
 
 public class UpdateUserTests
 {
+    Random random = new Random();
+
     [Test]
     public async Task UpdateUser401UnauthorizedTest()
     {
@@ -170,6 +172,10 @@ public class UpdateUserTests
 
         var email = "test1@test1";
         var password = "Test1test1%";
+        string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        int length = 8; 
+        string randomUsername = new string(Enumerable.Repeat(chars, length)
+            .Select(s => s[random.Next(s.Length)]).ToArray());
 
         var loginUser = new LoginRequestDTO()
         {
@@ -195,12 +201,21 @@ public class UpdateUserTests
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", result.Data.token);
         var updateUser = new UpdateUserRequestDTO
         {
-            Username = "test"
+            Username = randomUsername
         };
         var content = new StringContent(JsonSerializer.Serialize(updateUser), System.Text.Encoding.UTF8, "application/json");
         var patchResponse = await client.PatchAsync("users/1", content);
+        string patchResponseContent = await patchResponse.Content.ReadAsStringAsync();
 
+        ResponseDTO<UpdateUserSuccessDTO>? updatedResult = JsonSerializer.Deserialize<ResponseDTO<UpdateUserSuccessDTO>>(
+            patchResponseContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+        if (updatedResult is null)
+        {
+            Assert.Fail("Update failed");
+        }
         Assert.That(patchResponse.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.OK));
+        Assert.That(updatedResult.Data.user.Username, Is.EqualTo(randomUsername));
 
     }
 
