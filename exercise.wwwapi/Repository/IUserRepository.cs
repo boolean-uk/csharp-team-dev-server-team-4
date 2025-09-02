@@ -1,4 +1,4 @@
-﻿using exercise.wwwapi.Models.UserInfo;
+using exercise.wwwapi.Models.UserInfo;
 
 namespace exercise.wwwapi.Repository;
 

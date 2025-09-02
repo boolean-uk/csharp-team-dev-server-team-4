@@ -1,4 +1,5 @@
-﻿using exercise.wwwapi.Models;
+using exercise.wwwapi.Configuration;
+using exercise.wwwapi.Models;
 using exercise.wwwapi.Models.UserInfo;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,12 +25,6 @@ namespace exercise.wwwapi.Data
             // Setup Keys
                      
             // Seed ???
-        }
-        
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            // optionsBuilder.UseNpgsql(_connectionString);
-            // optionsBuilder.LogTo(message => Debug.WriteLine(message));
         }
    
         public DbSet<User> Users { get; set; }
