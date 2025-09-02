@@ -193,11 +193,6 @@ public class UpdateUserTests
         string jsonResponse = await loginResponse.Content.ReadAsStringAsync();
         ResponseDTO<LoginSuccessDTO>? result = JsonSerializer.Deserialize<ResponseDTO<LoginSuccessDTO>>(jsonResponse);
 
-        if (result is null)
-        {
-            Assert.Fail("Login failed");
-        }
-
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", result.Data.token);
         var updateUser = new UpdateUserRequestDTO
         {
@@ -215,7 +210,7 @@ public class UpdateUserTests
             Assert.Fail("Update failed");
         }
         Assert.That(patchResponse.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.OK));
-        Assert.That(updatedResult.Data.user.Username, Is.EqualTo(randomUsername));
+        Assert.That(updatedResult!.Data.user.Username, Is.EqualTo(randomUsername));
 
     }
 
@@ -227,6 +222,7 @@ public class UpdateUserTests
 
         var email = "test1@test1";
         var password = "Test1test1%";
+        var username = "username111";
 
         var loginUser = new LoginRequestDTO()
         {
@@ -253,11 +249,23 @@ public class UpdateUserTests
         var updateUser = new UpdateUserRequestDTO
         {
             Email = email,
+            Username = username,
         };
         var content = new StringContent(JsonSerializer.Serialize(updateUser), System.Text.Encoding.UTF8, "application/json");
         var patchResponse = await client.PatchAsync("users/1", content);
 
         Assert.That(patchResponse.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.OK));
+
+        string patchResponseContent = await patchResponse.Content.ReadAsStringAsync();
+        ResponseDTO<UpdateUserSuccessDTO>? updatedResult = JsonSerializer.Deserialize<ResponseDTO<UpdateUserSuccessDTO>>(
+            patchResponseContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+        if (updatedResult is null)
+        {
+            Assert.Fail("Update failed");
+        }
+
+        Assert.That(updatedResult!.Data.user.Username, Is.EqualTo(username));
 
     }
 
@@ -270,6 +278,7 @@ public class UpdateUserTests
 
         var email = "test1@test1";
         var password = "Test1test1%";
+        var username = "username222";
 
         var loginUser = new LoginRequestDTO()
         {
@@ -296,11 +305,23 @@ public class UpdateUserTests
         var updateUser = new UpdateUserRequestDTO
         {
             Password = password,
+            Username = username
         };
         var content = new StringContent(JsonSerializer.Serialize(updateUser), System.Text.Encoding.UTF8, "application/json");
         var patchResponse = await client.PatchAsync("users/1", content);
 
         Assert.That(patchResponse.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.OK));
+
+        string patchResponseContent = await patchResponse.Content.ReadAsStringAsync();
+        ResponseDTO<UpdateUserSuccessDTO>? updatedResult = JsonSerializer.Deserialize<ResponseDTO<UpdateUserSuccessDTO>>(
+            patchResponseContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+        if (updatedResult is null)
+        {
+            Assert.Fail("Update failed");
+        }
+
+        Assert.That(updatedResult!.Data.user.Username, Is.EqualTo(username));
     }
     
 
@@ -313,6 +334,7 @@ public class UpdateUserTests
 
         var email = "test1@test1";
         var password = "Test1test1%";
+        var username = "username333";
 
         var loginUser = new LoginRequestDTO()
         {
@@ -339,10 +361,22 @@ public class UpdateUserTests
         var updateUser = new UpdateUserRequestDTO
         {
             MobileNumber = "99911555",
+            Username = username,
         };
         var content = new StringContent(JsonSerializer.Serialize(updateUser), System.Text.Encoding.UTF8, "application/json");
         var patchResponse = await client.PatchAsync("users/1", content);
 
         Assert.That(patchResponse.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.OK));
+
+        string patchResponseContent = await patchResponse.Content.ReadAsStringAsync();
+        ResponseDTO<UpdateUserSuccessDTO>? updatedResult = JsonSerializer.Deserialize<ResponseDTO<UpdateUserSuccessDTO>>(
+            patchResponseContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+        if (updatedResult is null)
+        {
+            Assert.Fail("Update failed");
+        }
+
+        Assert.That(updatedResult!.Data.user.Username, Is.EqualTo(username));
     }
 }
