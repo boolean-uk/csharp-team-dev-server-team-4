@@ -26,6 +26,13 @@ namespace exercise.wwwapi.Data
                      
             // Seed ???
         }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            ModelSeeder.Seed(modelBuilder);
+        }
    
         public DbSet<User> Users { get; set; }
         public DbSet<Credential> Credentials { get; set; }

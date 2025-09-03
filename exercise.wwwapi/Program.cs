@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using exercise.wwwapi.Configuration;
 using exercise.wwwapi.Data;
 using exercise.wwwapi.DTOs.Register;
@@ -9,6 +10,8 @@ using exercise.wwwapi.Validators.UserValidators;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Scalar.AspNetCore;
@@ -28,11 +31,10 @@ builder.Services.AddScoped<ILogger, Logger<string>>();
 builder.Services.AddScoped<IValidator<RegisterRequestDTO>, UserRegisterValidator>();
 builder.Services.AddScoped<IValidator<UpdateUserRequestDTO>, UserUpdateValidator>();
 
-builder.Services.AddDbContext<DataContext>(options =>
-{
-    // options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
-    // options.LogTo(message => Debug.WriteLine(message));
-    options.UseInMemoryDatabase(databaseName: "Database");
+builder.Services.AddDbContext<DataContext>(options => {
+    
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
+    options.LogTo(message => Debug.WriteLine(message));
 });
 
 builder.Services.AddAuthentication(x =>
@@ -47,8 +49,9 @@ builder.Services.AddAuthentication(x =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config.GetValue("AppSettings:Token"))),
         ValidateIssuer = false,
         ValidateAudience = false,
-        ValidateLifetime = false,
-        ValidateIssuerSigningKey = false
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true
+
     };
 });
 builder.Services.AddSwaggerGen(s =>
@@ -61,8 +64,7 @@ builder.Services.AddSwaggerGen(s =>
     });
     s.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        Description =
-            "Add an Authorization header with a JWT token using the Bearer scheme see the app.http file for an example.)",
+        Description = "Add an Authorization header with a JWT token using the Bearer scheme see the app.http file for an example.)",
         Name = "Authorization",
         Type = SecuritySchemeType.ApiKey,
         In = ParameterLocation.Header,
@@ -94,10 +96,9 @@ var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger(c => { c.OpenApiVersion = Microsoft.OpenApi.OpenApiSpecVersion.OpenApi2_0; });
-
+    app.UseSwagger(c => c.OpenApiVersion = Microsoft.OpenApi.OpenApiSpecVersion.OpenApi2_0);
     app.UseSwaggerUI();
-    app.UseSwaggerUI(options => { options.SwaggerEndpoint("/openapi/v3.json", "Demo API"); });
+    app.UseSwaggerUI(options => options.SwaggerEndpoint("/openapi/v3.json", "Demo API"));
     app.MapScalarApiReference();
 }
 
@@ -118,6 +119,4 @@ app.ConfigureCohortEndpoints();
 app.ConfigurePostEndpoints();
 app.Run();
 
-public partial class Program
-{
-} // needed for testing - please ignore
+public partial class Program { } // needed for testing - please ignore

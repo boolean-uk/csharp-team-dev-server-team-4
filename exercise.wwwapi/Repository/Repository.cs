@@ -7,11 +7,12 @@ namespace exercise.wwwapi.Repository
     public class Repository<T> : IRepository<T> where T : class
     {
         private readonly DataContext _db;
-
+        private readonly DbSet<T> _table;
+       
         public Repository(DataContext db)
         {
             _db = db;
-            Table = _db.Set<T>();
+            _table = _db.Set<T>();
         }
 
         public IEnumerable<T> GetAll(params Expression<Func<T, object>>[] includeExpressions)
@@ -20,44 +21,43 @@ namespace exercise.wwwapi.Repository
             {
                 var set = includeExpressions
                     .Aggregate<Expression<Func<T, object>>, IQueryable<T>>
-                        (Table, (current, expression) => current.Include(expression));
+                     (_table, (current, expression) => current.Include(expression));
             }
-
-            return Table.ToList();
+            return _table.ToList();
         }
 
         public async Task<IEnumerable<T>> Get()
         {
-            return await Table.ToListAsync();
+            return await _table.ToListAsync();
         }
 
         public async Task<IEnumerable<T>> GetAll()
         {
-            return await Table.ToListAsync();
+            return await _table.ToListAsync();
         }
 
         public T? GetById(object id)
         {
-            return Table.Find(id);
+            return _table.Find(id);
         }
 
         public void Insert(T obj)
         {
-            Table.Add(obj);
+            _table.Add(obj);
         }
 
         public void Update(T obj)
         {
-            Table.Attach(obj);
+            _table.Attach(obj);
             _db.Entry(obj).State = EntityState.Modified;
         }
 
-        public void Delete(object id)
+        public async Task Delete(object id)
         {
-            var existing = Table.Find(id);
+            var existing = await _table.FindAsync(id);
             if (existing != null)
             {
-                Table.Remove(existing);
+                _table.Remove(existing);
             }
         }
 
@@ -68,7 +68,7 @@ namespace exercise.wwwapi.Repository
 
         public async Task<IEnumerable<T>> GetAllAsync()
         {
-            return await Table.ToListAsync();
+            return await _table.ToListAsync();
         }
 
         public async Task<IEnumerable<T>> GetAllAsync(params Expression<Func<T, object>>[] includeExpressions)
@@ -77,28 +77,28 @@ namespace exercise.wwwapi.Repository
             {
                 var set = includeExpressions
                     .Aggregate<Expression<Func<T, object>>, IQueryable<T>>
-                        (Table, (current, expression) => current.Include(expression));
+                     (_table, (current, expression) => current.Include(expression));
             }
-
-            return await Table.ToListAsync();
+            return await _table.ToListAsync();
         }
 
         public async Task<T?> GetByIdAsync(object id)
         {
-            return await Table.FindAsync(id);
+            return await _table.FindAsync(id);
         }
 
         public async Task InsertAsync(T obj)
         {
-            await Table.AddAsync(obj);
+            await _table.AddAsync(obj);
         }
 
         public async Task DeleteAsync(object id)
         {
-            var existing = await Table.FindAsync(id);
+            var existing = await _table.FindAsync(id);
+
             if (existing != null)
             {
-                Table.Remove(existing);
+                _table.Remove(existing);
             }
         }
 
@@ -106,7 +106,5 @@ namespace exercise.wwwapi.Repository
         {
             await _db.SaveChangesAsync();
         }
-
-        public DbSet<T> Table { get; }
     }
 }
