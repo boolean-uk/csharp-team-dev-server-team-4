@@ -34,6 +34,7 @@ namespace exercise.wwwapi.EndPoints
             users.MapGet("/{id}", GetUserById).WithSummary("Get user by user id");
             app.MapPost("/login", Login).WithSummary("Localhost Login");
             users.MapPatch("/{id}", UpdateUser).RequireAuthorization().WithSummary("Update a user");
+            users.MapDelete("/{id}", DeleteUser).RequireAuthorization().WithSummary("Delete a user");
         }
 
         [Authorize]
@@ -158,7 +159,19 @@ namespace exercise.wwwapi.EndPoints
                 return TypedResults.NotFound();
             }
 
-            return TypedResults.Ok();
+            var response = new ResponseDTO<UserDTO>();
+            response.Status = "success";
+            response.Data.Id = user.Id;
+            response.Data.Email = user.Email;
+            response.Data.Password = ""; // should this even be in user dto?
+            response.Data.FirstName = user.FirstName;
+            response.Data.LastName = user.LastName;
+            response.Data.Bio = user.Bio;
+            response.Data.GithubUrl = user.GithubUrl;
+            response.Data.Username = user.Username;
+            response.Data.MobileNumber = user.MobileNumber;
+
+            return TypedResults.Ok(response);
         }
 
         [Authorize]
@@ -219,6 +232,42 @@ namespace exercise.wwwapi.EndPoints
             response.Data.user.GithubUrl = updatedUser.GithubUrl;
             response.Data.user.Username = updatedUser.Username;
             response.Data.user.MobileNumber = updatedUser.MobileNumber;
+
+            return TypedResults.Ok(response);
+        }
+
+        [Authorize]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public static async Task<IResult> DeleteUser(IRepository<User> service, int id, ClaimsPrincipal user)
+        {
+            var userIdClaim = user.UserRealId();
+            if (userIdClaim == null || userIdClaim != id)
+            {
+                return Results.Unauthorized();
+            }
+
+            var userEntity = await service.GetByIdAsync(id);
+            if (userEntity is null)
+            {
+                return TypedResults.NotFound();
+            }
+
+            service.DeleteAsync(id);
+            await service.SaveAsync();
+            var deletedUser = await service.GetByIdAsync(id);
+
+            ResponseDTO<UserDTO> response = new ResponseDTO<UserDTO>();
+            response.Status = "success";
+            response.Data.Id = userEntity.Id;
+            response.Data.Email = userEntity.Email;
+            response.Data.Password = userEntity.PasswordHash;
+            response.Data.FirstName = userEntity.FirstName;
+            response.Data.LastName = userEntity.LastName;
+            response.Data.Bio = userEntity.Bio;
+            response.Data.GithubUrl = userEntity.GithubUrl;
+            response.Data.MobileNumber = userEntity.MobileNumber;
 
             return TypedResults.Ok(response);
         }
