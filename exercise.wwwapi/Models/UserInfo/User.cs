@@ -10,11 +10,11 @@ namespace exercise.wwwapi.Models.UserInfo
         [Column("id")]
         public int Id { get; set; }
 
-        public Credential Credential { get; set; } = new();
-        public Profile Profile { get; set; } = new();
+        public Credential Credential { get; set; }
+        public Profile Profile { get; set; }
 
-        public ICollection<Post> Posts { get; set; } = new List<Post>();
-        public ICollection<Comment> Comments { get; set; } = new List<Comment>();
-        public ICollection<CohortMember> CohortMembers { get; set; } = new List<CohortMember>();
+        public ICollection<Post> Posts { get; set; }
+        public ICollection<Comment> Comments { get; set; }
+        public ICollection<CohortMember> CohortMembers { get; set; }
     }
 }

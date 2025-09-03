@@ -10,8 +10,6 @@ using exercise.wwwapi.Validators.UserValidators;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Scalar.AspNetCore;
@@ -32,9 +30,15 @@ builder.Services.AddScoped<IValidator<RegisterRequestDTO>, UserRegisterValidator
 builder.Services.AddScoped<IValidator<UpdateUserRequestDTO>, UserUpdateValidator>();
 
 builder.Services.AddDbContext<DataContext>(options => {
-    
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
-    options.LogTo(message => Debug.WriteLine(message));
+    if (builder.WebHost.GetSetting("testing") == "true")
+    {
+        options.UseInMemoryDatabase(Guid.NewGuid().ToString());
+    }
+    else
+    {
+        options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
+        options.LogTo(message => Debug.WriteLine(message));
+    }
 });
 
 builder.Services.AddAuthentication(x =>

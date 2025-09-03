@@ -1,8 +1,13 @@
-﻿namespace exercise.wwwapi.DTOs.Login
+﻿using System.Text.Json.Serialization;
+
+namespace exercise.wwwapi.DTOs.Login
 {
     public class LoginSuccessDTO
     {
-        public string Token { get; set; } = string.Empty;
-        public UserDTO User { get; set; } = new();
+        [JsonPropertyName("token")]
+        public string Token { get; set; }
+        
+        [JsonPropertyName("user")]
+        public UserDTO User { get; set; }
     }
 }

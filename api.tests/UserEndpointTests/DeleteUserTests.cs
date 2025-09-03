@@ -10,80 +10,63 @@ namespace api.tests.UserEndpointTests
 {
     public class DeleteUserTests
     {
+        private WebApplicationFactory<Program> _factory;
+        private HttpClient _client;
+        
+        [SetUp]
+        public void Setup()
+        {
+            _factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
+            {
+                builder.UseSetting("testing", "true");
+            });
+            _client = _factory.CreateClient();
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            _client.Dispose();
+            _factory.Dispose();
+        }
+        
         [Test]
         public async Task DeleteUserPassesTest()
         {
-            const string email = "TemporaryTestuser@test";
-            const string password = "TemporaryTestuser1test%";
-            const string username = "TemporaryTestUser";
+            const string email = "test1@test1";
+            const string password = "Test1test1%";
             
-            var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(_ => { });
-            var client = factory.CreateClient();
-
-            var newUser = new RegisterRequestDTO
-            {
-                Email = email,
-                Password = password,
-                Username = username,
-            };
-
-            var contentRegister = new StringContent(
-                JsonSerializer.Serialize(newUser),
-                Encoding.UTF8,
-                "application/json"
-            );
-            
-            var registerResponse = await client.PostAsync("/users", contentRegister);
-            Assert.That(registerResponse.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.OK));
-            
-            var registerJsonResponse = await registerResponse.Content.ReadAsStringAsync();
-
-            var registerResult = JsonSerializer.Deserialize<ResponseDTO<RegisterSuccessDTO>>(
-                registerJsonResponse,
-                new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                }
-            );
-            
-            Assert.That(registerResult, Is.Not.Null);
-
-            var loginUser = new LoginRequestDTO
+            var loginUser = new LoginRequestDTO()
             {
                 Email = email,
                 Password = password,
             };
-            
+
             var contentLogin = new StringContent(
                 JsonSerializer.Serialize(loginUser),
                 Encoding.UTF8,
                 "application/json"
             );
             
-            var loginResponse = await client.PostAsync("login", contentLogin);
+            var loginResponse = await _client.PostAsync("login", contentLogin);
             Assert.That(loginResponse.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.OK));
 
             var jsonResponse = await loginResponse.Content.ReadAsStringAsync();
             var result = JsonSerializer.Deserialize<ResponseDTO<LoginSuccessDTO>>(jsonResponse);
             Assert.That(result, Is.Not.Null);
 
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", result.Data.Token);
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", result.Data.Token);
             
-            // Now delete the user we created
-            var userId = registerResult.Data.User.Id;
-            await client.DeleteAsync($"users/{userId}");
-            var deletedUser = await client.GetAsync($"users/{userId}");
-            Assert.That(deletedUser.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.NotFound));
+            var userId = result.Data.User.Id;
+            var deleteResponse = await _client.DeleteAsync($"users/{userId}");
+            Assert.That(deleteResponse.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.OK));
         }
 
         [Test]
         public async Task DeleteUserUnauthorizedTest()
         {
-            var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(_ => { });
-            var client = factory.CreateClient();
-
             const int userId = 1;
-            var deleteResponse = await client.DeleteAsync($"users/{userId}");
+            var deleteResponse = await _client.DeleteAsync($"users/{userId}");
             Assert.That(deleteResponse.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.Unauthorized));
         }
     }

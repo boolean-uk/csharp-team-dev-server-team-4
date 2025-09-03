@@ -21,10 +21,10 @@ public class Comment
 
     [Required]
     [Column("body", TypeName = "varchar(1000)")]
-    public string Body { get; set; } = string.Empty;
+    public string Body { get; set; }
 
     [Column("create_at")]
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime CreatedAt { get; set; }
 
     [JsonIgnore]
     public Post Post { get; set; }

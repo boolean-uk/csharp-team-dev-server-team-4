@@ -13,22 +13,22 @@ namespace exercise.wwwapi.Models.UserInfo
         public int UserId { get; set; }
 
         [Column("first_name", TypeName = "varchar(20)")] 
-        public string FirstName { get; set; } = string.Empty;
+        public string FirstName { get; set; }
 
         [Column("last_name", TypeName = "varchar(20)")]
-        public string LastName { get; set; } = string.Empty;
+        public string LastName { get; set; }
 
         [Column("phone", TypeName = "varchar(30)")]
         public string? Phone { get; set; }
 
         [Column("github", TypeName = "varchar(30)")]
-        public string Github { get; set; } = string.Empty;
+        public string Github { get; set; }
 
         [Column("bio", TypeName = "varchar(1000)")]
-        public string Bio { get; set; } = string.Empty;
+        public string Bio { get; set; }
 
         [Column("photo_url", TypeName = "varchar(1000)")] 
-        public string? PhotoUrl { get; set; } = string.Empty;
+        public string? PhotoUrl { get; set; }
 
         [JsonIgnore]
         public User User { get; set; }

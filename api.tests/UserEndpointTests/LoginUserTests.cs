@@ -7,14 +7,32 @@ namespace api.tests.UserEndpointTests
 {
     public class LoginUserTests
     {
+        private WebApplicationFactory<Program> _factory;
+        private HttpClient _client;
+        
+        [SetUp]
+        public void Setup()
+        {
+            _factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
+            {
+                builder.UseSetting("testing", "true");
+            });
+            
+            _client = _factory.CreateClient();
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            _client.Dispose();
+            _factory.Dispose();
+        }
+        
         [Test]
         public async Task UserLoginSucceeds()
         {
             const string email = "test1@test1";
             const string password = "Test1test1%";
-
-            var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(_ => { });
-            var client = factory.CreateClient();
 
             var loginUser = new LoginRequestDTO()
             {
@@ -28,7 +46,7 @@ namespace api.tests.UserEndpointTests
                 "application/json"
             );
 
-            var loginResponse = await client.PostAsync("login", contentLogin);
+            var loginResponse = await _client.PostAsync("login", contentLogin);
 
             Assert.That(loginResponse.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.OK));
         }
@@ -36,9 +54,6 @@ namespace api.tests.UserEndpointTests
         [Test]
         public async Task UserLoginFails()
         {
-            var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(_ => { });
-            var client = factory.CreateClient();
-
             const string email = "test1@test1";
             const string password = "TESTtest7&aaaaaaaaaaaa";
             const string username = "aTesTaa";
@@ -56,7 +71,7 @@ namespace api.tests.UserEndpointTests
                 "application/json"
             );
 
-            await client.PostAsync("/users", contentRegister);
+            await _client.PostAsync("/users", contentRegister);
 
             var loginUser = new LoginRequestDTO()
             {
@@ -68,7 +83,7 @@ namespace api.tests.UserEndpointTests
                 System.Text.Encoding.UTF8,
                 "application/json"
             );
-            var loginResponse = await client.PostAsync("login", contentLogin);
+            var loginResponse = await _client.PostAsync("login", contentLogin);
 
             Assert.That(loginResponse.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.BadRequest));
         }

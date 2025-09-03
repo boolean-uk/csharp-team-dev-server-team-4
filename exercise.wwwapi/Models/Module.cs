@@ -19,6 +19,6 @@ namespace exercise.wwwapi.Models
         public string Title { get; set; }
         
         public Course Course { get; set; }
-        public ICollection<Unit> Units { get; set; } = new List<Unit>();
+        public ICollection<Unit> Units { get; set; }
     }
 }

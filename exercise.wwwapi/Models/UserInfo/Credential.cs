@@ -15,21 +15,21 @@ namespace exercise.wwwapi.Models.UserInfo
 
         [Required]
         [Column("email", TypeName = "varchar(100)")]
-        public string Email { get; set; } = string.Empty;
+        public string Email { get; set; }
 
-        [Required] [Column("username", TypeName = "varchar(100)")] 
-        public string Username { get; set; } = string.Empty;
+        [Required] 
+        [Column("username", TypeName = "varchar(100)")] 
+        public string Username { get; set; }
 
         [Required]
         [Column("password_hash", TypeName = "varchar(100)")]
-        public string PasswordHash { get; set; } = string.Empty;
+        public string PasswordHash { get; set; }
 
         [Required]
         [Column("role")]
-        
         public Role Role { get; set; }
         
         [JsonIgnore]
-        public User User { get; set; } = null!;
+        public User User { get; set; }
     }
 }

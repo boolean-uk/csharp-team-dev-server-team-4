@@ -6,14 +6,31 @@ namespace api.tests.UserEndpointTests;
 
 public class CreateUserTests
 {
+    private WebApplicationFactory<Program> _factory;
+    private HttpClient _client;
+    
+    [SetUp]
+    public void Setup()
+    {
+        _factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
+        {
+            builder.UseSetting("testing", "true");
+        });
+            
+        _client = _factory.CreateClient();
+    }
+    
+    [TearDown]
+    public void TearDown()
+    {
+        _client.Dispose();
+        _factory.Dispose();
+    }
+    
     [Test]
     public async Task GetUserByIdTestFails()
     {
-        var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(_ => { });
-        var client = factory.CreateClient();
-
-        var response = await client.GetAsync("users/10050");
-
+        var response = await _client.GetAsync("users/10050");
         Assert.That(response.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.NotFound));
     }
 
@@ -26,9 +43,6 @@ public class CreateUserTests
         const string password = "Test1test1%";
         const string username = "TestTestTest";
 
-        var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(_ => { });
-        var client = factory.CreateClient();
-
         var newUser = new RegisterRequestDTO
         {
             Email = email,
@@ -41,17 +55,13 @@ public class CreateUserTests
             System.Text.Encoding.UTF8,
             "application/json"
         );
-        var response = await client.PostAsync("/users", content);
-
+        var response = await _client.PostAsync("/users", content);
         Assert.That(response.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.Conflict));
     }
 
     [Test]
     public async Task RegisterUserEmailValidationFailsTest()
     {
-        var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(_ => { });
-        var client = factory.CreateClient();
-
         var newUser = new RegisterRequestDTO
         {
             Email = "test",
@@ -64,8 +74,7 @@ public class CreateUserTests
             System.Text.Encoding.UTF8,
             "application/json"
         );
-        var response = await client.PostAsync("/users", content);
-
+        var response = await _client.PostAsync("/users", content);
         Assert.That(response.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.BadRequest));
     }
 
@@ -76,10 +85,6 @@ public class CreateUserTests
         const string password = "test";
         const string username = "testtest";
         
-        // Arrange: prepare request data
-        var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(_ => { });
-        var client = factory.CreateClient();
-
         var newUser = new RegisterRequestDTO
         {
             Email = email,
@@ -92,8 +97,7 @@ public class CreateUserTests
             System.Text.Encoding.UTF8,
             "application/json"
         );
-        var response = await client.PostAsync("/users", content);
-
+        var response = await _client.PostAsync("/users", content);
         Assert.That(response.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.BadRequest));
     }
 }

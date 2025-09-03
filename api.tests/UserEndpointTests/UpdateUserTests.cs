@@ -51,12 +51,8 @@ public class UpdateUserTests
             "application/json"
         );
         var loginResponse = await client.PostAsync("login", contentLogin);
-
-        if (!loginResponse.IsSuccessStatusCode)
-        {
-            Assert.Fail();
-        }
-
+        Assert.That(loginResponse.IsSuccessStatusCode, Is.True);
+        
         var jsonResponse = await loginResponse.Content.ReadAsStringAsync();
         var result = JsonSerializer.Deserialize<ResponseDTO<LoginSuccessDTO>>(jsonResponse);
         Assert.That(result, Is.Not.Null);

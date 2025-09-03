@@ -13,6 +13,6 @@ public class Cohort
     [Column("course_id")]
     [ForeignKey(nameof(Course))]
     public int CourseId { get; set; }
-    public Course Course { get; set; } = null!;
-    public ICollection<CohortMember> Members { get; set; } = new List<CohortMember>();
+    public Course Course { get; set; }
+    public ICollection<CohortMember> Members { get; set; }
 }

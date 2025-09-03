@@ -14,6 +14,7 @@ using System.Security.Claims;
 using System.Text;
 using exercise.wwwapi.Enums;
 using exercise.wwwapi.Helpers;
+using exercise.wwwapi.Models.UserInfo;
 using User = exercise.wwwapi.Models.UserInfo.User;
 
 namespace exercise.wwwapi.EndPoints
@@ -95,28 +96,44 @@ namespace exercise.wwwapi.EndPoints
 
             var passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
 
-            var user = new User();
-            user.Credential.Username = request.Username;
-            user.Credential.PasswordHash = passwordHash;
-            user.Credential.Email = request.Email;
-            user.Credential.Role = Role.Student;
-            user.Profile.FirstName = string.IsNullOrEmpty(request.FirstName) ? string.Empty : request.FirstName;
-            user.Profile.LastName = string.IsNullOrEmpty(request.LastName) ? string.Empty : request.LastName;
-            user.Profile.Bio = string.IsNullOrEmpty(request.Bio) ? string.Empty : request.Bio;
-            user.Profile.Github = string.IsNullOrEmpty(request.GithubUrl) ? string.Empty : request.GithubUrl;
+            var user = new User
+            {
+                Credential = new Credential
+                {
+                    Username = request.Username,
+                    PasswordHash = passwordHash,
+                    Email = request.Email,
+                    Role = Role.Student,
+                },
+                Profile = new Profile
+                {
+                    FirstName = string.IsNullOrEmpty(request.FirstName) ? string.Empty : request.FirstName,
+                    LastName = string.IsNullOrEmpty(request.LastName) ? string.Empty : request.LastName,
+                    Bio = string.IsNullOrEmpty(request.Bio) ? string.Empty : request.Bio,
+                    Github = string.IsNullOrEmpty(request.Github) ? string.Empty : request.Github
+                }
+            };
 
             user = await userRepository.CreateUser(user);
 
-            var response = new ResponseDTO<RegisterSuccessDTO>();
-            response.Status = "success";
-            response.Data.User.Id = user.Id;
-            response.Data.User.FirstName = user.Profile.FirstName;
-            response.Data.User.LastName = user.Profile.LastName;
-            response.Data.User.Bio = user.Profile.Bio;
-            response.Data.User.Github = user.Profile.Github;
-            response.Data.User.Username = user.Credential.Username;
-            response.Data.User.Email = user.Credential.Email;
-            response.Data.User.Phone = user.Profile.Phone;
+            var response = new ResponseDTO<RegisterSuccessDTO>
+            {
+                Status = "success",
+                Data = new RegisterSuccessDTO
+                {
+                    User =
+                    {
+                        Id = user.Id,
+                        FirstName = user.Profile.FirstName,
+                        LastName = user.Profile.LastName,
+                        Bio = user.Profile.Bio,
+                        Github = user.Profile.Github,
+                        Username = user.Credential.Username,
+                        Email = user.Credential.Email,
+                        Phone = user.Profile.Phone
+                    }
+                }
+            };
 
             return Results.Ok(response);
         }
@@ -147,17 +164,25 @@ namespace exercise.wwwapi.EndPoints
 
             var token = CreateToken(user, config);
 
-            var response = new ResponseDTO<LoginSuccessDTO>();
-            response.Data.User.Id = user.Id;
-            response.Data.User.Email = user.Credential.Email;
-            response.Data.User.FirstName = user.Profile.FirstName;
-            response.Data.User.LastName = user.Profile.LastName;
-            response.Data.User.Bio = user.Profile.Bio;
-            response.Data.User.Github = user.Profile.Github;
-            response.Data.User.Phone = user.Profile.Phone;
-
-            response.Data.Token = token;
-
+            var response = new ResponseDTO<LoginSuccessDTO>()
+            {
+                Status = "Success",
+                Data = new LoginSuccessDTO()
+                {
+                    Token = token,
+                    User = new UserDTO
+                    {
+                        Id = user.Id,
+                        Email = user.Credential.Email,
+                        FirstName = user.Profile.FirstName,
+                        LastName = user.Profile.LastName,
+                        Bio = user.Profile.Bio,
+                        Github = user.Profile.Github,
+                        Username = user.Credential.Username,
+                        Phone = user.Profile.Phone,
+                    }
+                }
+            };
             return Results.Ok(response);
         }
 
@@ -171,16 +196,21 @@ namespace exercise.wwwapi.EndPoints
                 return TypedResults.NotFound();
             }
 
-            var response = new ResponseDTO<UserDTO>();
-            response.Status = "success";
-            response.Data.Id = user.Id;
-            response.Data.FirstName = user.Profile.FirstName;
-            response.Data.LastName = user.Profile.LastName;
-            response.Data.Bio = user.Profile.Bio;
-            response.Data.Github = user.Profile.Github;
-            response.Data.Username = user.Credential.Username;
-            response.Data.Email = user.Credential.Email;
-            response.Data.Phone = user.Profile.Phone;
+            var response = new ResponseDTO<UserDTO>
+            {
+                Status = "success",
+                Data = new UserDTO
+                {
+                    Id = user.Id,
+                    FirstName = user.Profile.FirstName,
+                    LastName = user.Profile.LastName,
+                    Bio = user.Profile.Bio,
+                    Github = user.Profile.Github,
+                    Username = user.Credential.Username,
+                    Email = user.Credential.Email,
+                    Phone = user.Profile.Phone
+                }
+            };
             return TypedResults.Ok(response);
         }
 
@@ -239,16 +269,21 @@ namespace exercise.wwwapi.EndPoints
 
             await userRepository.UpdateUser(user);
 
-            var response = new ResponseDTO<UpdateUserSuccessDTO>();
-            response.Status = "success";
-            response.Data.Id = user.Id;
-            response.Data.Email = user.Credential.Email;
-            response.Data.FirstName = user.Profile.FirstName;
-            response.Data.LastName = user.Profile.LastName;
-            response.Data.Bio = user.Profile.Bio;
-            response.Data.Github = user.Profile.Github;
-            response.Data.Username = user.Credential.Username;
-            response.Data.Phone = user.Profile.Phone;
+            var response = new ResponseDTO<UpdateUserSuccessDTO>()
+            {
+                Status = "success",
+                Data = new UpdateUserSuccessDTO()
+                {
+                    Id = user.Id,
+                    Email = user.Credential.Email,
+                    FirstName = user.Profile.FirstName,
+                    LastName = user.Profile.LastName,
+                    Bio = user.Profile.Bio,
+                    Github = user.Profile.Github,
+                    Username = user.Credential.Username,
+                    Phone = user.Profile.Phone,
+                }
+            };
 
             return TypedResults.Ok(response);
         }
@@ -272,15 +307,20 @@ namespace exercise.wwwapi.EndPoints
                 return TypedResults.NotFound();
             }
 
-            var response = new ResponseDTO<UserDTO>();
-            response.Status = "success";
-            response.Data.Id = deletedUser.Id;
-            response.Data.Email = deletedUser.Credential.Email;
-            response.Data.FirstName = deletedUser.Profile.FirstName;
-            response.Data.LastName = deletedUser.Profile.LastName;
-            response.Data.Bio = deletedUser.Profile.Bio;
-            response.Data.Github = deletedUser.Profile.Github;
-            response.Data.Phone = deletedUser.Profile.Phone;
+            var response = new ResponseDTO<UserDTO>
+            {
+                Status = "success",
+                Data = new UserDTO
+                {
+                    Id = deletedUser.Id,
+                    Email = deletedUser.Credential.Email,
+                    FirstName = deletedUser.Profile.FirstName,
+                    LastName = deletedUser.Profile.LastName,
+                    Bio = deletedUser.Profile.Bio,
+                    Github = deletedUser.Profile.Github,
+                    Phone = deletedUser.Profile.Phone,
+                }
+            };
 
             return TypedResults.Ok(response);
         }

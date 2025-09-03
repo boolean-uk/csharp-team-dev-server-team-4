@@ -45,7 +45,10 @@ public class UserRepository : IUserRepository
 
     public async Task<User?> DeleteUser(int id)
     {
-        var user = await _db.Users.FirstOrDefaultAsync(user => user.Id == id);
+        var user = await _db.Users
+            .Include(u => u.Credential )
+            .Include(u => u.Profile)
+            .FirstOrDefaultAsync(user => user.Id == id);
         if (user == null)
         {
             return null;

@@ -16,10 +16,10 @@ namespace exercise.wwwapi.Models
 
         [Required]
         [Column("title", TypeName = "varchar(100)")]
-        public string Title { get; set; } = string.Empty;
+        public string Title { get; set; }
 
         [Column("description", TypeName = "varchar(500)")] 
-        public string? Description { get; set; } = string.Empty;
+        public string? Description { get; set; }
 
         public Unit Unit { get; set; }
     }

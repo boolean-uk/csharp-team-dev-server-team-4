@@ -18,15 +18,15 @@ public class Post
 
     [Required]
     [Column("body", TypeName = "varchar(1000)")]
-    public string Body { get; set; } = string.Empty;
+    public string Body { get; set; }
 
     [Column("likes")]
     public int Likes { get; set; }
 
     [Column("created_at")]
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime CreatedAt { get; set; }
 
     [JsonIgnore]
-    public User Author { get; set; } = null!;
-    public ICollection<Comment> Comments { get; set; } = new List<Comment>();
+    public User Author { get; set; }
+    public ICollection<Comment> Comments { get; set; }
 }

@@ -19,6 +19,6 @@ namespace exercise.wwwapi.Models
         public string Title { get; set; }
         
         public Module Module { get; set; }
-        public ICollection<Exercise> Exercises { get; set; } = new List<Exercise>();
+        public ICollection<Exercise> Exercises { get; set; }
     }
 }

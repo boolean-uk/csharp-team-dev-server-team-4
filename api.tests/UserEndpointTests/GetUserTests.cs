@@ -6,16 +6,34 @@ namespace api.tests.UserEndpointTests
 {
     public class GetUserTests
     {
+        private WebApplicationFactory<Program> _factory;
+        private HttpClient _client;
+        
+        [SetUp]
+        public void Setup()
+        {
+            _factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
+            {
+                builder.UseSetting("testing", "true");
+            });
+            
+            _client = _factory.CreateClient();
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            _client.Dispose();
+            _factory.Dispose();
+        }
+        
         [Test]
         public async Task GetUserPassesTest()
         {
             const string email = "test1@test1";
             const int userId = 1;
             
-            var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(_ => { });
-            var client = factory.CreateClient();
-
-            var getUserResponse = await client.GetAsync($"users/{userId}");
+            var getUserResponse = await _client.GetAsync($"users/{userId}");
             Assert.That(getUserResponse.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.OK));
 
             var getUserJson = await getUserResponse.Content.ReadAsStringAsync();
@@ -29,11 +47,8 @@ namespace api.tests.UserEndpointTests
         {
             const int userId = 1353275;
             
-            var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(_ => { });
-            var client = factory.CreateClient();
-
-            await client.DeleteAsync($"users/{userId}");
-            var getUserResponse = await client.GetAsync($"users/{userId}");
+            await _client.DeleteAsync($"users/{userId}");
+            var getUserResponse = await _client.GetAsync($"users/{userId}");
             Assert.That(getUserResponse.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.NotFound));
         }
 
