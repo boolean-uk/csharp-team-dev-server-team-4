@@ -30,7 +30,7 @@ builder.Services.AddScoped<IValidator<RegisterRequestDTO>, UserRegisterValidator
 builder.Services.AddScoped<IValidator<UpdateUserRequestDTO>, UserUpdateValidator>();
 
 builder.Services.AddDbContext<DataContext>(options => {
-    if (builder.WebHost.GetSetting("testing") == "true")
+    if (builder.Environment.IsStaging())
     {
         options.UseInMemoryDatabase(Guid.NewGuid().ToString());
     }
@@ -55,7 +55,6 @@ builder.Services.AddAuthentication(x =>
         ValidateAudience = false,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true
-
     };
 });
 builder.Services.AddSwaggerGen(s =>

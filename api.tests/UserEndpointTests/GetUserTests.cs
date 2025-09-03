@@ -14,7 +14,7 @@ namespace api.tests.UserEndpointTests
         {
             _factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
             {
-                builder.UseSetting("testing", "true");
+                builder.UseSetting("environment", "staging");
             });
             
             _client = _factory.CreateClient();
@@ -37,7 +37,7 @@ namespace api.tests.UserEndpointTests
             Assert.That(getUserResponse.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.OK));
 
             var getUserJson = await getUserResponse.Content.ReadAsStringAsync();
-            var responseDto = JsonSerializer.Deserialize<ResponseDTO<UserDTO>>(getUserJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            var responseDto = JsonSerializer.Deserialize<ResponseDTO<UserDTO>>(getUserJson);
             Assert.That(responseDto, Is.Not.Null);
             Assert.That(responseDto.Data.Email, Is.EqualTo(email));
         }

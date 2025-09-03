@@ -9,23 +9,44 @@ namespace api.tests.UserEndpointTests;
 
 public class UpdateUserTests
 {
-    private readonly Random _random = new();
+    private Random _random;
+    private WebApplicationFactory<Program> _factory;
+    private HttpClient _client;
+
+    [SetUp]
+    public void Setup()
+    {
+        _factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
+        {
+            builder.UseSetting("environment", "staging");
+        });
+
+        _client = _factory.CreateClient();
+        _random = new Random();
+    }
+
+    [TearDown]
+    public void TearDown()
+    {
+        _client.Dispose();
+        _factory.Dispose();
+    }
 
     [Test]
     public async Task UpdateUser401UnauthorizedTest()
     {
         const string email = "Test";
 
-        var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(_ => { });
-        var client = factory.CreateClient();
-
         var updateUser = new UpdateUserRequestDTO
         {
             Email = email,
         };
-        var content = new StringContent(JsonSerializer.Serialize(updateUser), System.Text.Encoding.UTF8,
-            "application/json");
-        var patchResponse = await client.PatchAsync("users/1", content);
+        var content = new StringContent(
+            JsonSerializer.Serialize(updateUser), 
+            System.Text.Encoding.UTF8,
+            "application/json"
+            );
+        var patchResponse = await _client.PatchAsync("users/1", content);
 
         Assert.That(patchResponse.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.Unauthorized));
     }
@@ -33,9 +54,6 @@ public class UpdateUserTests
     [Test]
     public async Task UpdateUserEmailValidationFailsTest()
     {
-        var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(_ => { });
-        var client = factory.CreateClient();
-
         const string email = "test1@test1";
         const string password = "Test1test1%";
 
@@ -50,14 +68,14 @@ public class UpdateUserTests
             System.Text.Encoding.UTF8,
             "application/json"
         );
-        var loginResponse = await client.PostAsync("login", contentLogin);
+        var loginResponse = await _client.PostAsync("login", contentLogin);
         Assert.That(loginResponse.IsSuccessStatusCode, Is.True);
-        
+
         var jsonResponse = await loginResponse.Content.ReadAsStringAsync();
         var result = JsonSerializer.Deserialize<ResponseDTO<LoginSuccessDTO>>(jsonResponse);
         Assert.That(result, Is.Not.Null);
 
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", result.Data.Token);
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", result.Data.Token);
         var updateUser = new UpdateUserRequestDTO
         {
             Email = "Test"
@@ -69,7 +87,7 @@ public class UpdateUserTests
             "application/json"
         );
 
-        var patchResponse = await client.PatchAsync("users/1", content);
+        var patchResponse = await _client.PatchAsync("users/1", content);
 
         Assert.That(patchResponse.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.BadRequest));
     }
@@ -79,9 +97,6 @@ public class UpdateUserTests
     {
         const string email = "test1@test1";
         const string password = "Test1test1%";
-
-        var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(_ => { });
-        var client = factory.CreateClient();
 
         var loginUser = new LoginRequestDTO
         {
@@ -94,14 +109,14 @@ public class UpdateUserTests
             System.Text.Encoding.UTF8,
             "application/json"
         );
-        var loginResponse = await client.PostAsync("login", contentLogin);
+        var loginResponse = await _client.PostAsync("login", contentLogin);
         Assert.That(loginResponse.IsSuccessStatusCode, Is.True);
 
         var jsonResponse = await loginResponse.Content.ReadAsStringAsync();
         var result = JsonSerializer.Deserialize<ResponseDTO<LoginSuccessDTO>>(jsonResponse);
         Assert.That(result, Is.Not.Null);
 
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", result.Data.Token);
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", result.Data.Token);
         var updateUser = new UpdateUserRequestDTO
         {
             Password = "pass",
@@ -112,7 +127,7 @@ public class UpdateUserTests
             System.Text.Encoding.UTF8,
             "application/json"
         );
-        var patchResponse = await client.PatchAsync("users/1", content);
+        var patchResponse = await _client.PatchAsync("users/1", content);
 
         Assert.That(patchResponse.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.BadRequest));
     }
@@ -124,9 +139,6 @@ public class UpdateUserTests
         const string password = "Test1test1%";
         const string phone = "test";
 
-        var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(_ => { });
-        var client = factory.CreateClient();
-
         var loginUser = new LoginRequestDTO
         {
             Email = email,
@@ -137,14 +149,14 @@ public class UpdateUserTests
             System.Text.Encoding.UTF8,
             "application/json"
         );
-        var loginResponse = await client.PostAsync("login", contentLogin);
+        var loginResponse = await _client.PostAsync("login", contentLogin);
         Assert.That(loginResponse.IsSuccessStatusCode, Is.True);
 
         var jsonResponse = await loginResponse.Content.ReadAsStringAsync();
         var result = JsonSerializer.Deserialize<ResponseDTO<LoginSuccessDTO>>(jsonResponse);
         Assert.That(result, Is.Not.Null, "Login Failed");
 
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", result.Data.Token);
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", result.Data.Token);
         var updateUser = new UpdateUserRequestDTO
         {
             Phone = phone,
@@ -154,7 +166,7 @@ public class UpdateUserTests
             System.Text.Encoding.UTF8,
             "application/json"
         );
-        var patchResponse = await client.PatchAsync("users/1", content);
+        var patchResponse = await _client.PatchAsync("users/1", content);
 
         Assert.That(patchResponse.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.BadRequest));
     }
@@ -162,9 +174,6 @@ public class UpdateUserTests
     [Test]
     public async Task UpdateUserPassesTest()
     {
-        var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(_ => { });
-        var client = factory.CreateClient();
-
         const string email = "test1@test1";
         const string password = "Test1test1%";
         const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -179,30 +188,23 @@ public class UpdateUserTests
         };
         var contentLogin = new StringContent(JsonSerializer.Serialize(loginUser), System.Text.Encoding.UTF8,
             "application/json");
-        var loginResponse = await client.PostAsync("login", contentLogin);
+        var loginResponse = await _client.PostAsync("login", contentLogin);
         Assert.That(loginResponse.IsSuccessStatusCode, Is.True);
 
         var jsonResponse = await loginResponse.Content.ReadAsStringAsync();
         var result = JsonSerializer.Deserialize<ResponseDTO<LoginSuccessDTO>>(jsonResponse);
         Assert.That(result, Is.Not.Null);
 
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", result.Data.Token);
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", result.Data.Token);
         var updateUser = new UpdateUserRequestDTO
         {
             Username = randomUsername
         };
         var content = new StringContent(JsonSerializer.Serialize(updateUser), System.Text.Encoding.UTF8,
             "application/json");
-        var patchResponse = await client.PatchAsync("users/1", content);
+        var patchResponse = await _client.PatchAsync("users/1", content);
         var patchResponseContent = await patchResponse.Content.ReadAsStringAsync();
-
-        var updatedResult = JsonSerializer.Deserialize<ResponseDTO<UpdateUserSuccessDTO>>(
-            patchResponseContent,
-            new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            }
-        );
+        var updatedResult = JsonSerializer.Deserialize<ResponseDTO<UpdateUserSuccessDTO>>(patchResponseContent);
 
         Assert.That(updatedResult, Is.Not.Null, "Update Failed");
         Assert.That(patchResponse.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.OK));
@@ -212,9 +214,6 @@ public class UpdateUserTests
     [Test]
     public async Task UpdateUserEmailValidationPassesTest()
     {
-        var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(_ => { });
-        var client = factory.CreateClient();
-
         const string email = "test1@test1";
         const string password = "Test1test1%";
         const string username = "username111";
@@ -229,7 +228,7 @@ public class UpdateUserTests
             System.Text.Encoding.UTF8,
             "application/json"
         );
-        var loginResponse = await client.PostAsync("login", contentLogin);
+        var loginResponse = await _client.PostAsync("login", contentLogin);
 
         if (!loginResponse.IsSuccessStatusCode)
         {
@@ -240,26 +239,23 @@ public class UpdateUserTests
         var result = JsonSerializer.Deserialize<ResponseDTO<LoginSuccessDTO>>(jsonResponse);
         Assert.That(result, Is.Not.Null, "Login failed");
 
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", result.Data.Token);
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", result.Data.Token);
         var updateUser = new UpdateUserRequestDTO
         {
             Email = email,
             Username = username,
         };
-        var content = new StringContent(JsonSerializer.Serialize(updateUser), System.Text.Encoding.UTF8,
-            "application/json");
-        var patchResponse = await client.PatchAsync("users/1", content);
+        var content = new StringContent(
+            JsonSerializer.Serialize(updateUser),
+            System.Text.Encoding.UTF8,
+            "application/json"
+        );
+        var patchResponse = await _client.PatchAsync("users/1", content);
 
         Assert.That(patchResponse.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.OK));
 
         var patchResponseContent = await patchResponse.Content.ReadAsStringAsync();
-        var updatedResult = JsonSerializer.Deserialize<ResponseDTO<UpdateUserSuccessDTO>>(
-            patchResponseContent,
-            new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            }
-        );
+        var updatedResult = JsonSerializer.Deserialize<ResponseDTO<UpdateUserSuccessDTO>>(patchResponseContent);
         Assert.That(updatedResult, Is.Not.Null, "Update Failed");
         Assert.That(updatedResult!.Data.Username, Is.EqualTo(username));
     }
@@ -272,24 +268,24 @@ public class UpdateUserTests
         const string password = "Test1test1%";
         const string username = "username222";
 
-        var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(_ => { });
-        var client = factory.CreateClient();
-
         var loginUser = new LoginRequestDTO()
         {
             Email = email,
             Password = password
         };
-        var contentLogin = new StringContent(JsonSerializer.Serialize(loginUser), System.Text.Encoding.UTF8,
-            "application/json");
-        var loginResponse = await client.PostAsync("login", contentLogin);
+        var contentLogin = new StringContent(
+            JsonSerializer.Serialize(loginUser),
+            System.Text.Encoding.UTF8,
+            "application/json"
+        );
+        var loginResponse = await _client.PostAsync("login", contentLogin);
         Assert.That(loginResponse.IsSuccessStatusCode, Is.True);
 
         var jsonResponse = await loginResponse.Content.ReadAsStringAsync();
         var result = JsonSerializer.Deserialize<ResponseDTO<LoginSuccessDTO>>(jsonResponse);
         Assert.That(result, Is.Not.Null, "Login failed");
 
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", result.Data.Token);
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", result.Data.Token);
         var updateUser = new UpdateUserRequestDTO
         {
             Password = password,
@@ -300,17 +296,11 @@ public class UpdateUserTests
             System.Text.Encoding.UTF8,
             "application/json"
         );
-        var patchResponse = await client.PatchAsync("users/1", content);
+        var patchResponse = await _client.PatchAsync("users/1", content);
         Assert.That(patchResponse.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.OK));
 
         var patchResponseContent = await patchResponse.Content.ReadAsStringAsync();
-        var updatedResult = JsonSerializer.Deserialize<ResponseDTO<UpdateUserSuccessDTO>>(
-            patchResponseContent,
-            new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            }
-        );
+        var updatedResult = JsonSerializer.Deserialize<ResponseDTO<UpdateUserSuccessDTO>>(patchResponseContent);
         Assert.That(updatedResult, Is.Not.Null, "Update Failed");
         Assert.That(updatedResult!.Data.Username, Is.EqualTo(username));
     }
@@ -319,9 +309,6 @@ public class UpdateUserTests
     [Test]
     public async Task UpdateUserMobileValidationPassesTest()
     {
-        var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(_ => { });
-        var client = factory.CreateClient();
-
         const string email = "test1@test1";
         const string password = "Test1test1%";
         const string username = "username333";
@@ -337,14 +324,14 @@ public class UpdateUserTests
             System.Text.Encoding.UTF8,
             "application/json"
         );
-        var loginResponse = await client.PostAsync("login", contentLogin);
+        var loginResponse = await _client.PostAsync("login", contentLogin);
         Assert.That(loginResponse.IsSuccessStatusCode, Is.True);
 
         var jsonResponse = await loginResponse.Content.ReadAsStringAsync();
         var result = JsonSerializer.Deserialize<ResponseDTO<LoginSuccessDTO>>(jsonResponse);
         Assert.That(result, Is.Not.Null, "Login failed");
 
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", result.Data.Token);
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", result.Data.Token);
         var updateUser = new UpdateUserRequestDTO
         {
             Phone = phone,
@@ -356,17 +343,11 @@ public class UpdateUserTests
             "application/json"
         );
 
-        var patchResponse = await client.PatchAsync("users/1", content);
+        var patchResponse = await _client.PatchAsync("users/1", content);
         Assert.That(patchResponse.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.OK));
 
         var patchResponseContent = await patchResponse.Content.ReadAsStringAsync();
-        var updatedResult = JsonSerializer.Deserialize<ResponseDTO<UpdateUserSuccessDTO>>(
-            patchResponseContent,
-            new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            }
-        );
+        var updatedResult = JsonSerializer.Deserialize<ResponseDTO<UpdateUserSuccessDTO>>(patchResponseContent);
         Assert.That(updatedResult, Is.Not.Null, "Update Failed");
         Assert.That(updatedResult!.Data.Username, Is.EqualTo(username));
     }

@@ -17,7 +17,7 @@ namespace api.tests.UserEndpointTests
         {
             _factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
             {
-                builder.UseSetting("testing", "true");
+                builder.UseSetting("environment", "staging");
             });
             _client = _factory.CreateClient();
         }
