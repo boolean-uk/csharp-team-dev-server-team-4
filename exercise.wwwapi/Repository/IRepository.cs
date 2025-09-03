@@ -10,14 +10,14 @@ namespace exercise.wwwapi.Repository
         IEnumerable<T> GetAll(params Expression<Func<T, object>>[] includeExpressions);
         Task<IEnumerable<T>> GetAllAsync();
         Task<IEnumerable<T>> GetAllAsync(params Expression<Func<T, object>>[] includeExpressions);
-        T GetById(object id);
-        Task<T> GetByIdAsync(object id);
+        T GetById(int id);
+        Task<T> GetByIdAsync(int id);
         void Insert(T obj);
         void Update(T obj);
-        void Delete(object id);
+        void Delete(int id);
         void Save();
         Task InsertAsync(T obj);
-        Task DeleteAsync(object id);
+        Task<T> DeleteAsync(int id);
         Task SaveAsync();
         DbSet<T> Table { get; }
 

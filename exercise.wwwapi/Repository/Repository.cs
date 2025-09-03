@@ -36,7 +36,7 @@ namespace exercise.wwwapi.Repository
         {
             return _table.ToList();
         }
-        public T GetById(object id)
+        public T GetById(int id)
         {
             return _table.Find(id);
         }
@@ -51,7 +51,7 @@ namespace exercise.wwwapi.Repository
             _db.Entry(obj).State = EntityState.Modified;
         }
 
-        public void Delete(object id)
+        public void Delete(int id)
         {
             T existing = _table.Find(id);
             _table.Remove(existing);
@@ -79,7 +79,7 @@ namespace exercise.wwwapi.Repository
             return await _table.ToListAsync();
         }
 
-        public async Task<T> GetByIdAsync(object id)
+        public async Task<T> GetByIdAsync(int id)
         {
             return await _table.FindAsync(id);
         }
@@ -89,10 +89,12 @@ namespace exercise.wwwapi.Repository
             await _table.AddAsync(obj);
         }
 
-        public async Task DeleteAsync(object id)
+        public async Task<T> DeleteAsync(int id)
         {
             T existing = await _table.FindAsync(id);
+            if (existing == null) return null;
             _table.Remove(existing);
+            return existing;
         }
 
         public async Task SaveAsync()
