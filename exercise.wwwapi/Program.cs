@@ -45,10 +45,39 @@ builder.Services.AddDbContext<DataContext>(options =>
     }
     else
     {
-        options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
+        var neonUsername = builder.Configuration["Neon:Username"];
+        var neonPassword = builder.Configuration["Neon:Password"];
+
+        const string defaultConnectionName = "DefaultConnection";
+        var connectionString = builder.Configuration.GetConnectionString(defaultConnectionName);
+        if (connectionString == null)
+        {
+            throw new Exception("Could not find connection string with name: " + defaultConnectionName);
+        }
+
+        connectionString = connectionString.Replace("${Neon:Username}", neonUsername);
+        connectionString = connectionString.Replace("${Neon:Password}", neonPassword);
+
+        options.UseNpgsql(connectionString);
         options.LogTo(message => Debug.WriteLine(message));
     }
 });
+
+string? token;
+
+if (builder.Environment.IsStaging())
+{
+    token = config.GetValue("AppSettings:TestToken");
+}
+else
+{
+    token = builder.Configuration["Token"];
+}
+
+if (token == null)
+{
+    throw new Exception("Could not find suitable token, try adding a token using usersecrets");
+}
 
 builder.Services.AddAuthentication(x =>
 {
@@ -59,7 +88,7 @@ builder.Services.AddAuthentication(x =>
 {
     x.TokenValidationParameters = new TokenValidationParameters
     {
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config.GetValue("AppSettings:Token"))),
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(token)),
         ValidateIssuer = false,
         ValidateAudience = false,
         ValidateLifetime = true,
