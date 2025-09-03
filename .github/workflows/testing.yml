@@ -20,6 +20,6 @@ jobs:
         run: dotnet restore
       # 4) Build a project or solution and all of its dependencies.
       - name: Build
-        run: dotnet build --configuration Release
+        run: dotnet build --configuration Release --environment Staging
       - name: Run NUnit tests
-        run: dotnet test --configuration Release --no-build --verbosity normal
+        run: dotnet test --configuration Release --no-build --verbosity normal --environment Staging
