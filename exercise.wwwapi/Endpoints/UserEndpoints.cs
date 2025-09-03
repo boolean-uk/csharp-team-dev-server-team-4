@@ -12,9 +12,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using exercise.wwwapi.DTOs.GetUser;
+using exercise.wwwapi.Enums;
 using exercise.wwwapi.Helpers;
-using exercise.wwwapi.Models.UserInfo;
 using User = exercise.wwwapi.Models.UserInfo.User;
 
 namespace exercise.wwwapi.EndPoints
@@ -45,7 +44,8 @@ namespace exercise.wwwapi.EndPoints
             var userData = new UsersSuccessDTO
             {
                 Users = string.IsNullOrEmpty(firstName)
-                    ? results : results
+                    ? results
+                    : results
                         .Where(u => u.Profile.FirstName
                             .Equals(firstName, StringComparison.OrdinalIgnoreCase))
                         .ToList(),
@@ -149,18 +149,18 @@ namespace exercise.wwwapi.EndPoints
 
             var response = new ResponseDTO<LoginSuccessDTO>();
             response.Data.User.Id = user.Id;
-            response.Data.User.Credential.Email = user.Credential.Email;
-            response.Data.User.Profile.FirstName = user.Profile.FirstName;
-            response.Data.User.Profile.LastName = user.Profile.LastName;
-            response.Data.User.Profile.Bio = user.Profile.Bio;
-            response.Data.User.Profile.Github = user.Profile.Github;
-            response.Data.User.Profile.Phone = user.Profile.Phone;
+            response.Data.User.Email = user.Credential.Email;
+            response.Data.User.FirstName = user.Profile.FirstName;
+            response.Data.User.LastName = user.Profile.LastName;
+            response.Data.User.Bio = user.Profile.Bio;
+            response.Data.User.Github = user.Profile.Github;
+            response.Data.User.Phone = user.Profile.Phone;
 
             response.Data.Token = token;
 
             return Results.Ok(response);
         }
-        
+
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public static async Task<IResult> GetUserById(IUserRepository userRepository, int id)
@@ -190,7 +190,8 @@ namespace exercise.wwwapi.EndPoints
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public static async Task<IResult> UpdateUser(IUserRepository userRepository, int id,
             UpdateUserRequestDTO request,
-            IValidator<UpdateUserRequestDTO> validator, ClaimsPrincipal claimsPrinciple)
+            IValidator<UpdateUserRequestDTO> validator, ClaimsPrincipal claimsPrinciple
+        )
         {
             var userIdClaim = claimsPrinciple.UserRealId();
             if (userIdClaim == null || userIdClaim != id)
@@ -256,7 +257,7 @@ namespace exercise.wwwapi.EndPoints
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public static async Task<IResult> DeleteUser(IRepository<User> service, int id, ClaimsPrincipal user)
+        public static async Task<IResult> DeleteUser(IUserRepository userRepository, int id, ClaimsPrincipal user)
         {
             var userIdClaim = user.UserRealId();
             if (userIdClaim == null || userIdClaim != id)
@@ -264,26 +265,22 @@ namespace exercise.wwwapi.EndPoints
                 return Results.Unauthorized();
             }
 
-            var userEntity = await service.GetByIdAsync(id);
-            if (userEntity is null)
+            var deletedUser = await userRepository.DeleteUser(id);
+
+            if (deletedUser == null)
             {
                 return TypedResults.NotFound();
             }
 
-            service.DeleteAsync(id);
-            await service.SaveAsync();
-            var deletedUser = await service.GetByIdAsync(id);
-
-            ResponseDTO<UserDTO> response = new ResponseDTO<UserDTO>();
+            var response = new ResponseDTO<UserDTO>();
             response.Status = "success";
-            response.Data.Id = userEntity.Id;
-            response.Data.Email = userEntity.Email;
-            response.Data.Password = userEntity.PasswordHash;
-            response.Data.FirstName = userEntity.FirstName;
-            response.Data.LastName = userEntity.LastName;
-            response.Data.Bio = userEntity.Bio;
-            response.Data.GithubUrl = userEntity.GithubUrl;
-            response.Data.MobileNumber = userEntity.MobileNumber;
+            response.Data.Id = deletedUser.Id;
+            response.Data.Email = deletedUser.Credential.Email;
+            response.Data.FirstName = deletedUser.Profile.FirstName;
+            response.Data.LastName = deletedUser.Profile.LastName;
+            response.Data.Bio = deletedUser.Profile.Bio;
+            response.Data.Github = deletedUser.Profile.Github;
+            response.Data.Phone = deletedUser.Profile.Phone;
 
             return TypedResults.Ok(response);
         }

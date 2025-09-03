@@ -1,4 +1,3 @@
-using exercise.wwwapi.Configuration;
 using exercise.wwwapi.Models;
 using exercise.wwwapi.Models.UserInfo;
 using Microsoft.EntityFrameworkCore;
@@ -7,24 +6,9 @@ namespace exercise.wwwapi.Data
 {
     public sealed class DataContext : DbContext
     {
-        private readonly string _connectionString;
-        
         public DataContext(DbContextOptions<DataContext> options) : base(options)
         {
-            var configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
-            _connectionString = configuration.GetValue<string>("ConnectionStrings:DefaultConnectionString")!;
             Database.EnsureCreated();
-        }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            // Setup Tables
-            // Timestamps are generated in Postgres so it's not mixing client/server times.
-            modelBuilder.Entity<Post>().Property(p => p.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
-            modelBuilder.Entity<Comment>().Property(c => c.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
-            // Setup Keys
-                     
-            // Seed ???
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

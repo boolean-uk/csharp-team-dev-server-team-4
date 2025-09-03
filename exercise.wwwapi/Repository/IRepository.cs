@@ -14,12 +14,10 @@ namespace exercise.wwwapi.Repository
         Task<T?> GetByIdAsync(object id);
         void Insert(T obj);
         void Update(T obj);
-        void Delete(object id);
+        Task Delete(object id);
         void Save();
         Task InsertAsync(T obj);
         Task DeleteAsync(object id);
         Task SaveAsync();
-        DbSet<T> Table { get; }
-
     }
 }

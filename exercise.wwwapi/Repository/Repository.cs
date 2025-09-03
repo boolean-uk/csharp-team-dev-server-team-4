@@ -8,7 +8,7 @@ namespace exercise.wwwapi.Repository
     {
         private readonly DataContext _db;
         private readonly DbSet<T> _table;
-       
+        
         public Repository(DataContext db)
         {
             _db = db;

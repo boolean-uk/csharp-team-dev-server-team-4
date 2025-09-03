@@ -43,6 +43,18 @@ public class UserRepository : IUserRepository
         return user;
     }
 
+    public async Task<User?> DeleteUser(int id)
+    {
+        var user = await _db.Users.FirstOrDefaultAsync(user => user.Id == id);
+        if (user == null)
+        {
+            return null;
+        }
+        _db.Users.Remove(user);
+        await _db.SaveChangesAsync();
+        return user;
+    }
+
     public Task<IEnumerable<Profile>> SearchUsersByName(string name)
     {
         var split = name.Split(' ');
