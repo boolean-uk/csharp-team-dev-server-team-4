@@ -22,14 +22,23 @@ builder.Logging.AddConsole();
 var config = new ConfigurationSettings();
 
 // Add services to the container.
-builder.Services.AddScoped<IConfigurationSettings, ConfigurationSettings>();
+if (builder.Environment.IsStaging())
+{
+    builder.Services.AddScoped<IConfigurationSettings, StagingConfigurationSettings>();
+}
+else
+{
+    builder.Services.AddScoped<IConfigurationSettings, ConfigurationSettings>();
+}
+
 builder.Services.AddScoped<IRepository<User>, Repository<User>>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ILogger, Logger<string>>();
 builder.Services.AddScoped<IValidator<RegisterRequestDTO>, UserRegisterValidator>();
 builder.Services.AddScoped<IValidator<UpdateUserRequestDTO>, UserUpdateValidator>();
 
-builder.Services.AddDbContext<DataContext>(options => {
+builder.Services.AddDbContext<DataContext>(options =>
+{
     if (builder.Environment.IsStaging())
     {
         options.UseInMemoryDatabase(Guid.NewGuid().ToString());
@@ -67,7 +76,8 @@ builder.Services.AddSwaggerGen(s =>
     });
     s.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        Description = "Add an Authorization header with a JWT token using the Bearer scheme see the app.http file for an example.)",
+        Description =
+            "Add an Authorization header with a JWT token using the Bearer scheme see the app.http file for an example.)",
         Name = "Authorization",
         Type = SecuritySchemeType.ApiKey,
         In = ParameterLocation.Header,
@@ -122,4 +132,6 @@ app.ConfigureCohortEndpoints();
 app.ConfigurePostEndpoints();
 app.Run();
 
-public partial class Program { } // needed for testing - please ignore
+public partial class Program
+{
+} // needed for testing - please ignore

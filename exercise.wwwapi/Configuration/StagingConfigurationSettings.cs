@@ -1,12 +1,12 @@
 ﻿namespace exercise.wwwapi.Configuration
 {
-    public class ConfigurationSettings : IConfigurationSettings
+    public class StagingConfigurationSettings : IConfigurationSettings
     {
         private readonly IConfiguration _configuration;
 
-        public ConfigurationSettings()
+        public StagingConfigurationSettings()
         {
-            _configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+            _configuration = new ConfigurationBuilder().AddJsonFile("StagingAppSettings.json").Build();
         }
 
         public string GetValue(string key)
