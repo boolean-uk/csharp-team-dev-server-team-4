@@ -159,7 +159,19 @@ namespace exercise.wwwapi.EndPoints
                 return TypedResults.NotFound();
             }
 
-            return TypedResults.Ok();
+            var response = new ResponseDTO<UserDTO>();
+            response.Status = "success";
+            response.Data.Id = user.Id;
+            response.Data.Email = user.Email;
+            response.Data.Password = ""; // should this even be in user dto?
+            response.Data.FirstName = user.FirstName;
+            response.Data.LastName = user.LastName;
+            response.Data.Bio = user.Bio;
+            response.Data.GithubUrl = user.GithubUrl;
+            response.Data.Username = user.Username;
+            response.Data.MobileNumber = user.MobileNumber;
+
+            return TypedResults.Ok(response);
         }
 
         [Authorize]
