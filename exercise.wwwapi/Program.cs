@@ -15,8 +15,8 @@ using Microsoft.OpenApi.Models;
 using Scalar.AspNetCore;
 using System.Text;
 using exercise.wwwapi;
+using exercise.wwwapi.Models;
 using exercise.wwwapi.Models.UserInfo;
-
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,15 +24,28 @@ builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 var config = new ConfigurationSettings();
 
-// Add services to the container.
-builder.Services.AddScoped<IConfigurationSettings, ConfigurationSettings>();
+// Register model repositories
 builder.Services.AddScoped<IRepository<User>, Repository<User>>();
 builder.Services.AddScoped<IRepository<Credential>, Repository<Credential>>();
 builder.Services.AddScoped<IRepository<Profile>, Repository<Profile>>();
+builder.Services.AddScoped<IRepository<Post>, Repository<Post>>();
+builder.Services.AddScoped<IRepository<Comment>, Repository<Comment>>();
+builder.Services.AddScoped<IRepository<Course>, Repository<Course>>();
+builder.Services.AddScoped<IRepository<Cohort>, Repository<Cohort>>();
+builder.Services.AddScoped<IRepository<CohortMember>, Repository<CohortMember>>();
+builder.Services.AddScoped<IRepository<Module>, Repository<Module>>();
+builder.Services.AddScoped<IRepository<Unit>, Repository<Unit>>();
+builder.Services.AddScoped<IRepository<Exercise>, Repository<Exercise>>();
+
+// Register general services
+builder.Services.AddScoped<IConfigurationSettings, ConfigurationSettings>();
 builder.Services.AddScoped<ILogger, Logger<string>>();
+
+// Register validators
 builder.Services.AddScoped<IValidator<RegisterRequestDTO>, UserRegisterValidator>();
 builder.Services.AddScoped<IValidator<UpdateUserRequestDTO>, UserUpdateValidator>();
 
+// Database context
 builder.Services.AddDbContext<DataContext>(options =>
 {
     if (builder.Configuration.GetValue<string>(Globals.TestingEnvVariable) != null)
