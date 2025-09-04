@@ -355,8 +355,12 @@ public static class UserEndpoints
             new(ClaimTypes.Email, user.Credential.Email)
         };
 
-        var rawToken = configurationSettings.GetValue("Token");
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(rawToken));
+        string tokenKey = configurationSettings.GetValue(
+            Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Staging" ? 
+                "TestToken" : "Token"
+        );
+
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configurationSettings.GetValue(tokenKey)));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
         var token = new JwtSecurityToken(
             claims: claims,

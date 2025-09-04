@@ -68,7 +68,6 @@ if (builder.Environment.IsStaging())
 }
 else
 {
-    throw new Exception("this shouldn't happen");
     token = builder.Configuration["Token"];
 }
 
