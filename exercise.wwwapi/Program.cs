@@ -1,23 +1,23 @@
+using System.Diagnostics;
 using exercise.wwwapi.Configuration;
 using exercise.wwwapi.Data;
 using exercise.wwwapi.DTOs.Register;
 using exercise.wwwapi.DTOs.UpdateUser;
 using exercise.wwwapi.Endpoints;
 using exercise.wwwapi.EndPoints;
-using exercise.wwwapi.Helpers;
-using exercise.wwwapi.Models;
 using exercise.wwwapi.Repository;
 using exercise.wwwapi.Validators.UserValidators;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Scalar.AspNetCore;
-using System.Diagnostics;
 using System.Text;
+using exercise.wwwapi;
+using exercise.wwwapi.Models.UserInfo;
+
+
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Logging.ClearProviders();
@@ -27,35 +27,72 @@ var config = new ConfigurationSettings();
 // Add services to the container.
 builder.Services.AddScoped<IConfigurationSettings, ConfigurationSettings>();
 builder.Services.AddScoped<IRepository<User>, Repository<User>>();
+builder.Services.AddScoped<IRepository<Credential>, Repository<Credential>>();
+builder.Services.AddScoped<IRepository<Profile>, Repository<Profile>>();
 builder.Services.AddScoped<ILogger, Logger<string>>();
 builder.Services.AddScoped<IValidator<RegisterRequestDTO>, UserRegisterValidator>();
 builder.Services.AddScoped<IValidator<UpdateUserRequestDTO>, UserUpdateValidator>();
 
-builder.Services.AddDbContext<DataContext>(options => {
-    
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
-    options.LogTo(message => Debug.WriteLine(message));
-    options.ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning));
+builder.Services.AddDbContext<DataContext>(options =>
+{
+    if (builder.Configuration.GetValue<string>(Globals.TestingEnvVariable) != null)
+    {
+        options.UseInMemoryDatabase(Guid.NewGuid().ToString());
+    }
+    else
+    {
+        var host = builder.Configuration["Neon:Host"];
+        var database = builder.Configuration["Neon:Database"];
+        var username = builder.Configuration["Neon:Username"];
+        var password = builder.Configuration["Neon:Password"];
 
+        const string defaultConnectionName = "DefaultConnection";
+        var connectionString = builder.Configuration.GetConnectionString(defaultConnectionName);
+        if (connectionString == null)
+        {
+            throw new Exception("Could not find connection string with name: " + defaultConnectionName);
+        }
+
+        connectionString = connectionString.Replace("${Neon:Host}", host);
+        connectionString = connectionString.Replace("${Neon:Database}", database);
+        connectionString = connectionString.Replace("${Neon:Username}", username);
+        connectionString = connectionString.Replace("${Neon:Password}", password);
+
+        options.UseNpgsql(connectionString);
+        options.LogTo(message => Debug.WriteLine(message));
+    }
 });
+
+string? token;
+
+if (builder.Environment.IsStaging())
+{
+    token = config.GetValue(Globals.TestTokenKey);
+}
+else
+{
+    token = builder.Configuration[Globals.TokenKey];
+}
+
+if (token == null)
+{
+    throw new Exception("Could not find suitable token, try adding a token using usersecrets");
+}
 
 builder.Services.AddAuthentication(x =>
 {
     x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
     x.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-
 }).AddJwtBearer(x =>
 {
     x.TokenValidationParameters = new TokenValidationParameters
     {
-
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config.GetValue("AppSettings:Token"))),
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(token)),
         ValidateIssuer = false,
         ValidateAudience = false,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true
-
     };
 });
 builder.Services.AddSwaggerGen(s =>
@@ -68,7 +105,8 @@ builder.Services.AddSwaggerGen(s =>
     });
     s.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        Description = "Add an Authorization header with a JWT token using the Bearer scheme see the app.http file for an example.)",
+        Description =
+            "Add an Authorization header with a JWT token using the Bearer scheme see the app.http file for an example.)",
         Name = "Authorization",
         Type = SecuritySchemeType.ApiKey,
         In = ParameterLocation.Header,
@@ -76,20 +114,19 @@ builder.Services.AddSwaggerGen(s =>
     });
 
     s.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
             {
+                Reference = new OpenApiReference
                 {
-                    new OpenApiSecurityScheme
-                    {
-                        Reference = new OpenApiReference
-                        {
-                            Type = ReferenceType.SecurityScheme,
-                            Id = "Bearer"
-                        }
-                    },
-                    Array.Empty<string>()
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
                 }
-            });
-
+            },
+            []
+        }
+    });
 });
 builder.Services.AddAuthorization();
 
@@ -101,43 +138,29 @@ var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger(c =>
-    {
-        c.OpenApiVersion = Microsoft.OpenApi.OpenApiSpecVersion.OpenApi2_0;
-    });
-
+    app.UseSwagger(c => c.OpenApiVersion = Microsoft.OpenApi.OpenApiSpecVersion.OpenApi2_0);
     app.UseSwaggerUI();
-    app.UseSwaggerUI(options =>
-    {
-        options.SwaggerEndpoint("/openapi/v3.json", "Demo API");
-    });
+    app.UseSwaggerUI(options => options.SwaggerEndpoint("/openapi/v3.json", "Demo API"));
     app.MapScalarApiReference();
 }
 
 app.UseCors(x => x
-                  .AllowAnyMethod()
-                  .AllowAnyHeader()
-                  .SetIsOriginAllowed(origin => true) // allow any origin
-                  .AllowCredentials()); // allow credentials
+    .AllowAnyMethod()
+    .AllowAnyHeader()
+    .SetIsOriginAllowed(origin => true) // allow any origin
+    .AllowCredentials()); // allow credentials
 
-app.UseHttpsRedirection();
-
+// app.UseHttpsRedirection();
 app.UseAuthentication();
-
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.ConfigureAuthApi();
-
 app.ConfigureSecureApi();
-
 app.ConfigureLogEndpoints();
-
 app.ConfigureCohortEndpoints();
-
 app.ConfigurePostEndpoints();
-
 app.Run();
 
-public partial class Program { } // needed for testing - please ignore
+public partial class Program
+{
+} // needed for testing - please ignore

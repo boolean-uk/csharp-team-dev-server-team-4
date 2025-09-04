@@ -1,16 +1,30 @@
-﻿namespace exercise.wwwapi.DTOs
-{
-    public class UserDTO
-    {
-        public int Id { get; set; }
-        public string Email { get; set; }
-        public string Password { get; set; }
-        public string? FirstName { get; set; }
-        public string? LastName { get; set; }
-        public string? Bio { get; set; }
-        public string? GithubUrl { get; set; }
-        public string? Username { get; set; }
+﻿using System.Text.Json.Serialization;
 
-        public string? MobileNumber { get; set; }
-    }
+namespace exercise.wwwapi.DTOs;
+
+public class UserDTO
+{
+    [JsonPropertyName("id")]
+    public int Id { get; set; }
+        
+    [JsonPropertyName("email")]
+    public string Email { get; set; }
+        
+    [JsonPropertyName("firstName")]
+    public string? FirstName { get; set; }
+        
+    [JsonPropertyName("lastName")]
+    public string? LastName { get; set; }
+        
+    [JsonPropertyName("bio")]
+    public string? Bio { get; set; }
+        
+    [JsonPropertyName("github")]
+    public string? Github { get; set; }
+        
+    [JsonPropertyName("username")]
+    public string? Username { get; set; }
+        
+    [JsonPropertyName("phone")]
+    public string? Phone { get; set; }
 }

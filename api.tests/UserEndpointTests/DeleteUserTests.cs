@@ -1,88 +1,65 @@
 ﻿using exercise.wwwapi.DTOs;
 using exercise.wwwapi.DTOs.Login;
-using exercise.wwwapi.DTOs.Register;
-using exercise.wwwapi.DTOs.UpdateUser;
-using Microsoft.AspNetCore.Mvc.Testing;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
+using exercise.wwwapi.Endpoints;
 
-namespace api.tests.UserEndpointTests
+namespace api.tests.UserEndpointTests;
+
+public class DeleteUserTests
 {
-    public class DeleteUserTests
+    private HttpClient _client;
+        
+    [SetUp]
+    public void Setup()
     {
+        _client = TestUtils.CreateClient();
+    }
 
-        [Test]
-        public async Task DeleteUserPassesTest()
-        {
-            var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder => { });
-            var client = factory.CreateClient();
-
-            var email = "TemporaryTestuser@test";
-            var password = "TemporaryTestuser1test%";
-
-            var newUser = new RegisterRequestDTO
-            {
-                email = email,
-                password = password
-            };
-
-            var contentRegister = new StringContent(JsonSerializer.Serialize(newUser), Encoding.UTF8, "application/json");
-            var registerResponse = await client.PostAsync("/users", contentRegister);
-            string registerJsonResponse = await registerResponse.Content.ReadAsStringAsync();
-            var registerResult = JsonSerializer.Deserialize<ResponseDTO<RegisterSuccessDTO>>(
-                registerJsonResponse, 
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
-                );
-
-            Assert.That(registerResponse.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.OK));
-            if (!registerResponse.IsSuccessStatusCode)
-            {
-                Assert.Fail();
-            }
-
-            var loginUser = new LoginRequestDTO()
-            {
-                email = email,
-                password = password
-            };
-            var contentLogin = new StringContent(JsonSerializer.Serialize(loginUser), Encoding.UTF8, "application/json");
-            var loginResponse = await client.PostAsync("login", contentLogin);
-
-            if (!loginResponse.IsSuccessStatusCode)
-            {
-                Assert.Fail();
-            }
-
-            string jsonResponse = await loginResponse.Content.ReadAsStringAsync();
-            ResponseDTO<LoginSuccessDTO>? result = JsonSerializer.Deserialize<ResponseDTO<LoginSuccessDTO>>(jsonResponse);
-
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", result.Data.token);
+    [TearDown]
+    public void TearDown()
+    {
+        _client.Dispose();
+    }
+        
+    [Test]
+    public async Task DeleteUserPassesTest()
+    {
+        const string email = "test1@test1";
+        const string password = "Test1test1%";
             
-            Assert.That(loginResponse.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.OK));
-
-            // Now delete the user we created
-            var userId = registerResult.Data.user.Id;
-            await client.DeleteAsync($"users/{userId}");
-            var deletedUser = await client.GetAsync($"users/{userId}");
-            Assert.That(deletedUser.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.NotFound));
-
-        }
-
-        [Test]
-        public async Task DeleteUserUnauthorizedTest()
+        var loginUser = new LoginRequestDTO()
         {
-            var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder => { });
-            var client = factory.CreateClient();
+            Email = email,
+            Password = password,
+        };
 
-            var userId = 1;
-            var deleteResponse = await client.DeleteAsync($"users/{userId}");
-            Assert.That(deleteResponse.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.Unauthorized));
-        }
+        var contentLogin = new StringContent(
+            JsonSerializer.Serialize(loginUser),
+            Encoding.UTF8,
+            "application/json"
+        );
+            
+        var loginResponse = await _client.PostAsync("login", contentLogin);
+        Assert.That(loginResponse.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.OK));
 
+        var jsonResponse = await loginResponse.Content.ReadAsStringAsync();
+        var result = JsonSerializer.Deserialize<ResponseDTO<LoginSuccessDTO>>(jsonResponse);
+        Assert.That(result, Is.Not.Null);
+
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", result.Data.Token);
+            
+        var userId = result.Data.User.Id;
+        var deleteResponse = await _client.DeleteAsync($"users/{userId}");
+        Assert.That(deleteResponse.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.OK));
+    }
+
+    [Test]
+    public async Task DeleteUserUnauthorizedTest()
+    {
+        const int userId = 1;
+        var deleteResponse = await _client.DeleteAsync($"users/{userId}");
+        Assert.That(deleteResponse.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.Unauthorized));
     }
 }

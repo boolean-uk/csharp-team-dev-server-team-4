@@ -1,65 +1,83 @@
 ﻿using exercise.wwwapi.DTOs.Login;
 using exercise.wwwapi.DTOs.Register;
-using exercise.wwwapi.DTOs.UpdateUser;
-using Microsoft.AspNetCore.Mvc.Testing;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
+using exercise.wwwapi.Endpoints;
 
-namespace api.tests.UserEndpointTests
+namespace api.tests.UserEndpointTests;
+
+public class LoginUserTests
 {
-    public class LoginUserTests
+    private HttpClient _client;
+        
+    [SetUp]
+    public void Setup()
     {
-        [Test]
-        public async Task UserLoginSucceds()
+        _client = TestUtils.CreateClient();
+    }
+
+    [TearDown]
+    public void TearDown()
+    {
+        _client.Dispose();
+    }
+        
+    [Test]
+    public async Task UserLoginSucceeds()
+    {
+        const string email = "test1@test1";
+        const string password = "Test1test1%";
+
+        var loginUser = new LoginRequestDTO()
         {
-            var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder => { });
-            var client = factory.CreateClient();
+            Email = email,
+            Password = password,
+        };
 
-            var email = "test1@test1";
-            var password = "Test1test1%";
+        var contentLogin = new StringContent(
+            JsonSerializer.Serialize(loginUser),
+            System.Text.Encoding.UTF8,
+            "application/json"
+        );
 
-            var loginUser = new LoginRequestDTO()
-            {
-                email = email,
-                password = password
-            };
-            var contentLogin = new StringContent(JsonSerializer.Serialize(loginUser), System.Text.Encoding.UTF8, "application/json");
-            var loginResponse = await client.PostAsync("login", contentLogin);
+        var loginResponse = await _client.PostAsync("login", contentLogin);
 
-            Assert.That(loginResponse.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.OK));
-        }
+        Assert.That(loginResponse.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.OK));
+    }
 
-        [Test]
-        public async Task UserLoginFails()
+    [Test]
+    public async Task UserLoginFails()
+    {
+        const string email = "test1@test1";
+        const string password = "TESTtest7&aaaaaaaaaaaa";
+        const string username = "aTesTaa";
+
+        var newUser = new RegisterRequestDTO
         {
-            var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder => { });
-            var client = factory.CreateClient();
+            Email = email,
+            Password = password,
+            Username = username,
+        };
 
-            var email = "test1@test1";
-            var password = "TESTtest7&aaaaaaaaaaaa";
+        var contentRegister = new StringContent(
+            JsonSerializer.Serialize(newUser),
+            System.Text.Encoding.UTF8,
+            "application/json"
+        );
 
-            var newUser = new RegisterRequestDTO
-            {
-                email = email,
-                password = password
-            };
+        await _client.PostAsync("/users", contentRegister);
 
-            var contentRegister = new StringContent(JsonSerializer.Serialize(newUser), System.Text.Encoding.UTF8, "application/json");
-            var registerResponse = await client.PostAsync("/users", contentRegister);
+        var loginUser = new LoginRequestDTO()
+        {
+            Email = email,
+            Password = "dwawdfwawfawfw"
+        };
+        var contentLogin = new StringContent(
+            JsonSerializer.Serialize(loginUser),
+            System.Text.Encoding.UTF8,
+            "application/json"
+        );
+        var loginResponse = await _client.PostAsync("login", contentLogin);
 
-            var loginUser = new LoginRequestDTO()
-            {
-                email = email,
-                password = "dwawdfwawfawfw"
-            };
-            var contentLogin = new StringContent(JsonSerializer.Serialize(loginUser), System.Text.Encoding.UTF8, "application/json");
-            var loginResponse = await client.PostAsync("login", contentLogin);
-
-            Assert.That(loginResponse.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.BadRequest));
-        }
+        Assert.That(loginResponse.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.BadRequest));
     }
 }

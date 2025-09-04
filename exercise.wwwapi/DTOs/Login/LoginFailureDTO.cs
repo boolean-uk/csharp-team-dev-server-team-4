@@ -1,7 +1,9 @@
-﻿namespace exercise.wwwapi.DTOs.Login
+﻿using System.Text.Json.Serialization;
+
+namespace exercise.wwwapi.DTOs.Login;
+
+public class LoginFailureDTO
 {
-    public class LoginFailureDTO
-    {
-        public string email { get; set; } = "Invalid email and/or password provided";
-    }
+    [JsonPropertyName("email")]
+    public string Email { get; set; } = "Invalid email and/or password provided";
 }

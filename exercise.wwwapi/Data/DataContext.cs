@@ -1,28 +1,31 @@
-﻿using exercise.wwwapi.Configuration;
 using exercise.wwwapi.Models;
+using exercise.wwwapi.Models.UserInfo;
 using Microsoft.EntityFrameworkCore;
-using System.Numerics;
 
-namespace exercise.wwwapi.Data
+namespace exercise.wwwapi.Data;
+
+public sealed class DataContext : DbContext
 {
-    public class DataContext : DbContext
+    public DataContext(DbContextOptions<DataContext> options) : base(options)
     {
-        public DataContext(DbContextOptions<DataContext> options) : base(options)
-        {
-
-        }
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            //optionsBuilder.UseInMemoryDatabase(databaseName: "Database");
-        }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
-
-            ModelSeeder.Seed(modelBuilder);
-        }
-   
-        public DbSet<User> Users { get; set; }
+        Database.EnsureCreated();
     }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        ModelSeeder.Seed(modelBuilder);
+    }
+   
+    public DbSet<Credential> Credentials { get; set; }
+    public DbSet<Profile> Profiles { get; set; }
+    public DbSet<Post> Posts { get; set; }
+    public DbSet<Comment> Comments { get; set; }
+    public DbSet<Course> Courses { get; set; }
+    public DbSet<Module> Modules { get; set; }
+    public DbSet<Unit> Units { get; set; }
+    public DbSet<Exercise> Exercises { get; set; }
+    public DbSet<Cohort> Cohorts { get; set; }
+    public DbSet<CohortMember> CohortMembers { get; set; }
 }

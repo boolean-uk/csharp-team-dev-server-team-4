@@ -1,4 +1,4 @@
-﻿name: Testing
+name: Testing
 
 on:
   pull_request:
@@ -22,4 +22,4 @@ jobs:
       - name: Build
         run: dotnet build --configuration Release
       - name: Run NUnit tests
-        run: dotnet test --configuration Release --no-build --verbosity normal
+        run: dotnet test --configuration Release --no-build --verbosity normal --environment ASPNETCORE_ENVIRONMENT="Staging"

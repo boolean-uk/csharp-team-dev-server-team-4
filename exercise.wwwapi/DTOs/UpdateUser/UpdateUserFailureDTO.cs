@@ -1,10 +1,15 @@
-﻿namespace exercise.wwwapi.DTOs.UpdateUser
-{
-    public class UpdateUserFailureDTO
-    {
-        public List<string> EmailErrors { get; set; } = new();
-        public List<string> PasswordErrors { get; set; } = new();
+﻿using System.Text.Json.Serialization;
 
-        public List<string> MobileNumberErrors { get; set; } = new();
-    }
+namespace exercise.wwwapi.DTOs.UpdateUser;
+
+public class UpdateUserFailureDTO
+{
+    [JsonPropertyName("emailErrors")]
+    public List<string> EmailErrors { get; set; } = [];
+        
+    [JsonPropertyName("passwordErrors")]
+    public List<string> PasswordErrors { get; set; } = [];
+        
+    [JsonPropertyName("mobileNumberErrors")]
+    public List<string> MobileNumberErrors { get; set; } = [];
 }

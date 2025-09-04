@@ -1,10 +1,12 @@
-﻿using exercise.wwwapi.Models;
+﻿using System.Text.Json.Serialization;
 
-namespace exercise.wwwapi.DTOs.Login
+namespace exercise.wwwapi.DTOs.Login;
+
+public class LoginSuccessDTO
 {
-    public class LoginSuccessDTO
-    {
-        public string token { get; set; }
-        public UserDTO user { get; set; } = new UserDTO();
-    }
+    [JsonPropertyName("token")]
+    public string Token { get; set; }
+        
+    [JsonPropertyName("user")]
+    public UserDTO User { get; set; }
 }

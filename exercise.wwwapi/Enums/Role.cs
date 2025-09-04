@@ -1,4 +1,4 @@
-﻿namespace exercise.wwwapi.Models;
+﻿namespace exercise.wwwapi.Enums;
 
 public enum Role
 {

@@ -4,295 +4,374 @@ using exercise.wwwapi.DTOs.GetUsers;
 using exercise.wwwapi.DTOs.Login;
 using exercise.wwwapi.DTOs.Register;
 using exercise.wwwapi.DTOs.UpdateUser;
-using exercise.wwwapi.Helpers;
-using exercise.wwwapi.Models;
 using exercise.wwwapi.Repository;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ActionConstraints;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using static System.Net.WebRequestMethods;
+using exercise.wwwapi.Enums;
+using exercise.wwwapi.Helpers;
+using exercise.wwwapi.Models.UserInfo;
+using User = exercise.wwwapi.Models.UserInfo.User;
 
-namespace exercise.wwwapi.EndPoints
+namespace exercise.wwwapi.EndPoints;
+
+public static class UserEndpoints
 {
-    public static class UserEndpoints
+    private const string GITHUB_URL = "github.com/";
+
+    public static void ConfigureAuthApi(this WebApplication app)
     {
-        private const string GithubUrl = "github.com/";
+        var users = app.MapGroup("users");
+        users.MapPost("/", Register).WithSummary("Create user");
+        users.MapGet("/", GetUsers).WithSummary("Get all users by first name if provided");
+        users.MapGet("/{id}", GetUserById).WithSummary("Get user by user id");
+        app.MapPost("/login", Login).WithSummary("Localhost Login");
+        users.MapPatch("/{id}", UpdateUser).RequireAuthorization().WithSummary("Update a user");
+        users.MapDelete("/{id}", DeleteUser).RequireAuthorization().WithSummary("Delete a user");
+    }
 
-        public static void ConfigureAuthApi(this WebApplication app)
-        {
-            var users = app.MapGroup("users");
-            users.MapPost("/", Register).WithSummary("Create user");
-            users.MapGet("/", GetUsers).WithSummary("Get all users by first name if provided");
-            users.MapGet("/{id}", GetUserById).WithSummary("Get user by user id");
-            app.MapPost("/login", Login).WithSummary("Localhost Login");
-            users.MapPatch("/{id}", UpdateUser).RequireAuthorization().WithSummary("Update a user");
-            users.MapDelete("/{id}", DeleteUser).RequireAuthorization().WithSummary("Delete a user");
-        }
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    private static async Task<IResult> GetUsers(IRepository<User> userRepository, string? firstName,
+        ClaimsPrincipal user)
+    {
+        var results = (await userRepository.GetAllAsync()).ToList();
 
-        [Authorize]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        private static async Task<IResult> GetUsers(IRepository<User> service, string? firstName, ClaimsPrincipal user)
+        var userData = new UsersSuccessDTO
         {
-            IEnumerable<User> results = await service.Get();
-            UsersSuccessDTO userData = new UsersSuccessDTO() { Users = !string.IsNullOrEmpty(firstName) ? results.Where(i => i.Email.Contains(firstName)).ToList() : results.ToList() };
-            ResponseDTO<UsersSuccessDTO> response = new ResponseDTO<UsersSuccessDTO>() { Status = "success", Data = userData };
-            return TypedResults.Ok(response);
-        }
+            Users = string.IsNullOrEmpty(firstName)
+                ? results
+                : results
+                    .Where(u => u.Profile.FirstName
+                        .Equals(firstName, StringComparison.OrdinalIgnoreCase))
+                    .ToList(),
+        };
+        var response = new ResponseDTO<UsersSuccessDTO>
+        {
+            Status = "success",
+            Data = userData
+        };
+        return TypedResults.Ok(response);
+    }
 
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status409Conflict)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        private static async Task<IResult> Register(RegisterRequestDTO request, IRepository<User> service, IValidator<RegisterRequestDTO> validator)
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    private static async Task<IResult> Register(RegisterRequestDTO request, IRepository<User> userRepository,
+        IValidator<RegisterRequestDTO> validator)
+    {
+        // Validate
+        var validation = await validator.ValidateAsync(request);
+        if (!validation.IsValid)
         {
-            var validation = await validator.ValidateAsync(request);
-            if (!validation.IsValid)
+            var failureDto = new RegisterFailureDTO();
+
+            foreach (var error in validation.Errors)
             {
-                var failureDto = new RegisterFailureDTO();
+                if (error.PropertyName.Equals("email", StringComparison.OrdinalIgnoreCase))
+                    failureDto.EmailErrors.Add(error.ErrorMessage);
+                else if (error.PropertyName.Equals("password", StringComparison.OrdinalIgnoreCase))
+                    failureDto.PasswordErrors.Add(error.ErrorMessage);
+            }
 
-                foreach (var error in validation.Errors)
+            var failResponse = new ResponseDTO<RegisterFailureDTO> { Status = "fail", Data = failureDto };
+            return Results.BadRequest(failResponse);
+        }
+
+        // Check if email already exists
+        var users = await userRepository.GetAllAsync(user => user.Credential
+        );
+        if (users.Any(u => u.Credential.Email == request.Email))
+        {
+            var failureDto = new RegisterFailureDTO();
+            failureDto.EmailErrors.Add("Email already exists");
+
+            var failResponse = new ResponseDTO<RegisterFailureDTO> { Status = "fail", Data = failureDto };
+            return Results.Conflict(failResponse);
+        }
+
+        var passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
+
+        var user = new User
+        {
+            Credential = new Credential
+            {
+                Username = request.Username,
+                PasswordHash = passwordHash,
+                Email = request.Email,
+                Role = Role.Student,
+            },
+            Profile = new Profile
+            {
+                FirstName = string.IsNullOrEmpty(request.FirstName) ? string.Empty : request.FirstName,
+                LastName = string.IsNullOrEmpty(request.LastName) ? string.Empty : request.LastName,
+                Bio = string.IsNullOrEmpty(request.Bio) ? string.Empty : request.Bio,
+                Github = string.IsNullOrEmpty(request.Github) ? string.Empty : request.Github
+            }
+        };
+
+        userRepository.Insert(user);
+        await userRepository.SaveAsync();
+
+        var response = new ResponseDTO<RegisterSuccessDTO>
+        {
+            Status = "success",
+            Data = new RegisterSuccessDTO
+            {
+                User =
                 {
-                    if (error.PropertyName.Equals("email", StringComparison.OrdinalIgnoreCase))
-                        failureDto.EmailErrors.Add(error.ErrorMessage);
-                    else if (error.PropertyName.Equals("password", StringComparison.OrdinalIgnoreCase))
-                        failureDto.PasswordErrors.Add(error.ErrorMessage);
+                    Id = user.Id,
+                    FirstName = user.Profile.FirstName,
+                    LastName = user.Profile.LastName,
+                    Bio = user.Profile.Bio,
+                    Github = user.Profile.Github,
+                    Username = user.Credential.Username,
+                    Email = user.Credential.Email,
+                    Phone = user.Profile.Phone
                 }
-
-                var failResponse = new ResponseDTO<RegisterFailureDTO> { Status = "fail", Data = failureDto };
-                return Results.BadRequest(failResponse);
             }
+        };
 
-            var users = await service.GetAllAsync();
-            if (users.Where(u => u.Email == request.email)
-                .Any())
+        return Results.Ok(response);
+    }
+
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    private static async Task<IResult> Login(LoginRequestDTO request, IRepository<User> userRepository,
+        IConfigurationSettings configurationSettings)
+    {
+        var allUsers = await userRepository.GetAllAsync(
+            user => user.Credential,
+            user => user.Profile
+        );
+        var user = allUsers.FirstOrDefault(u => u.Credential.Email == request.Email);
+        if (user == null)
+        {
+            return Results.BadRequest(new Payload<object>
             {
-                var failureDto = new RegisterFailureDTO();
-                failureDto.EmailErrors.Add("Email already exists");
-
-                var failResponse = new ResponseDTO<RegisterFailureDTO> { Status = "fail", Data = failureDto };
-                return Results.Conflict(failResponse);
-            }
-
-            string passwordHash = BCrypt.Net.BCrypt.HashPassword(request.password);
-
-            var user = new User();
-
-            user.Username = !string.IsNullOrEmpty(request.username) ? request.username : request.email;
-            user.PasswordHash = passwordHash;
-            user.Email = request.email;
-            user.FirstName = !string.IsNullOrEmpty(request.firstName) ? request.firstName : string.Empty;
-            user.LastName = !string.IsNullOrEmpty(request.lastName) ? request.lastName : string.Empty;
-            user.Bio = !string.IsNullOrEmpty(request.bio) ? request.bio : string.Empty;
-            user.GithubUrl = !string.IsNullOrEmpty(request.githubUrl) ? request.githubUrl : string.Empty;
-            user.Role = Role.Student;
-            user.MobileNumber = string.Empty;
-
-            service.Insert(user);
-            service.Save();
-
-            //TODO get user again from db to get true id
-
-            ResponseDTO<RegisterSuccessDTO> response = new ResponseDTO<RegisterSuccessDTO>();
-            response.Status = "success";
-            response.Data.user.Id = user.Id;
-            response.Data.user.FirstName = user.FirstName;
-            response.Data.user.LastName = user.LastName;
-            response.Data.user.Bio = user.Bio;
-            response.Data.user.GithubUrl = user.GithubUrl;
-            response.Data.user.Username = user.Username;
-            response.Data.user.Email = user.Email;
-            response.Data.user.MobileNumber = user.MobileNumber;
-
-            return Results.Ok(response);
+                Status = "User does not exist", Data = new { email = "Invalid email and/or password provided" }
+            });
         }
 
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        private static async Task<IResult> Login(LoginRequestDTO request, IRepository<User> service, IConfigurationSettings config)
+        if (!BCrypt.Net.BCrypt.Verify(request.Password, user.Credential.PasswordHash))
         {
-            //if (string.IsNullOrEmpty(request.username)) request.username = request.email;
-
-            //user doesn't exist
-            if (!service.GetAll().Where(u => u.Email == request.email).Any()) 
-                return Results.BadRequest(new Payload<Object>() { status = "User does not exist", data = new { email="Invalid email and/or password provided"} });
-
-            User user = service.GetAll().FirstOrDefault(u => u.Email == request.email)!;
-           
-
-            if (!BCrypt.Net.BCrypt.Verify(request.password, user.PasswordHash))
+            return Results.BadRequest(new Payload<object>
             {
-                return Results.BadRequest(new Payload<Object>() { status = "fail", data = new LoginFailureDTO() });
-            }
-
-            string token = CreateToken(user, config);
-
-            ResponseDTO<LoginSuccessDTO> response = new ResponseDTO<LoginSuccessDTO>();
-            response.Data.user.Id = user.Id;
-            response.Data.user.Email = user.Email;
-            response.Data.user.FirstName = user.FirstName;
-            response.Data.user.LastName = user.LastName;
-            response.Data.user.Bio = user.Bio;
-            response.Data.user.GithubUrl = user.GithubUrl;
-            response.Data.user.MobileNumber = user.MobileNumber;
-
-
-            response.Data.token = token;
-
-            return Results.Ok(response) ;
-           
-        }
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        public static async Task<IResult> GetUserById(IRepository<User> service, int id)
-        {
-            var user = await service.GetByIdAsync(id);
-            if (user is null)
-            {
-                return TypedResults.NotFound();
-            }
-
-            var response = new ResponseDTO<UserDTO>();
-            response.Status = "success";
-            response.Data.Id = user.Id;
-            response.Data.Email = user.Email;
-            response.Data.Password = ""; // should this even be in user dto?
-            response.Data.FirstName = user.FirstName;
-            response.Data.LastName = user.LastName;
-            response.Data.Bio = user.Bio;
-            response.Data.GithubUrl = user.GithubUrl;
-            response.Data.Username = user.Username;
-            response.Data.MobileNumber = user.MobileNumber;
-
-            return TypedResults.Ok(response);
+                Status = "fail",
+                Data = new LoginFailureDTO()
+            });
         }
 
-        [Authorize]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public static async Task<IResult> UpdateUser(IRepository<User> service, int id, UpdateUserRequestDTO request, IValidator<UpdateUserRequestDTO> validator, ClaimsPrincipal user)
-        {
-            var userIdClaim = user.UserRealId();
-            if (userIdClaim == null || userIdClaim != id)
-            {
-                return Results.Unauthorized();
-            }
+        var token = CreateToken(user, configurationSettings);
 
-            var validation = await validator.ValidateAsync(request);
-            if (!validation.IsValid)
+        var response = new ResponseDTO<LoginSuccessDTO>
+        {
+            Status = "Success",
+            Data = new LoginSuccessDTO
             {
-                var failureDto = new UpdateUserFailureDTO();
-                foreach (var error in validation.Errors)
+                Token = token,
+                User = new UserDTO
                 {
-                    if (error.PropertyName.Equals("Email", StringComparison.OrdinalIgnoreCase))
-                        failureDto.EmailErrors.Add(error.ErrorMessage);
-                    else if (error.PropertyName.Equals("Password", StringComparison.OrdinalIgnoreCase))
-                        failureDto.PasswordErrors.Add(error.ErrorMessage);
-                    else if (error.PropertyName.Equals("MobileNumber", StringComparison.OrdinalIgnoreCase))
-                        failureDto.MobileNumberErrors.Add(error.ErrorMessage);
+                    Id = user.Id,
+                    Email = user.Credential.Email,
+                    FirstName = user.Profile.FirstName,
+                    LastName = user.Profile.LastName,
+                    Bio = user.Profile.Bio,
+                    Github = user.Profile.Github,
+                    Username = user.Credential.Username,
+                    Phone = user.Profile.Phone,
                 }
-                var failResponse = new ResponseDTO<UpdateUserFailureDTO> { Status = "fail", Data = failureDto };
-                return Results.BadRequest(failResponse);
             }
+        };
+        return Results.Ok(response);
+    }
 
-            var userEntity = await service.GetByIdAsync(id);
-            if (userEntity is null)
-            {
-                return TypedResults.NotFound();
-            }
-
-            if (request.Username is not null) userEntity.Username = request.Username;
-            if (request.Email is not null) userEntity.Email = request.Email;
-            if (request.Password is not null) userEntity.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
-            if (request.MobileNumber is not null) userEntity.MobileNumber = request.MobileNumber;
-            if (request.Bio is not null) userEntity.Bio = request.Bio;
-            if (request.GithubName is not null) userEntity.GithubUrl = GithubUrl + request.GithubName;
-            if (request.FirstName is not null) userEntity.FirstName = request.FirstName;
-            if (request.LastName is not null) userEntity.LastName = request.LastName;
-
-            service.Update(userEntity);
-            await service.SaveAsync();
-            var updatedUser = await service.GetByIdAsync(id);
-
-            ResponseDTO<UpdateUserSuccessDTO> response = new ResponseDTO<UpdateUserSuccessDTO>();
-            response.Status = "success";
-            response.Data.user.Id = updatedUser.Id;
-            response.Data.user.Email = updatedUser.Email;
-            response.Data.user.FirstName = updatedUser.FirstName;
-            response.Data.user.LastName = updatedUser.LastName;
-            response.Data.user.Bio = updatedUser.Bio;
-            response.Data.user.GithubUrl = updatedUser.GithubUrl;
-            response.Data.user.Username = updatedUser.Username;
-            response.Data.user.MobileNumber = updatedUser.MobileNumber;
-
-            return TypedResults.Ok(response);
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public static async Task<IResult> GetUserById(IRepository<User> userRepository, int id)
+    {
+        var user = await userRepository.GetByIdAsync(
+            id,
+            user => user.Credential,
+            user => user.Profile
+        );
+        if (user == null)
+        {
+            return TypedResults.NotFound();
         }
 
-        [Authorize]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public static async Task<IResult> DeleteUser(IRepository<User> service, int id, ClaimsPrincipal user)
+        var response = new ResponseDTO<UserDTO>
         {
-            var userIdClaim = user.UserRealId();
-            if (userIdClaim == null || userIdClaim != id)
+            Status = "success",
+            Data = new UserDTO
             {
-                return Results.Unauthorized();
+                Id = user.Id,
+                FirstName = user.Profile.FirstName,
+                LastName = user.Profile.LastName,
+                Bio = user.Profile.Bio,
+                Github = user.Profile.Github,
+                Username = user.Credential.Username,
+                Email = user.Credential.Email,
+                Phone = user.Profile.Phone
             }
+        };
+        return TypedResults.Ok(response);
+    }
 
-            var userEntity = await service.GetByIdAsync(id);
-            if (userEntity is null)
-            {
-                return TypedResults.NotFound();
-            }
-
-            service.DeleteAsync(id);
-            await service.SaveAsync();
-            var deletedUser = await service.GetByIdAsync(id);
-
-            ResponseDTO<UserDTO> response = new ResponseDTO<UserDTO>();
-            response.Status = "success";
-            response.Data.Id = userEntity.Id;
-            response.Data.Email = userEntity.Email;
-            response.Data.Password = userEntity.PasswordHash;
-            response.Data.FirstName = userEntity.FirstName;
-            response.Data.LastName = userEntity.LastName;
-            response.Data.Bio = userEntity.Bio;
-            response.Data.GithubUrl = userEntity.GithubUrl;
-            response.Data.MobileNumber = userEntity.MobileNumber;
-
-            return TypedResults.Ok(response);
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public static async Task<IResult> UpdateUser(IRepository<User> userRepository, int id,
+        UpdateUserRequestDTO request,
+        IValidator<UpdateUserRequestDTO> validator, ClaimsPrincipal claimsPrinciple
+    )
+    {
+        var userIdClaim = claimsPrinciple.UserRealId();
+        if (userIdClaim == null || userIdClaim != id)
+        {
+            return Results.Unauthorized();
         }
 
-        private static string CreateToken(User user, IConfigurationSettings config)
+        var validation = await validator.ValidateAsync(request);
+        if (!validation.IsValid)
         {
-            List<Claim> claims = new List<Claim>
+            var failureDto = new UpdateUserFailureDTO();
+            foreach (var error in validation.Errors)
             {
-                new Claim(ClaimTypes.Sid, user.Id.ToString()),
-                new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.Email, user.Email)
-                
-                
+                if (error.PropertyName.Equals("Email", StringComparison.OrdinalIgnoreCase))
+                    failureDto.EmailErrors.Add(error.ErrorMessage);
+                else if (error.PropertyName.Equals("Password", StringComparison.OrdinalIgnoreCase))
+                    failureDto.PasswordErrors.Add(error.ErrorMessage);
+                else if (error.PropertyName.Equals("MobileNumber", StringComparison.OrdinalIgnoreCase))
+                    failureDto.MobileNumberErrors.Add(error.ErrorMessage);
+            }
+
+            var failResponse = new ResponseDTO<UpdateUserFailureDTO>
+            {
+                Status = "fail",
+                Data = failureDto
             };
-            
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config.GetValue("AppSettings:Token")));
-            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
-            var token = new JwtSecurityToken(
-                claims: claims,
-                expires: DateTime.Now.AddDays(1),
-                signingCredentials: credentials
-                );
-            var jwt = new JwtSecurityTokenHandler().WriteToken(token);
-            return jwt;
+            return Results.BadRequest(failResponse);
         }
+
+        var user = await userRepository.GetByIdAsync(
+            id,
+            user => user.Credential,
+            user => user.Profile
+        );
+        if (user == null)
+        {
+            return TypedResults.NotFound();
+        }
+
+        if (request.Username != null) user.Credential.Username = request.Username;
+        if (request.Email != null) user.Credential.Email = request.Email;
+        if (request.Password != null)
+            user.Credential.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
+        if (request.Phone != null) user.Profile.Phone = request.Phone;
+        if (request.Bio != null) user.Profile.Bio = request.Bio;
+        if (request.Github != null) user.Profile.Github = GITHUB_URL + request.Github;
+        if (request.FirstName != null) user.Profile.FirstName = request.FirstName;
+        if (request.LastName != null) user.Profile.LastName = request.LastName;
+
+        userRepository.Update(user);
+        await userRepository.SaveAsync();
+
+        var response = new ResponseDTO<UpdateUserSuccessDTO>()
+        {
+            Status = "success",
+            Data = new UpdateUserSuccessDTO()
+            {
+                Id = user.Id,
+                Email = user.Credential.Email,
+                FirstName = user.Profile.FirstName,
+                LastName = user.Profile.LastName,
+                Bio = user.Profile.Bio,
+                Github = user.Profile.Github,
+                Username = user.Credential.Username,
+                Phone = user.Profile.Phone,
+            }
+        };
+
+        return TypedResults.Ok(response);
+    }
+
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public static async Task<IResult> DeleteUser(IRepository<User> userRepository, int id,
+        ClaimsPrincipal claimsPrincipal)
+    {
+        var userIdClaim = claimsPrincipal.UserRealId();
+        if (userIdClaim == null || userIdClaim != id)
+        {
+            return Results.Unauthorized();
+        }
+
+        var user = await userRepository.GetByIdAsync(
+            id,
+            user => user.Credential,
+            user => user.Profile
+        );
+        if (user == null)
+        {
+            return TypedResults.NotFound();
+        }
+
+        userRepository.Delete(user);
+        await userRepository.SaveAsync();
+
+        var response = new ResponseDTO<UserDTO>
+        {
+            Status = "success",
+            Data = new UserDTO
+            {
+                Id = user.Id,
+                Email = user.Credential.Email,
+                FirstName = user.Profile.FirstName,
+                LastName = user.Profile.LastName,
+                Bio = user.Profile.Bio,
+                Github = user.Profile.Github,
+                Phone = user.Profile.Phone,
+            }
+        };
+
+        return TypedResults.Ok(response);
+    }
+
+    private static string CreateToken(User user, IConfigurationSettings configurationSettings)
+    {
+        var claims = new List<Claim>
+        {
+            new(ClaimTypes.Sid, user.Id.ToString()),
+            new(ClaimTypes.Name, user.Credential.Username),
+            new(ClaimTypes.Email, user.Credential.Email)
+        };
+
+        var tokenKey = Environment.GetEnvironmentVariable(Globals.EnvironmentEnvVariable) == "Staging"
+            ? Globals.TestTokenKey
+            : Globals.TokenKey;
+        var rawToken = configurationSettings.GetValue(tokenKey);
+        if (rawToken == null)
+        {
+            throw new Exception($"TokenKey: {tokenKey} could not be found.");
+        }
+
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(rawToken));
+        var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
+        var token = new JwtSecurityToken(
+            claims: claims,
+            expires: DateTime.Now.AddDays(1),
+            signingCredentials: credentials
+        );
+        var jwt = new JwtSecurityTokenHandler().WriteToken(token);
+        return jwt;
     }
 }
-

@@ -1,25 +1,23 @@
-﻿using exercise.wwwapi.DTOs;
-using exercise.wwwapi.DTOs.Register;
-using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.VisualStudio.TestPlatform.TestHost;
-using System.ComponentModel.DataAnnotations;
-using System.Net.Http.Json;
+﻿using exercise.wwwapi.DTOs.Register;
 using System.Text.Json;
+using exercise.wwwapi.Endpoints;
 
 namespace api.tests.UserEndpointTests;
 
 public class CreateUserTests
 {
-
-    [Test]
-    public async Task GetUserByIdTestFails()
+    private HttpClient _client;
+        
+    [SetUp]
+    public void Setup()
     {
-        var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder => { });
-        var client = factory.CreateClient();
+        _client = TestUtils.CreateClient();
+    }
 
-        var response = await client.GetAsync("users/10050");
-
-        Assert.That(response.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.NotFound));
+    [TearDown]
+    public void TearDown()
+    {
+        _client.Dispose();
     }
 
     // TODO: add test "RegisterUser" that adds a user, check if the response is 201 Created and then delete the user again so we don't fill up the database
@@ -27,58 +25,65 @@ public class CreateUserTests
     [Test]
     public async Task RegisterUserExistsTest()
     {
-        var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder => { });
-        var client = factory.CreateClient();
+        const string email = "test1@test1";
+        const string password = "Test1test1%";
+        const string username = "TestTestTest";
 
         var newUser = new RegisterRequestDTO
         {
-            email = "test1@test1",
-            password = "Test1test1%"
+            Email = email,
+            Password = password,
+            Username = username
         };
 
-        var content = new StringContent(JsonSerializer.Serialize(newUser), System.Text.Encoding.UTF8, "application/json");
-        var response = await client.PostAsync("/users", content);
-
+        var content = new StringContent(
+            JsonSerializer.Serialize(newUser),
+            System.Text.Encoding.UTF8,
+            "application/json"
+        );
+        var response = await _client.PostAsync("/users", content);
         Assert.That(response.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.Conflict));
     }
-
 
     [Test]
     public async Task RegisterUserEmailValidationFailsTest()
     {
-        var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder => { });
-        var client = factory.CreateClient();
-
         var newUser = new RegisterRequestDTO
         {
-            email = "test",
-            password = "Mattimatti7&"
+            Email = "test",
+            Password = "Mattimatti7&",
+            Username = "Matti"
         };
 
-        var content = new StringContent(JsonSerializer.Serialize(newUser), System.Text.Encoding.UTF8, "application/json");
-        var response = await client.PostAsync("/users", content);
-
+        var content = new StringContent(
+            JsonSerializer.Serialize(newUser),
+            System.Text.Encoding.UTF8,
+            "application/json"
+        );
+        var response = await _client.PostAsync("/users", content);
         Assert.That(response.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.BadRequest));
-
     }
 
     [Test]
     public async Task RegisterUserPasswordValidationFailsTest()
     {
-        // Arrange: prepare request data
-        var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder => { });
-        var client = factory.CreateClient();
-
+        const string email = "testtesttest@test.test";
+        const string password = "test";
+        const string username = "testtest";
+        
         var newUser = new RegisterRequestDTO
         {
-            email = "testtesttest@test.test",
-            password = "test"
+            Email = email,
+            Password = password,
+            Username = username
         };
 
-        var content = new StringContent(JsonSerializer.Serialize(newUser), System.Text.Encoding.UTF8, "application/json");
-        var response = await client.PostAsync("/users", content);
-
+        var content = new StringContent(
+            JsonSerializer.Serialize(newUser),
+            System.Text.Encoding.UTF8,
+            "application/json"
+        );
+        var response = await _client.PostAsync("/users", content);
         Assert.That(response.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.BadRequest));
-
     }
 }
