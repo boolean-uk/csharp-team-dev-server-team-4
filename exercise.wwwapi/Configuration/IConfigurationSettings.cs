@@ -2,5 +2,5 @@
 
 public interface IConfigurationSettings
 {
-    string GetValue(string key);
+    string? GetValue(string key);
 }

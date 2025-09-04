@@ -355,12 +355,16 @@ public static class UserEndpoints
             new(ClaimTypes.Email, user.Credential.Email)
         };
 
-        string tokenKey = configurationSettings.GetValue(
-            Environment.GetEnvironmentVariable(Globals.EnvironmentEnvVariable) == Globals.EnvironmentStaging ? 
-                Globals.TestTokenKey : Globals.TokenKey
-        );
+        var tokenKey = Environment.GetEnvironmentVariable(Globals.EnvironmentEnvVariable) == "Staging"
+            ? Globals.TestTokenKey
+            : Globals.TokenKey;
+        var rawToken = configurationSettings.GetValue(tokenKey);
+        if (rawToken == null)
+        {
+            throw new Exception($"TokenKey: {tokenKey} could not be found.");
+        }
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configurationSettings.GetValue(tokenKey)));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(rawToken));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
         var token = new JwtSecurityToken(
             claims: claims,
