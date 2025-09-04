@@ -1,7 +1,6 @@
 ﻿using exercise.wwwapi.DTOs;
 using exercise.wwwapi.DTOs.Login;
 using exercise.wwwapi.DTOs.UpdateUser;
-using Microsoft.AspNetCore.Mvc.Testing;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using exercise.wwwapi.Endpoints;

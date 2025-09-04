@@ -1,6 +1,5 @@
 ﻿using exercise.wwwapi.DTOs.Login;
 using exercise.wwwapi.DTOs.Register;
-using Microsoft.AspNetCore.Mvc.Testing;
 using System.Text.Json;
 using exercise.wwwapi.Endpoints;
 
