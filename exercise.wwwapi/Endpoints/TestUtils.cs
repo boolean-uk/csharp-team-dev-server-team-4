@@ -8,7 +8,7 @@ public static class TestUtils
     {
         var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
         {
-            builder.UseSetting("testing", "true");
+            builder.UseSetting(Globals.TestingEnvVariable, "true");
         });
         return factory.CreateClient();
     }

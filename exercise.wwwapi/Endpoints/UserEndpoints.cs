@@ -356,8 +356,8 @@ public static class UserEndpoints
         };
 
         string tokenKey = configurationSettings.GetValue(
-            Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Staging" ? 
-                "TestToken" : "Token"
+            Environment.GetEnvironmentVariable(Globals.EnvironmentEnvVariable) == Globals.EnvironmentStaging ? 
+                Globals.TestTokenKey : Globals.TokenKey
         );
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configurationSettings.GetValue(tokenKey)));

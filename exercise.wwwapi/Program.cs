@@ -14,7 +14,10 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Scalar.AspNetCore;
 using System.Text;
+using exercise.wwwapi;
 using exercise.wwwapi.Models.UserInfo;
+
+
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Logging.ClearProviders();
@@ -32,7 +35,7 @@ builder.Services.AddScoped<IValidator<UpdateUserRequestDTO>, UserUpdateValidator
 
 builder.Services.AddDbContext<DataContext>(options =>
 {
-    if (builder.Configuration.GetValue<string>("testing") != null)
+    if (builder.Configuration.GetValue<string>(Globals.TestingEnvVariable) != null)
     {
         options.UseInMemoryDatabase(Guid.NewGuid().ToString());
     }
@@ -64,11 +67,11 @@ string? token;
 
 if (builder.Environment.IsStaging())
 {
-    token = config.GetValue("AppSettings:TestToken");
+    token = config.GetValue(Globals.TestTokenKey);
 }
 else
 {
-    token = builder.Configuration["Token"];
+    token = builder.Configuration[Globals.TokenKey];
 }
 
 if (token == null)
@@ -121,7 +124,7 @@ builder.Services.AddSwaggerGen(s =>
                     Id = "Bearer"
                 }
             },
-            Array.Empty<string>()
+            []
         }
     });
 });
