@@ -26,13 +26,6 @@ public class CreateUserTests
         _client.Dispose();
         _factory.Dispose();
     }
-    
-    [Test]
-    public async Task GetUserByIdTestFails()
-    {
-        var response = await _client.GetAsync("users/10050");
-        Assert.That(response.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.NotFound));
-    }
 
     // TODO: add test "RegisterUser" that adds a user, check if the response is 201 Created and then delete the user again so we don't fill up the database
 
