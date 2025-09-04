@@ -18,8 +18,9 @@ public class Exercise
     [Column("title", TypeName = "varchar(100)")]
     public string Title { get; set; }
 
+    [Required]
     [Column("description", TypeName = "varchar(500)")] 
-    public string? Description { get; set; }
+    public string Description { get; set; }
 
     public Unit Unit { get; set; }
 }
