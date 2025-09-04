@@ -2,109 +2,115 @@
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
-namespace exercise.wwwapi.Repository
+namespace exercise.wwwapi.Repository;
+
+public class Repository<T> : IRepository<T> where T : class
 {
-    public class Repository<T> : IRepository<T> where T : class
+    private readonly DataContext _db;
+    private readonly DbSet<T> _table;
+
+    public Repository(DataContext db)
     {
-        private readonly DataContext _db;
-        private readonly DbSet<T> _table;
-        
-        public Repository(DataContext db)
+        _db = db;
+        _table = _db.Set<T>();
+    }
+
+    public IEnumerable<T> GetAll(params Expression<Func<T, object>>[] includeExpressions)
+    {
+        if (includeExpressions.Length != 0)
         {
-            _db = db;
-            _table = _db.Set<T>();
+            var set = includeExpressions
+                .Aggregate<Expression<Func<T, object>>, IQueryable<T>>
+                    (_table, (current, expression) => current.Include(expression));
+            return set;
         }
 
-        public IEnumerable<T> GetAll(params Expression<Func<T, object>>[] includeExpressions)
+        return _table.ToList();
+    }
+
+    public async Task<IEnumerable<T>> GetAllAsync()
+    {
+        return await _table.ToListAsync();
+    }
+
+    public async Task<IEnumerable<T>> GetAllAsync(params Expression<Func<T, object>>[] includeExpressions)
+    {
+        if (includeExpressions.Length != 0)
         {
-            if (includeExpressions.Length != 0)
+            var set = includeExpressions
+                .Aggregate<Expression<Func<T, object>>, IQueryable<T>>
+                    (_table, (current, expression) => current.Include(expression));
+            return set;
+        }
+
+        return await _table.ToListAsync();
+    }
+    
+    public T? GetById(object id, params Expression<Func<T, object>>[] includeExpressions)
+    {
+        if (includeExpressions.Length != 0)
+        {
+            IQueryable<T> query = _table;
+
+            // Apply includes if any
+            foreach (var include in includeExpressions)
             {
-                var set = includeExpressions
-                    .Aggregate<Expression<Func<T, object>>, IQueryable<T>>
-                     (_table, (current, expression) => current.Include(expression));
+                query = query.Include(include);
             }
-            return _table.ToList();
+
+            // Use EF.Property to dynamically access the "Id" property
+            return query.FirstOrDefault(e => EF.Property<object>(e, "Id").Equals(id));
         }
 
-        public async Task<IEnumerable<T>> Get()
-        {
-            return await _table.ToListAsync();
-        }
+        return _table.Find(id);
+    }
 
-        public async Task<IEnumerable<T>> GetAll()
+    public async Task<T?> GetByIdAsync(object id, params Expression<Func<T, object>>[] includeExpressions)
+    {
+        if (includeExpressions.Length != 0)
         {
-            return await _table.ToListAsync();
-        }
+            IQueryable<T> query = _table;
 
-        public T? GetById(object id)
-        {
-            return _table.Find(id);
-        }
-
-        public void Insert(T obj)
-        {
-            _table.Add(obj);
-        }
-
-        public void Update(T obj)
-        {
-            _table.Attach(obj);
-            _db.Entry(obj).State = EntityState.Modified;
-        }
-
-        public async Task Delete(object id)
-        {
-            var existing = await _table.FindAsync(id);
-            if (existing != null)
+            // Apply includes if any
+            foreach (var include in includeExpressions)
             {
-                _table.Remove(existing);
+                query = query.Include(include);
             }
+
+            // Use EF.Property to dynamically access the "Id" property
+            return await query.FirstOrDefaultAsync(e => EF.Property<object>(e, "Id").Equals(id));
         }
 
-        public void Save()
-        {
-            _db.SaveChanges();
-        }
+        return await _table.FindAsync(id);    }
 
-        public async Task<IEnumerable<T>> GetAllAsync()
-        {
-            return await _table.ToListAsync();
-        }
+    public void Insert(T obj)
+    {
+        _table.Add(obj);
+    }
 
-        public async Task<IEnumerable<T>> GetAllAsync(params Expression<Func<T, object>>[] includeExpressions)
-        {
-            if (includeExpressions.Length != 0)
-            {
-                var set = includeExpressions
-                    .Aggregate<Expression<Func<T, object>>, IQueryable<T>>
-                     (_table, (current, expression) => current.Include(expression));
-            }
-            return await _table.ToListAsync();
-        }
+    public void Update(T obj)
+    {
+        _table.Attach(obj);
+        _db.Entry(obj).State = EntityState.Modified;
+    }
 
-        public async Task<T?> GetByIdAsync(object id)
-        {
-            return await _table.FindAsync(id);
-        }
+    public void Delete(object id)
+    {
+        throw new NotImplementedException();
+    }
 
-        public async Task InsertAsync(T obj)
-        {
-            await _table.AddAsync(obj);
-        }
+    public void Delete(T obj)
+    {
+        _table.Remove(obj);
+    }
 
-        public async Task DeleteAsync(object id)
-        {
-            var existing = await _table.FindAsync(id);
+    public void Save()
+    {
+        _db.SaveChanges();
+    }
 
-            if (existing != null)
-            {
-                _table.Remove(existing);
-            }
-        }
-
-        public async Task SaveAsync()
-        {
-            await _db.SaveChangesAsync();
-        }
+    public async Task SaveAsync()
+    {
+        await _db.SaveChangesAsync();
     }
 }

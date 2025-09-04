@@ -1,31 +1,30 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace exercise.wwwapi.DTOs.UpdateUser
+namespace exercise.wwwapi.DTOs.UpdateUser;
+
+public class UpdateUserRequestDTO
 {
-    public class UpdateUserRequestDTO
-    {
-        [JsonPropertyName("email")]
-        public string? Email { get; set; }
+    [JsonPropertyName("email")]
+    public string? Email { get; set; }
         
-        [JsonPropertyName("password")]
-        public string? Password { get; set; }
+    [JsonPropertyName("password")]
+    public string? Password { get; set; }
         
-        [JsonPropertyName("firstName")]
-        public string? FirstName { get; set; }
+    [JsonPropertyName("firstName")]
+    public string? FirstName { get; set; }
         
-        [JsonPropertyName("lastName")]
-        public string? LastName { get; set; }
+    [JsonPropertyName("lastName")]
+    public string? LastName { get; set; }
         
-        [JsonPropertyName("bio")]
-        public string? Bio { get; set; }
+    [JsonPropertyName("bio")]
+    public string? Bio { get; set; }
         
-        [JsonPropertyName("github")]
-        public string? Github { get; set; }
+    [JsonPropertyName("github")]
+    public string? Github { get; set; }
         
-        [JsonPropertyName("username")]
-        public string? Username { get; set; }
+    [JsonPropertyName("username")]
+    public string? Username { get; set; }
         
-        [JsonPropertyName("phone")]
-        public string? Phone { get; set; }
-    }
+    [JsonPropertyName("phone")]
+    public string? Phone { get; set; }
 }

@@ -4,24 +4,19 @@ using exercise.wwwapi.DTOs.UpdateUser;
 using Microsoft.AspNetCore.Mvc.Testing;
 using System.Net.Http.Headers;
 using System.Text.Json;
+using exercise.wwwapi.Endpoints;
 
 namespace api.tests.UserEndpointTests;
 
 public class UpdateUserTests
 {
     private Random _random;
-    private WebApplicationFactory<Program> _factory;
     private HttpClient _client;
-
+        
     [SetUp]
     public void Setup()
     {
-        _factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
-        {
-            builder.UseSetting("environment", "staging");
-        });
-
-        _client = _factory.CreateClient();
+        _client = TestUtils.CreateClient();
         _random = new Random();
     }
 
@@ -29,7 +24,6 @@ public class UpdateUserTests
     public void TearDown()
     {
         _client.Dispose();
-        _factory.Dispose();
     }
 
     [Test]

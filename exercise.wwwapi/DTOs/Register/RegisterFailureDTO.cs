@@ -1,13 +1,12 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace exercise.wwwapi.DTOs.Register
+namespace exercise.wwwapi.DTOs.Register;
+
+public class RegisterFailureDTO
 {
-    public class RegisterFailureDTO
-    {
-        [JsonPropertyName("emailErrors")]
-        public List<string> EmailErrors { get; set; } = [];
+    [JsonPropertyName("emailErrors")]
+    public List<string> EmailErrors { get; set; } = [];
         
-        [JsonPropertyName("passwordErrors")]
-        public List<string> PasswordErrors { get; set; } = [];
-    }
+    [JsonPropertyName("passwordErrors")]
+    public List<string> PasswordErrors { get; set; } = [];
 }

@@ -22,31 +22,26 @@ builder.Logging.AddConsole();
 var config = new ConfigurationSettings();
 
 // Add services to the container.
-if (builder.Environment.IsStaging())
-{
-    builder.Services.AddScoped<IConfigurationSettings, StagingConfigurationSettings>();
-}
-else
-{
-    builder.Services.AddScoped<IConfigurationSettings, ConfigurationSettings>();
-}
-
+builder.Services.AddScoped<IConfigurationSettings, ConfigurationSettings>();
 builder.Services.AddScoped<IRepository<User>, Repository<User>>();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IRepository<Credential>, Repository<Credential>>();
+builder.Services.AddScoped<IRepository<Profile>, Repository<Profile>>();
 builder.Services.AddScoped<ILogger, Logger<string>>();
 builder.Services.AddScoped<IValidator<RegisterRequestDTO>, UserRegisterValidator>();
 builder.Services.AddScoped<IValidator<UpdateUserRequestDTO>, UserUpdateValidator>();
 
 builder.Services.AddDbContext<DataContext>(options =>
 {
-    if (builder.Environment.IsStaging())
+    if (builder.Configuration.GetValue<string>("testing") != null)
     {
         options.UseInMemoryDatabase(Guid.NewGuid().ToString());
     }
     else
     {
-        var neonUsername = builder.Configuration["Neon:Username"];
-        var neonPassword = builder.Configuration["Neon:Password"];
+        var host = builder.Configuration["Neon:Host"];
+        var database = builder.Configuration["Neon:Database"];
+        var username = builder.Configuration["Neon:Username"];
+        var password = builder.Configuration["Neon:Password"];
 
         const string defaultConnectionName = "DefaultConnection";
         var connectionString = builder.Configuration.GetConnectionString(defaultConnectionName);
@@ -55,8 +50,10 @@ builder.Services.AddDbContext<DataContext>(options =>
             throw new Exception("Could not find connection string with name: " + defaultConnectionName);
         }
 
-        connectionString = connectionString.Replace("${Neon:Username}", neonUsername);
-        connectionString = connectionString.Replace("${Neon:Password}", neonPassword);
+        connectionString = connectionString.Replace("${Neon:Host}", host);
+        connectionString = connectionString.Replace("${Neon:Database}", database);
+        connectionString = connectionString.Replace("${Neon:Username}", username);
+        connectionString = connectionString.Replace("${Neon:Password}", password);
 
         options.UseNpgsql(connectionString);
         options.LogTo(message => Debug.WriteLine(message));

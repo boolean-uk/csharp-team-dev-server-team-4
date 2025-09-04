@@ -1,30 +1,24 @@
 ﻿using exercise.wwwapi.DTOs.Register;
 using Microsoft.AspNetCore.Mvc.Testing;
 using System.Text.Json;
+using exercise.wwwapi.Endpoints;
 
 namespace api.tests.UserEndpointTests;
 
 public class CreateUserTests
 {
-    private WebApplicationFactory<Program> _factory;
     private HttpClient _client;
-    
+        
     [SetUp]
     public void Setup()
     {
-        _factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
-        {
-            builder.UseSetting("environment", "staging");
-        });
-            
-        _client = _factory.CreateClient();
+        _client = TestUtils.CreateClient();
     }
-    
+
     [TearDown]
     public void TearDown()
     {
         _client.Dispose();
-        _factory.Dispose();
     }
 
     // TODO: add test "RegisterUser" that adds a user, check if the response is 201 Created and then delete the user again so we don't fill up the database

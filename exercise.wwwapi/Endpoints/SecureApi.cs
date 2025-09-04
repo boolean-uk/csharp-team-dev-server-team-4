@@ -5,22 +5,21 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using exercise.wwwapi.Models.UserInfo;
 
-namespace exercise.wwwapi.EndPoints
+namespace exercise.wwwapi.EndPoints;
+
+public static class SecureApi
 {
-    public static class SecureApi
+    public static void ConfigureSecureApi(this WebApplication app)
     {
-        public static void ConfigureSecureApi(this WebApplication app)
-        {
-            app.MapGet("message", GetMessage);
+        app.MapGet("message", GetMessage);
            
 
-        }
-        [Authorize]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        private static async Task<IResult> GetMessage(IRepository<User> service, ClaimsPrincipal user)
-        {
-            return TypedResults.Ok(new { LoggedIn = true, UserId=user.UserRealId().ToString(), Email = $"{user.Email()}", Message = "Pulled the userid and email out of the claims" });
-        }
+    }
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    private static async Task<IResult> GetMessage(IRepository<User> service, ClaimsPrincipal user)
+    {
+        return TypedResults.Ok(new { LoggedIn = true, UserId=user.UserRealId().ToString(), Email = $"{user.Email()}", Message = "Pulled the userid and email out of the claims" });
     }
 }

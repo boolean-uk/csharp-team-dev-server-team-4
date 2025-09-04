@@ -1,16 +1,15 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace exercise.wwwapi.DTOs.UpdateUser
+namespace exercise.wwwapi.DTOs.UpdateUser;
+
+public class UpdateUserFailureDTO
 {
-    public class UpdateUserFailureDTO
-    {
-        [JsonPropertyName("emailErrors")]
-        public List<string> EmailErrors { get; set; } = [];
+    [JsonPropertyName("emailErrors")]
+    public List<string> EmailErrors { get; set; } = [];
         
-        [JsonPropertyName("passwordErrors")]
-        public List<string> PasswordErrors { get; set; } = [];
+    [JsonPropertyName("passwordErrors")]
+    public List<string> PasswordErrors { get; set; } = [];
         
-        [JsonPropertyName("mobileNumberErrors")]
-        public List<string> MobileNumberErrors { get; set; } = [];
-    }
+    [JsonPropertyName("mobileNumberErrors")]
+    public List<string> MobileNumberErrors { get; set; } = [];
 }
