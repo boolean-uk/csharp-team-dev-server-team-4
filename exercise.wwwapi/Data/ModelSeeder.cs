@@ -7,26 +7,26 @@ namespace exercise.wwwapi.Data;
 
 public static class ModelSeeder
 {
-    // Necessary because the seeder requires them to be constant values 
+    private static readonly DateTime _seedTime = new DateTime(2025, 01, 01, 0, 0, 0, DateTimeKind.Utc);
+
     private static string[] _passwordHashes =
     [
         "$2a$11$NlNrSkH2Uop6Nl90BHeF9udj/s5N79m9j94htBwtiwPMzoJ5EXozW", // Test1test1%
         "$2a$11$MYFrTWP6v64imGdsbibutOW/DSZiu3wg5rWR1Nm5Zjb5XBNut5HKq", // Test2test2%
         "$2a$11$JyMDiDHwh8hrcjNmp0zb8uZGFettl5dyJ3FDa3S5iOCTYnDn6GZqm", // Test3test3%
         "$2a$11$.daNf2PApH/oqC8MGCQq5uHqw2zmjmIiIB8A6WZ/nLXjbI4iuQsEW", // Test4test4%
-        "$2a$11$HmeURzynKz6PqTVeZxfDIeg6MRpzI/5ZAY1GyHW0hJuNUvv7ixOOO" // Test5test5%
+        "$2a$11$HmeURzynKz6PqTVeZxfDIeg6MRpzI/5ZAY1GyHW0hJuNUvv7ixOOO"  // Test5test5%
     ];
 
     public static void Seed(ModelBuilder modelBuilder)
     {
+        SeedCourses(ref modelBuilder);
+        SeedCohorts(ref modelBuilder);
         SeedUsers(ref modelBuilder);
         SeedCredentials(ref modelBuilder);
         SeedProfiles(ref modelBuilder);
         SeedPosts(ref modelBuilder);
         SeedComments(ref modelBuilder);
-        SeedCourses(ref modelBuilder);
-        SeedCohorts(ref modelBuilder);
-        SeedCohortMembers(ref modelBuilder);
         SeedModules(ref modelBuilder);
         SeedUnits(ref modelBuilder);
         SeedExercises(ref modelBuilder);
@@ -130,22 +130,27 @@ public static class ModelSeeder
             new User
             {
                 Id = 1,
+                CohortId = 1,
             },
             new User
             {
                 Id = 2,
+                CohortId = 2,
             },
             new User
             {
                 Id = 3,
+                CohortId = 3,
             },
             new User
             {
                 Id = 4,
+                CohortId = 4,
             },
             new User
             {
                 Id = 5,
+                CohortId = 5,
             }
         );
     }
@@ -159,7 +164,7 @@ public static class ModelSeeder
                 AuthorId = 1,
                 Body = "Post 1 Body",
                 Likes = 5,
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = _seedTime,
             },
             new Post
             {
@@ -167,7 +172,7 @@ public static class ModelSeeder
                 AuthorId = 2,
                 Body = "Post 2 Body",
                 Likes = 3,
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = _seedTime,
             },
             new Post
             {
@@ -175,7 +180,7 @@ public static class ModelSeeder
                 AuthorId = 3,
                 Body = "Post 3 Body",
                 Likes = 10,
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = _seedTime,
             },
             new Post
             {
@@ -183,7 +188,7 @@ public static class ModelSeeder
                 AuthorId = 4,
                 Body = "Post 4 Body",
                 Likes = 7,
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = _seedTime,
             },
             new Post
             {
@@ -191,7 +196,7 @@ public static class ModelSeeder
                 AuthorId = 5,
                 Body = "Post 5 Body",
                 Likes = 9,
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = _seedTime,
             }
         );
     }
@@ -205,7 +210,7 @@ public static class ModelSeeder
                 PostId = 1,
                 UserId = 1,
                 Body = "Post 1 Body",
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = _seedTime,
             },
             new Comment
             {
@@ -213,7 +218,7 @@ public static class ModelSeeder
                 PostId = 2,
                 UserId = 2,
                 Body = "Post 2 Body",
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = _seedTime,
             },
             new Comment
             {
@@ -221,7 +226,7 @@ public static class ModelSeeder
                 PostId = 3,
                 UserId = 3,
                 Body = "Post 3 Body",
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = _seedTime,
             },
             new Comment
             {
@@ -229,7 +234,7 @@ public static class ModelSeeder
                 PostId = 4,
                 UserId = 4,
                 Body = "Post 4 Body",
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = _seedTime,
             },
             new Comment
             {
@@ -237,7 +242,7 @@ public static class ModelSeeder
                 PostId = 5,
                 UserId = 5,
                 Body = "Post 5 Body",
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = _seedTime,
             }
         );
     }
@@ -300,42 +305,6 @@ public static class ModelSeeder
             {
                 Id = 5,
                 CourseId = 5,
-            }
-        );
-    }
-
-    private static void SeedCohortMembers(ref ModelBuilder modelBuilder)
-    {
-        modelBuilder.Entity<CohortMember>().HasData(
-            new CohortMember
-            {
-                Id = 1,
-                UserId = 1,
-                CohortId = 1,
-            },
-            new CohortMember
-            {
-                Id = 2,
-                UserId = 2,
-                CohortId = 2,
-            },
-            new CohortMember
-            {
-                Id = 3,
-                UserId = 3,
-                CohortId = 3,
-            },
-            new CohortMember
-            {
-                Id = 4,
-                UserId = 4,
-                CohortId = 4,
-            },
-            new CohortMember
-            {
-                Id = 5,
-                UserId = 5,
-                CohortId = 5,
             }
         );
     }

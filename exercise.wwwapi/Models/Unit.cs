@@ -19,5 +19,5 @@ public class Unit
     public string Title { get; set; }
         
     public Module Module { get; set; }
-    public ICollection<Exercise> Exercises { get; set; }
+    public ICollection<Exercise> Exercises { get; set; } = new List<Exercise>();
 }

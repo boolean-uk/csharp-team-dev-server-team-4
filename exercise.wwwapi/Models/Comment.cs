@@ -8,6 +8,7 @@ namespace exercise.wwwapi.Models;
 [Table("comments")]
 public class Comment
 {
+    [Key]
     [Column("id")]
     public int Id { get; set; }
 
@@ -23,7 +24,7 @@ public class Comment
     [Column("body", TypeName = "varchar(1000)")]
     public string Body { get; set; }
 
-    [Column("create_at")]
+    [Column("created_at")]
     public DateTime CreatedAt { get; set; }
 
     [JsonIgnore]

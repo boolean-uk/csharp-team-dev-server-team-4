@@ -1,4 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using exercise.wwwapi.DTOs;
+using exercise.wwwapi.DTOs.GetObjects;
+using exercise.wwwapi.DTOs.Posts;
+using exercise.wwwapi.DTOs.UpdatePost;
+using exercise.wwwapi.Helpers;
+using exercise.wwwapi.Repository;
+using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+using Post = exercise.wwwapi.Models.Post;
 
 namespace exercise.wwwapi.Endpoints;
 
@@ -9,15 +19,193 @@ public static class PostEndpoints
         var posts = app.MapGroup("posts");
         posts.MapPost("/", CreatePost).WithSummary("Create post");
         posts.MapGet("/", GetAllPosts).WithSummary("Get all posts");
+        posts.MapPatch("/{id}", UpdatePost).RequireAuthorization().WithSummary("Update a post");
+        posts.MapDelete("/{id}", DeletePost).RequireAuthorization().WithSummary("Delete a post");
     }
+
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public static async Task<IResult> CreatePost()
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public static async Task<IResult> CreatePost(CreatePostRequestDTO request, IRepository<Post> postRepository,
+        IValidator<CreatePostRequestDTO> validator)
     {
-        return TypedResults.Ok();
+
+        var validation = await validator.ValidateAsync(request);
+        if (!validation.IsValid)
+        {
+            var failureDTO = new CreatePostFailureDTO();
+
+            foreach (var error in validation.Errors)
+            {
+                if (error.PropertyName.Equals("body", StringComparison.OrdinalIgnoreCase))
+                    failureDTO.BodyErrors.Add(error.ErrorMessage);
+            }
+
+            var failResponse = new ResponseDTO<CreatePostFailureDTO> { Status = "fail", Data = failureDTO };
+            return Results.BadRequest(failResponse);
+        }
+
+        var post = new Post
+        {
+            Body = request.Body,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        var response = new ResponseDTO<CreatePostSuccessDTO>
+        {
+            Status = "success",
+            Data = new CreatePostSuccessDTO
+            {
+                Posts =
+                {
+                    Body = post.Body,
+                    CreatedAt = post.CreatedAt
+                }
+            }
+        };
+
+        return Results.Ok(response);
     }
+
+    [Authorize]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public static async Task<IResult> GetAllPosts()
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    private static async Task<IResult> GetAllPosts(IRepository<Post> postRepository,
+            ClaimsPrincipal user)
     {
-        return TypedResults.Ok();
+        var results = (await postRepository.GetAllAsync(
+            p => p.Author,
+            p => p.Comments
+        )).ToList();
+
+        var postData = new PostsSuccessDTO
+        {
+            Posts = results
+        };
+
+        var response = new ResponseDTO<PostsSuccessDTO>
+        {
+            Status = "success",
+            Data = postData
+        };
+
+        return TypedResults.Ok(response);
+    }
+
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public static async Task<IResult> UpdatePost(IRepository<Post> postRepository, int id,
+            UpdatePostRequestDTO request,
+            IValidator<UpdatePostRequestDTO> validator, ClaimsPrincipal claimsPrincipal)
+    {
+        var userIdClaim = claimsPrincipal.UserRealId();
+        if (userIdClaim == null)
+        {
+            return Results.Unauthorized();
+        }
+
+        var post = await postRepository.GetByIdAsync(
+            id,
+            p => p.Author,
+            p => p.Comments
+        );
+
+        if (post == null)
+        {
+            return TypedResults.NotFound();
+        }
+
+        if (post.AuthorId != userIdClaim)
+        {
+            return Results.Unauthorized();
+        }
+
+        var validation = await validator.ValidateAsync(request);
+        if (!validation.IsValid)
+        {
+            var failureDto = new UpdatePostFailureDTO();
+            foreach (var error in validation.Errors)
+            {
+                if (error.PropertyName.Equals("Body", StringComparison.OrdinalIgnoreCase))
+                    failureDto.BodyErrors.Add(error.ErrorMessage);
+            }
+
+            var failResponse = new ResponseDTO<UpdatePostFailureDTO>
+            {
+                Status = "fail",
+                Data = failureDto
+            };
+            return Results.BadRequest(failResponse);
+        }
+
+        if (request.Body != null) post.Body = request.Body;
+
+        postRepository.Update(post);
+        await postRepository.SaveAsync();
+
+        var response = new ResponseDTO<UpdatePostSuccessDTO>
+        {
+            Status = "success",
+            Data = new UpdatePostSuccessDTO
+            {
+                Id = post.Id,
+                AuthorId = post.AuthorId,
+                Body = post.Body,
+                Likes = post.Likes,
+                CreatedAt = post.CreatedAt
+            }
+        };
+
+        return TypedResults.Ok(response);
+    }
+
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public static async Task<IResult> DeletePost(IRepository<Post> postRepository, int id,
+        ClaimsPrincipal claimsPrincipal)
+    {
+        var userIdClaim = claimsPrincipal.UserRealId();
+        if (userIdClaim == null)
+        {
+            return Results.Unauthorized();
+        }
+
+        var post = await postRepository.GetByIdAsync(
+            id,
+            p => p.Author,
+            p => p.Comments
+        );
+
+        if (post == null)
+        {
+            return TypedResults.NotFound();
+        }
+
+        if (post.AuthorId != userIdClaim)
+        {
+            return Results.Unauthorized();
+        }
+
+        postRepository.Delete(post);
+        await postRepository.SaveAsync();
+
+        var response = new ResponseDTO<PostDTO>
+        {
+            Status = "success",
+            Data = new PostDTO
+            {
+                Id = post.Id,
+                AuthorId = post.AuthorId,
+                Body = post.Body,
+                Likes = post.Likes,
+                CreatedAt = post.CreatedAt
+            }
+        };
+
+        return TypedResults.Ok(response);
     }
 }

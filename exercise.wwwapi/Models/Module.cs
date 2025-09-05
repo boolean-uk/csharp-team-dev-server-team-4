@@ -19,5 +19,5 @@ public class Module
     public string Title { get; set; }
         
     public Course Course { get; set; }
-    public ICollection<Unit> Units { get; set; }
+    public ICollection<Unit> Units { get; set; } = new List<Unit>();
 }

@@ -17,6 +17,9 @@ using System.Text;
 using exercise.wwwapi;
 using exercise.wwwapi.Models;
 using exercise.wwwapi.Models.UserInfo;
+using exercise.wwwapi.DTOs.Posts;
+using exercise.wwwapi.Validators.PostValidators;
+using exercise.wwwapi.DTOs.UpdatePost;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -32,7 +35,6 @@ builder.Services.AddScoped<IRepository<Post>, Repository<Post>>();
 builder.Services.AddScoped<IRepository<Comment>, Repository<Comment>>();
 builder.Services.AddScoped<IRepository<Course>, Repository<Course>>();
 builder.Services.AddScoped<IRepository<Cohort>, Repository<Cohort>>();
-builder.Services.AddScoped<IRepository<CohortMember>, Repository<CohortMember>>();
 builder.Services.AddScoped<IRepository<Module>, Repository<Module>>();
 builder.Services.AddScoped<IRepository<Unit>, Repository<Unit>>();
 builder.Services.AddScoped<IRepository<Exercise>, Repository<Exercise>>();
@@ -44,6 +46,10 @@ builder.Services.AddScoped<ILogger, Logger<string>>();
 // Register validators
 builder.Services.AddScoped<IValidator<RegisterRequestDTO>, UserRegisterValidator>();
 builder.Services.AddScoped<IValidator<UpdateUserRequestDTO>, UserUpdateValidator>();
+
+// Post validators
+builder.Services.AddScoped<IValidator<CreatePostRequestDTO>, CreatePostValidator>();
+builder.Services.AddScoped<IValidator<UpdatePostRequestDTO>, UpdatePostValidator>();
 
 // Database context
 builder.Services.AddDbContext<DataContext>(options =>
