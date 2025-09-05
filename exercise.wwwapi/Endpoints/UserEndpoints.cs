@@ -111,7 +111,10 @@ public static class UserEndpoints
                 FirstName = string.IsNullOrEmpty(request.FirstName) ? string.Empty : request.FirstName,
                 LastName = string.IsNullOrEmpty(request.LastName) ? string.Empty : request.LastName,
                 Bio = string.IsNullOrEmpty(request.Bio) ? string.Empty : request.Bio,
-                Github = string.IsNullOrEmpty(request.Github) ? string.Empty : request.Github
+                Github = string.IsNullOrEmpty(request.Github) ? string.Empty : request.Github,
+                StartDate = DateTime.MinValue,
+                EndDate = DateTime.MinValue,
+                Specialism = Specialism.None
             }
         };
 
@@ -132,7 +135,10 @@ public static class UserEndpoints
                     Github = user.Profile.Github,
                     Username = user.Credential.Username,
                     Email = user.Credential.Email,
-                    Phone = user.Profile.Phone
+                    Phone = user.Profile.Phone,
+                    StartDate = user.Profile.StartDate,
+                    EndDate = user.Profile.EndDate,
+                    Specialism = user.Profile.Specialism
                 }
             }
         };
@@ -185,6 +191,9 @@ public static class UserEndpoints
                     Github = user.Profile.Github,
                     Username = user.Credential.Username,
                     Phone = user.Profile.Phone,
+                    StartDate = user.Profile.StartDate,
+                    EndDate = user.Profile.EndDate,
+                    Specialism = user.Profile.Specialism
                 }
             }
         };
@@ -217,7 +226,10 @@ public static class UserEndpoints
                 Github = user.Profile.Github,
                 Username = user.Credential.Username,
                 Email = user.Credential.Email,
-                Phone = user.Profile.Phone
+                Phone = user.Profile.Phone,
+                StartDate = user.Profile.StartDate,
+                EndDate = user.Profile.EndDate,
+                Specialism = user.Profile.Specialism
             }
         };
         return TypedResults.Ok(response);
@@ -340,6 +352,9 @@ public static class UserEndpoints
                 Bio = user.Profile.Bio,
                 Github = user.Profile.Github,
                 Phone = user.Profile.Phone,
+                StartDate = user.Profile.StartDate,
+                EndDate = user.Profile.EndDate,
+                Specialism = user.Profile.Specialism
             }
         };
 

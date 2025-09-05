@@ -34,10 +34,10 @@ public class UserDTO
     public DateTime? StartDate { get; set; }
 
     [JsonPropertyName("endDate")]
-    public DateTime EndDate { get; set; }
+    public DateTime? EndDate { get; set; }
 
     [JsonPropertyName("specialism")]
-    public Specialism Specialism { get; set; }
+    public Specialism? Specialism { get; set; }
 
     [JsonPropertyName("cohortId")]
     public int? CohortId { get; set; }

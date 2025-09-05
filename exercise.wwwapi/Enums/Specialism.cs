@@ -4,6 +4,7 @@
     {
         Frontend,
         Backend,
-        Fullstack
+        Fullstack,
+        None
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using exercise.wwwapi.Enums;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
 namespace exercise.wwwapi.DTOs.Register;
@@ -26,4 +27,13 @@ public class RegisterRequestDTO
         
     [JsonPropertyName("github")]
     public string? Github { get; set; }
+
+    [JsonPropertyName("startDate")]
+    public DateTime? StartDate { get; set; }
+
+    [JsonPropertyName("endDate")]
+    public DateTime? EndDate { get; set; }
+
+    [JsonPropertyName("specialism")]
+    public Specialism? Specialism { get; set; }
 }
