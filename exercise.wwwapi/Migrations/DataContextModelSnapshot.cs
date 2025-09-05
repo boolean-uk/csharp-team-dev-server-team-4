@@ -69,64 +69,6 @@ namespace exercise.wwwapi.Migrations
                         });
                 });
 
-            modelBuilder.Entity("exercise.wwwapi.Models.CohortMember", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CohortId")
-                        .HasColumnType("integer")
-                        .HasColumnName("cohort_id");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CohortId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("cohortmembers");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CohortId = 1,
-                            UserId = 1
-                        },
-                        new
-                        {
-                            Id = 2,
-                            CohortId = 2,
-                            UserId = 2
-                        },
-                        new
-                        {
-                            Id = 3,
-                            CohortId = 3,
-                            UserId = 3
-                        },
-                        new
-                        {
-                            Id = 4,
-                            CohortId = 4,
-                            UserId = 4
-                        },
-                        new
-                        {
-                            Id = 5,
-                            CohortId = 5,
-                            UserId = 5
-                        });
-                });
-
             modelBuilder.Entity("exercise.wwwapi.Models.Comment", b =>
                 {
                     b.Property<int>("Id")
@@ -696,30 +638,40 @@ namespace exercise.wwwapi.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("CohortId")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("CohortId");
 
                     b.ToTable("users");
 
                     b.HasData(
                         new
                         {
-                            Id = 1
+                            Id = 1,
+                            CohortId = 1
                         },
                         new
                         {
-                            Id = 2
+                            Id = 2,
+                            CohortId = 2
                         },
                         new
                         {
-                            Id = 3
+                            Id = 3,
+                            CohortId = 3
                         },
                         new
                         {
-                            Id = 4
+                            Id = 4,
+                            CohortId = 4
                         },
                         new
                         {
-                            Id = 5
+                            Id = 5,
+                            CohortId = 5
                         });
                 });
 
@@ -732,25 +684,6 @@ namespace exercise.wwwapi.Migrations
                         .IsRequired();
 
                     b.Navigation("Course");
-                });
-
-            modelBuilder.Entity("exercise.wwwapi.Models.CohortMember", b =>
-                {
-                    b.HasOne("exercise.wwwapi.Models.Cohort", "Cohort")
-                        .WithMany("Members")
-                        .HasForeignKey("CohortId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("exercise.wwwapi.Models.UserInfo.User", "User")
-                        .WithMany("CohortMembers")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Cohort");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("exercise.wwwapi.Models.Comment", b =>
@@ -838,6 +771,17 @@ namespace exercise.wwwapi.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("exercise.wwwapi.Models.UserInfo.User", b =>
+                {
+                    b.HasOne("exercise.wwwapi.Models.Cohort", "Cohort")
+                        .WithMany("Members")
+                        .HasForeignKey("CohortId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Cohort");
+                });
+
             modelBuilder.Entity("exercise.wwwapi.Models.Cohort", b =>
                 {
                     b.Navigation("Members");
@@ -867,8 +811,6 @@ namespace exercise.wwwapi.Migrations
 
             modelBuilder.Entity("exercise.wwwapi.Models.UserInfo.User", b =>
                 {
-                    b.Navigation("CohortMembers");
-
                     b.Navigation("Comments");
 
                     b.Navigation("Credential")

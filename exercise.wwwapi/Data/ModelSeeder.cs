@@ -26,7 +26,6 @@ public static class ModelSeeder
         SeedComments(ref modelBuilder);
         SeedCourses(ref modelBuilder);
         SeedCohorts(ref modelBuilder);
-        SeedCohortMembers(ref modelBuilder);
         SeedModules(ref modelBuilder);
         SeedUnits(ref modelBuilder);
         SeedExercises(ref modelBuilder);
@@ -145,22 +144,27 @@ public static class ModelSeeder
             new User
             {
                 Id = 1,
+                CohortId = 1,
             },
             new User
             {
                 Id = 2,
+                CohortId = 2
             },
             new User
             {
                 Id = 3,
+                CohortId= 3
             },
             new User
             {
                 Id = 4,
+                CohortId = 4
             },
             new User
             {
                 Id = 5,
+                CohortId = 5
             }
         );
     }
@@ -315,42 +319,6 @@ public static class ModelSeeder
             {
                 Id = 5,
                 CourseId = 5,
-            }
-        );
-    }
-
-    private static void SeedCohortMembers(ref ModelBuilder modelBuilder)
-    {
-        modelBuilder.Entity<CohortMember>().HasData(
-            new CohortMember
-            {
-                Id = 1,
-                UserId = 1,
-                CohortId = 1,
-            },
-            new CohortMember
-            {
-                Id = 2,
-                UserId = 2,
-                CohortId = 2,
-            },
-            new CohortMember
-            {
-                Id = 3,
-                UserId = 3,
-                CohortId = 3,
-            },
-            new CohortMember
-            {
-                Id = 4,
-                UserId = 4,
-                CohortId = 4,
-            },
-            new CohortMember
-            {
-                Id = 5,
-                UserId = 5,
-                CohortId = 5,
             }
         );
     }
