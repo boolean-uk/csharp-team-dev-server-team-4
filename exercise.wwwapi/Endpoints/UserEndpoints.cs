@@ -34,9 +34,7 @@ public static class UserEndpoints
         users.MapDelete("/{id}", DeleteUser).RequireAuthorization().WithSummary("Delete a user");
     }
 
-    [Authorize]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     private static async Task<IResult> GetUsers(IRepository<User> userRepository, string? firstName,
         ClaimsPrincipal user)
     {
