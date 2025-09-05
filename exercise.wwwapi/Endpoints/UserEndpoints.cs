@@ -114,8 +114,9 @@ public static class UserEndpoints
                 Github = string.IsNullOrEmpty(request.Github) ? string.Empty : request.Github,
                 StartDate = DateTime.MinValue,
                 EndDate = DateTime.MinValue,
-                Specialism = Specialism.None
-            }
+                Specialism = Specialism.None,
+            },
+            CohortId = request.CohortId
         };
 
         userRepository.Insert(user);
@@ -138,7 +139,8 @@ public static class UserEndpoints
                     Phone = user.Profile.Phone,
                     StartDate = user.Profile.StartDate,
                     EndDate = user.Profile.EndDate,
-                    Specialism = user.Profile.Specialism
+                    Specialism = user.Profile.Specialism,
+                    CohortId = user.CohortId
                 }
             }
         };
@@ -193,7 +195,8 @@ public static class UserEndpoints
                     Phone = user.Profile.Phone,
                     StartDate = user.Profile.StartDate,
                     EndDate = user.Profile.EndDate,
-                    Specialism = user.Profile.Specialism
+                    Specialism = user.Profile.Specialism,
+                    CohortId = user.CohortId
                 }
             }
         };
@@ -229,7 +232,8 @@ public static class UserEndpoints
                 Phone = user.Profile.Phone,
                 StartDate = user.Profile.StartDate,
                 EndDate = user.Profile.EndDate,
-                Specialism = user.Profile.Specialism
+                Specialism = user.Profile.Specialism,
+                CohortId = user.CohortId
             }
         };
         return TypedResults.Ok(response);
@@ -354,7 +358,8 @@ public static class UserEndpoints
                 Phone = user.Profile.Phone,
                 StartDate = user.Profile.StartDate,
                 EndDate = user.Profile.EndDate,
-                Specialism = user.Profile.Specialism
+                Specialism = user.Profile.Specialism,
+                CohortId = user.CohortId
             }
         };
 

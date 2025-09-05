@@ -16,8 +16,9 @@ public class User
 
     public ICollection<Post> Posts { get; set; }
     public ICollection<Comment> Comments { get; set; }
+
     [ForeignKey(nameof(Cohort))]
-    public int CohortId { get; set; }
+    public int? CohortId { get; set; }
     [JsonIgnore]
     public Cohort? Cohort { get; set; }
 }

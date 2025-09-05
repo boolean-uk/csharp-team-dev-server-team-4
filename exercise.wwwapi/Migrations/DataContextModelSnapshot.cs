@@ -638,7 +638,7 @@ namespace exercise.wwwapi.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("CohortId")
+                    b.Property<int?>("CohortId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -775,9 +775,7 @@ namespace exercise.wwwapi.Migrations
                 {
                     b.HasOne("exercise.wwwapi.Models.Cohort", "Cohort")
                         .WithMany("Members")
-                        .HasForeignKey("CohortId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CohortId");
 
                     b.Navigation("Cohort");
                 });

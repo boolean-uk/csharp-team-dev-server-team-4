@@ -36,4 +36,7 @@ public class RegisterRequestDTO
 
     [JsonPropertyName("specialism")]
     public Specialism? Specialism { get; set; }
+
+    [JsonPropertyName("cohort_id")]
+    public int? CohortId { get; set; }
 }
