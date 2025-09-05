@@ -40,6 +40,33 @@ namespace exercise.wwwapi.Migrations
                     b.HasIndex("CourseId");
 
                     b.ToTable("cohorts");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CourseId = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CourseId = 2
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CourseId = 3
+                        },
+                        new
+                        {
+                            Id = 4,
+                            CourseId = 4
+                        },
+                        new
+                        {
+                            Id = 5,
+                            CourseId = 5
+                        });
                 });
 
             modelBuilder.Entity("exercise.wwwapi.Models.CohortMember", b =>
@@ -66,6 +93,38 @@ namespace exercise.wwwapi.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("cohortmembers");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CohortId = 1,
+                            UserId = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CohortId = 2,
+                            UserId = 2
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CohortId = 3,
+                            UserId = 3
+                        },
+                        new
+                        {
+                            Id = 4,
+                            CohortId = 4,
+                            UserId = 4
+                        },
+                        new
+                        {
+                            Id = 5,
+                            CohortId = 5,
+                            UserId = 5
+                        });
                 });
 
             modelBuilder.Entity("exercise.wwwapi.Models.Comment", b =>
@@ -79,14 +138,12 @@ namespace exercise.wwwapi.Migrations
 
                     b.Property<string>("Body")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasColumnType("varchar(1000)")
                         .HasColumnName("body");
 
                     b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
-                        .HasColumnName("create_at")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                        .HasColumnName("create_at");
 
                     b.Property<int>("PostId")
                         .HasColumnType("integer")
@@ -103,6 +160,48 @@ namespace exercise.wwwapi.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("comments");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Body = "Post 1 Body",
+                            CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, 0, DateTimeKind.Utc),
+                            PostId = 1,
+                            UserId = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Body = "Post 2 Body",
+                            CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, 0, DateTimeKind.Utc),
+                            PostId = 2,
+                            UserId = 2
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Body = "Post 3 Body",
+                            CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, 0, DateTimeKind.Utc),
+                            PostId = 3,
+                            UserId = 3
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Body = "Post 4 Body",
+                            CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, 0, DateTimeKind.Utc),
+                            PostId = 4,
+                            UserId = 4
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Body = "Post 5 Body",
+                            CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, 0, DateTimeKind.Utc),
+                            PostId = 5,
+                            UserId = 5
+                        });
                 });
 
             modelBuilder.Entity("exercise.wwwapi.Models.Course", b =>
@@ -116,42 +215,39 @@ namespace exercise.wwwapi.Migrations
 
                     b.Property<string>("CourseName")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasColumnType("varchar(100)")
                         .HasColumnName("course_name");
 
                     b.HasKey("Id");
 
                     b.ToTable("course");
-                });
 
-            modelBuilder.Entity("exercise.wwwapi.Models.Credential", b =>
-                {
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer")
-                        .HasColumnName("user_id");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("email");
-
-                    b.Property<string>("PasswordHash")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("password_hash");
-
-                    b.Property<int>("Role")
-                        .HasColumnType("integer")
-                        .HasColumnName("role");
-
-                    b.Property<string>("Username")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("username");
-
-                    b.HasKey("UserId");
-
-                    b.ToTable("credentials");
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CourseName = "Course 1"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CourseName = "Course 2"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CourseName = "Course 3"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            CourseName = "Course 4"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            CourseName = "Course 5"
+                        });
                 });
 
             modelBuilder.Entity("exercise.wwwapi.Models.Exercise", b =>
@@ -164,12 +260,13 @@ namespace exercise.wwwapi.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Description")
-                        .HasColumnType("text")
+                        .IsRequired()
+                        .HasColumnType("varchar(500)")
                         .HasColumnName("description");
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasColumnType("varchar(100)")
                         .HasColumnName("title");
 
                     b.Property<int>("UnitId")
@@ -181,6 +278,43 @@ namespace exercise.wwwapi.Migrations
                     b.HasIndex("UnitId");
 
                     b.ToTable("exercise");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Description = "Exercise 1 description",
+                            Title = "Exercise 1",
+                            UnitId = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Description = "Exercise 2 description",
+                            Title = "Exercise 2",
+                            UnitId = 2
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Description = "Exercise 3 description",
+                            Title = "Exercise 3",
+                            UnitId = 3
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Description = "Exercise 4 description",
+                            Title = "Exercise 4",
+                            UnitId = 4
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Description = "Exercise 5 description",
+                            Title = "Exercise 5",
+                            UnitId = 5
+                        });
                 });
 
             modelBuilder.Entity("exercise.wwwapi.Models.Module", b =>
@@ -206,6 +340,38 @@ namespace exercise.wwwapi.Migrations
                     b.HasIndex("CourseId");
 
                     b.ToTable("modules");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CourseId = 1,
+                            Title = "Course 1"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CourseId = 2,
+                            Title = "Course 2"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CourseId = 3,
+                            Title = "Course 3"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            CourseId = 4,
+                            Title = "Course 4"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            CourseId = 5,
+                            Title = "Course 5"
+                        });
                 });
 
             modelBuilder.Entity("exercise.wwwapi.Models.Post", b =>
@@ -223,14 +389,12 @@ namespace exercise.wwwapi.Migrations
 
                     b.Property<string>("Body")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasColumnType("varchar(1000)")
                         .HasColumnName("body");
 
                     b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                        .HasColumnName("created_at");
 
                     b.Property<int>("Likes")
                         .HasColumnType("integer")
@@ -241,41 +405,48 @@ namespace exercise.wwwapi.Migrations
                     b.HasIndex("AuthorId");
 
                     b.ToTable("posts");
-                });
 
-            modelBuilder.Entity("exercise.wwwapi.Models.Profile", b =>
-                {
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer")
-                        .HasColumnName("user_id");
-
-                    b.Property<string>("Bio")
-                        .HasColumnType("text")
-                        .HasColumnName("bio");
-
-                    b.Property<string>("FirstName")
-                        .HasColumnType("text")
-                        .HasColumnName("first_name");
-
-                    b.Property<string>("Github")
-                        .HasColumnType("text")
-                        .HasColumnName("github");
-
-                    b.Property<string>("LastName")
-                        .HasColumnType("text")
-                        .HasColumnName("last_name");
-
-                    b.Property<string>("Phone")
-                        .HasColumnType("text")
-                        .HasColumnName("phone");
-
-                    b.Property<string>("PhotoUrl")
-                        .HasColumnType("text")
-                        .HasColumnName("photo_url");
-
-                    b.HasKey("UserId");
-
-                    b.ToTable("profile");
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            AuthorId = 1,
+                            Body = "Post 1 Body",
+                            CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, 0, DateTimeKind.Utc),
+                            Likes = 5
+                        },
+                        new
+                        {
+                            Id = 2,
+                            AuthorId = 2,
+                            Body = "Post 2 Body",
+                            CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, 0, DateTimeKind.Utc),
+                            Likes = 3
+                        },
+                        new
+                        {
+                            Id = 3,
+                            AuthorId = 3,
+                            Body = "Post 3 Body",
+                            CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, 0, DateTimeKind.Utc),
+                            Likes = 10
+                        },
+                        new
+                        {
+                            Id = 4,
+                            AuthorId = 4,
+                            Body = "Post 4 Body",
+                            CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, 0, DateTimeKind.Utc),
+                            Likes = 7
+                        },
+                        new
+                        {
+                            Id = 5,
+                            AuthorId = 5,
+                            Body = "Post 5 Body",
+                            CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, 0, DateTimeKind.Utc),
+                            Likes = 9
+                        });
                 });
 
             modelBuilder.Entity("exercise.wwwapi.Models.Unit", b =>
@@ -301,9 +472,222 @@ namespace exercise.wwwapi.Migrations
                     b.HasIndex("ModuleId");
 
                     b.ToTable("units");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            ModuleId = 1,
+                            Title = "Module 1"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            ModuleId = 2,
+                            Title = "Module 2"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            ModuleId = 3,
+                            Title = "Module 3"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            ModuleId = 4,
+                            Title = "Module 4"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            ModuleId = 5,
+                            Title = "Module 5"
+                        });
                 });
 
-            modelBuilder.Entity("exercise.wwwapi.Models.User", b =>
+            modelBuilder.Entity("exercise.wwwapi.Models.UserInfo.Credential", b =>
+                {
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer")
+                        .HasColumnName("user_id");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("email");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("password_hash");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("integer")
+                        .HasColumnName("role");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("username");
+
+                    b.HasKey("UserId");
+
+                    b.ToTable("credentials");
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = 1,
+                            Email = "test1@test1",
+                            PasswordHash = "$2a$11$NlNrSkH2Uop6Nl90BHeF9udj/s5N79m9j94htBwtiwPMzoJ5EXozW",
+                            Role = 0,
+                            Username = "test1"
+                        },
+                        new
+                        {
+                            UserId = 2,
+                            Email = "test2@test2",
+                            PasswordHash = "$2a$11$MYFrTWP6v64imGdsbibutOW/DSZiu3wg5rWR1Nm5Zjb5XBNut5HKq",
+                            Role = 1,
+                            Username = "test2"
+                        },
+                        new
+                        {
+                            UserId = 3,
+                            Email = "test3@test3",
+                            PasswordHash = "$2a$11$JyMDiDHwh8hrcjNmp0zb8uZGFettl5dyJ3FDa3S5iOCTYnDn6GZqm",
+                            Role = 0,
+                            Username = "test3"
+                        },
+                        new
+                        {
+                            UserId = 4,
+                            Email = "test4@test4",
+                            PasswordHash = "$2a$11$.daNf2PApH/oqC8MGCQq5uHqw2zmjmIiIB8A6WZ/nLXjbI4iuQsEW",
+                            Role = 1,
+                            Username = "test4"
+                        },
+                        new
+                        {
+                            UserId = 5,
+                            Email = "test5@test5",
+                            PasswordHash = "$2a$11$HmeURzynKz6PqTVeZxfDIeg6MRpzI/5ZAY1GyHW0hJuNUvv7ixOOO",
+                            Role = 0,
+                            Username = "test5"
+                        });
+                });
+
+            modelBuilder.Entity("exercise.wwwapi.Models.UserInfo.Profile", b =>
+                {
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer")
+                        .HasColumnName("user_id");
+
+                    b.Property<string>("Bio")
+                        .IsRequired()
+                        .HasColumnType("varchar(1000)")
+                        .HasColumnName("bio");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("date")
+                        .HasColumnName("end_date");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("varchar(20)")
+                        .HasColumnName("first_name");
+
+                    b.Property<string>("Github")
+                        .IsRequired()
+                        .HasColumnType("varchar(30)")
+                        .HasColumnName("github");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("varchar(20)")
+                        .HasColumnName("last_name");
+
+                    b.Property<string>("Phone")
+                        .HasColumnType("varchar(30)")
+                        .HasColumnName("phone");
+
+                    b.Property<string>("PhotoUrl")
+                        .HasColumnType("varchar(1000)")
+                        .HasColumnName("photo_url");
+
+                    b.Property<string>("Specialism")
+                        .IsRequired()
+                        .HasColumnType("varchar(20)")
+                        .HasColumnName("specialism");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("date")
+                        .HasColumnName("start_date");
+
+                    b.HasKey("UserId");
+
+                    b.ToTable("profile");
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = 1,
+                            Bio = "",
+                            EndDate = new DateTime(2025, 9, 5, 11, 2, 0, 0, DateTimeKind.Utc),
+                            FirstName = "",
+                            Github = "",
+                            LastName = "",
+                            Specialism = "Fullstack",
+                            StartDate = new DateTime(2025, 9, 5, 11, 2, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            UserId = 2,
+                            Bio = "",
+                            EndDate = new DateTime(2025, 9, 5, 11, 2, 0, 0, DateTimeKind.Utc),
+                            FirstName = "",
+                            Github = "",
+                            LastName = "",
+                            Specialism = "Backend",
+                            StartDate = new DateTime(2025, 9, 5, 11, 2, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            UserId = 3,
+                            Bio = "",
+                            EndDate = new DateTime(2025, 9, 5, 11, 2, 0, 0, DateTimeKind.Utc),
+                            FirstName = "",
+                            Github = "",
+                            LastName = "",
+                            Specialism = "Fullstack",
+                            StartDate = new DateTime(2025, 9, 5, 11, 2, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            UserId = 4,
+                            Bio = "",
+                            EndDate = new DateTime(2025, 9, 5, 11, 2, 0, 0, DateTimeKind.Utc),
+                            FirstName = "",
+                            Github = "",
+                            LastName = "",
+                            Specialism = "Fullstack",
+                            StartDate = new DateTime(2025, 9, 5, 11, 2, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            UserId = 5,
+                            Bio = "",
+                            EndDate = new DateTime(2025, 9, 5, 11, 2, 0, 0, DateTimeKind.Utc),
+                            FirstName = "",
+                            Github = "",
+                            LastName = "",
+                            Specialism = "Frontend",
+                            StartDate = new DateTime(2025, 9, 5, 11, 2, 0, 0, DateTimeKind.Utc)
+                        });
+                });
+
+            modelBuilder.Entity("exercise.wwwapi.Models.UserInfo.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -315,6 +699,28 @@ namespace exercise.wwwapi.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("users");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1
+                        },
+                        new
+                        {
+                            Id = 2
+                        },
+                        new
+                        {
+                            Id = 3
+                        },
+                        new
+                        {
+                            Id = 4
+                        },
+                        new
+                        {
+                            Id = 5
+                        });
                 });
 
             modelBuilder.Entity("exercise.wwwapi.Models.Cohort", b =>
@@ -336,7 +742,7 @@ namespace exercise.wwwapi.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("exercise.wwwapi.Models.User", "User")
+                    b.HasOne("exercise.wwwapi.Models.UserInfo.User", "User")
                         .WithMany("CohortMembers")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -355,24 +761,13 @@ namespace exercise.wwwapi.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("exercise.wwwapi.Models.User", "User")
+                    b.HasOne("exercise.wwwapi.Models.UserInfo.User", "User")
                         .WithMany("Comments")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Post");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("exercise.wwwapi.Models.Credential", b =>
-                {
-                    b.HasOne("exercise.wwwapi.Models.User", "User")
-                        .WithOne("Credential")
-                        .HasForeignKey("exercise.wwwapi.Models.Credential", "UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
 
                     b.Navigation("User");
                 });
@@ -401,24 +796,13 @@ namespace exercise.wwwapi.Migrations
 
             modelBuilder.Entity("exercise.wwwapi.Models.Post", b =>
                 {
-                    b.HasOne("exercise.wwwapi.Models.User", "Author")
+                    b.HasOne("exercise.wwwapi.Models.UserInfo.User", "Author")
                         .WithMany("Posts")
                         .HasForeignKey("AuthorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Author");
-                });
-
-            modelBuilder.Entity("exercise.wwwapi.Models.Profile", b =>
-                {
-                    b.HasOne("exercise.wwwapi.Models.User", "User")
-                        .WithOne("Profile")
-                        .HasForeignKey("exercise.wwwapi.Models.Profile", "UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("exercise.wwwapi.Models.Unit", b =>
@@ -430,6 +814,28 @@ namespace exercise.wwwapi.Migrations
                         .IsRequired();
 
                     b.Navigation("Module");
+                });
+
+            modelBuilder.Entity("exercise.wwwapi.Models.UserInfo.Credential", b =>
+                {
+                    b.HasOne("exercise.wwwapi.Models.UserInfo.User", "User")
+                        .WithOne("Credential")
+                        .HasForeignKey("exercise.wwwapi.Models.UserInfo.Credential", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("exercise.wwwapi.Models.UserInfo.Profile", b =>
+                {
+                    b.HasOne("exercise.wwwapi.Models.UserInfo.User", "User")
+                        .WithOne("Profile")
+                        .HasForeignKey("exercise.wwwapi.Models.UserInfo.Profile", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("exercise.wwwapi.Models.Cohort", b =>
@@ -459,7 +865,7 @@ namespace exercise.wwwapi.Migrations
                     b.Navigation("Exercises");
                 });
 
-            modelBuilder.Entity("exercise.wwwapi.Models.User", b =>
+            modelBuilder.Entity("exercise.wwwapi.Models.UserInfo.User", b =>
                 {
                     b.Navigation("CohortMembers");
 

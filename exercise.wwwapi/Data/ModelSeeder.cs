@@ -88,6 +88,9 @@ public static class ModelSeeder
                 FirstName = "",
                 Github = "",
                 Bio = "",
+                StartDate = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
+                EndDate = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
+                Specialism = Specialism.Fullstack,
             },
             new Profile()
             {
@@ -96,6 +99,9 @@ public static class ModelSeeder
                 FirstName = "",
                 Github = "",
                 Bio = "",
+                StartDate = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
+                EndDate = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
+                Specialism = Specialism.Backend,
             },
             new Profile()
             {
@@ -104,6 +110,9 @@ public static class ModelSeeder
                 FirstName = "",
                 Github = "",
                 Bio = "",
+                StartDate = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
+                EndDate = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
+                Specialism = Specialism.Fullstack,
             },
             new Profile()
             {
@@ -112,6 +121,9 @@ public static class ModelSeeder
                 FirstName = "",
                 Github = "",
                 Bio = "",
+                StartDate = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
+                EndDate = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
+                Specialism = Specialism.Fullstack,
             },
             new Profile()
             {
@@ -120,6 +132,9 @@ public static class ModelSeeder
                 FirstName = "",
                 Github = "",
                 Bio = "",
+                StartDate = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
+                EndDate = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
+                Specialism = Specialism.Frontend,
             }
         );
     }
@@ -159,7 +174,7 @@ public static class ModelSeeder
                 AuthorId = 1,
                 Body = "Post 1 Body",
                 Likes = 5,
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
             },
             new Post
             {
@@ -167,7 +182,7 @@ public static class ModelSeeder
                 AuthorId = 2,
                 Body = "Post 2 Body",
                 Likes = 3,
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
             },
             new Post
             {
@@ -175,7 +190,7 @@ public static class ModelSeeder
                 AuthorId = 3,
                 Body = "Post 3 Body",
                 Likes = 10,
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
             },
             new Post
             {
@@ -183,7 +198,7 @@ public static class ModelSeeder
                 AuthorId = 4,
                 Body = "Post 4 Body",
                 Likes = 7,
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
             },
             new Post
             {
@@ -191,7 +206,7 @@ public static class ModelSeeder
                 AuthorId = 5,
                 Body = "Post 5 Body",
                 Likes = 9,
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
             }
         );
     }
@@ -205,7 +220,7 @@ public static class ModelSeeder
                 PostId = 1,
                 UserId = 1,
                 Body = "Post 1 Body",
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
             },
             new Comment
             {
@@ -213,7 +228,7 @@ public static class ModelSeeder
                 PostId = 2,
                 UserId = 2,
                 Body = "Post 2 Body",
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
             },
             new Comment
             {
@@ -221,7 +236,7 @@ public static class ModelSeeder
                 PostId = 3,
                 UserId = 3,
                 Body = "Post 3 Body",
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
             },
             new Comment
             {
@@ -229,7 +244,7 @@ public static class ModelSeeder
                 PostId = 4,
                 UserId = 4,
                 Body = "Post 4 Body",
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
             },
             new Comment
             {
@@ -237,7 +252,7 @@ public static class ModelSeeder
                 PostId = 5,
                 UserId = 5,
                 Body = "Post 5 Body",
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
             }
         );
     }
