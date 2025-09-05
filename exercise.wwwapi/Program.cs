@@ -32,7 +32,6 @@ builder.Services.AddScoped<IRepository<Post>, Repository<Post>>();
 builder.Services.AddScoped<IRepository<Comment>, Repository<Comment>>();
 builder.Services.AddScoped<IRepository<Course>, Repository<Course>>();
 builder.Services.AddScoped<IRepository<Cohort>, Repository<Cohort>>();
-builder.Services.AddScoped<IRepository<CohortMember>, Repository<CohortMember>>();
 builder.Services.AddScoped<IRepository<Module>, Repository<Module>>();
 builder.Services.AddScoped<IRepository<Unit>, Repository<Unit>>();
 builder.Services.AddScoped<IRepository<Exercise>, Repository<Exercise>>();

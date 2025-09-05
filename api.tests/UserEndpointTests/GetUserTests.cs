@@ -40,9 +40,16 @@ public class GetUserTests
     {
         const int userId = 1353275;
             
-        await _client.DeleteAsync($"users/{userId}");
+        await _client.GetAsync($"users/{userId}");
         var getUserResponse = await _client.GetAsync($"users/{userId}");
         Assert.That(getUserResponse.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.NotFound));
+    }
+
+    [Test]
+    public async Task GetAllUsersTest()
+    {
+        var getUsersResponse = await _client.GetAsync($"users");
+        Assert.That(getUsersResponse.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.OK));
     }
 
 }

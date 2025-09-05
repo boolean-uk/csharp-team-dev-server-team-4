@@ -20,8 +20,6 @@ public class CreateUserTests
         _client.Dispose();
     }
 
-    // TODO: add test "RegisterUser" that adds a user, check if the response is 201 Created and then delete the user again so we don't fill up the database
-
     [Test]
     public async Task RegisterUserExistsTest()
     {

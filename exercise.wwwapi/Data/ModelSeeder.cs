@@ -26,7 +26,6 @@ public static class ModelSeeder
         SeedComments(ref modelBuilder);
         SeedCourses(ref modelBuilder);
         SeedCohorts(ref modelBuilder);
-        SeedCohortMembers(ref modelBuilder);
         SeedModules(ref modelBuilder);
         SeedUnits(ref modelBuilder);
         SeedExercises(ref modelBuilder);
@@ -88,6 +87,9 @@ public static class ModelSeeder
                 FirstName = "",
                 Github = "",
                 Bio = "",
+                StartDate = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
+                EndDate = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
+                Specialism = Specialism.Fullstack,
             },
             new Profile()
             {
@@ -96,6 +98,9 @@ public static class ModelSeeder
                 FirstName = "",
                 Github = "",
                 Bio = "",
+                StartDate = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
+                EndDate = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
+                Specialism = Specialism.Backend,
             },
             new Profile()
             {
@@ -104,6 +109,9 @@ public static class ModelSeeder
                 FirstName = "",
                 Github = "",
                 Bio = "",
+                StartDate = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
+                EndDate = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
+                Specialism = Specialism.Fullstack,
             },
             new Profile()
             {
@@ -112,6 +120,9 @@ public static class ModelSeeder
                 FirstName = "",
                 Github = "",
                 Bio = "",
+                StartDate = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
+                EndDate = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
+                Specialism = Specialism.Fullstack,
             },
             new Profile()
             {
@@ -120,6 +131,9 @@ public static class ModelSeeder
                 FirstName = "",
                 Github = "",
                 Bio = "",
+                StartDate = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
+                EndDate = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
+                Specialism = Specialism.Frontend,
             }
         );
     }
@@ -130,22 +144,27 @@ public static class ModelSeeder
             new User
             {
                 Id = 1,
+                CohortId = 1,
             },
             new User
             {
                 Id = 2,
+                CohortId = 2
             },
             new User
             {
                 Id = 3,
+                CohortId= 3
             },
             new User
             {
                 Id = 4,
+                CohortId = 4
             },
             new User
             {
                 Id = 5,
+                CohortId = 5
             }
         );
     }
@@ -159,7 +178,7 @@ public static class ModelSeeder
                 AuthorId = 1,
                 Body = "Post 1 Body",
                 Likes = 5,
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
             },
             new Post
             {
@@ -167,7 +186,7 @@ public static class ModelSeeder
                 AuthorId = 2,
                 Body = "Post 2 Body",
                 Likes = 3,
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
             },
             new Post
             {
@@ -175,7 +194,7 @@ public static class ModelSeeder
                 AuthorId = 3,
                 Body = "Post 3 Body",
                 Likes = 10,
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
             },
             new Post
             {
@@ -183,7 +202,7 @@ public static class ModelSeeder
                 AuthorId = 4,
                 Body = "Post 4 Body",
                 Likes = 7,
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
             },
             new Post
             {
@@ -191,7 +210,7 @@ public static class ModelSeeder
                 AuthorId = 5,
                 Body = "Post 5 Body",
                 Likes = 9,
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
             }
         );
     }
@@ -205,7 +224,7 @@ public static class ModelSeeder
                 PostId = 1,
                 UserId = 1,
                 Body = "Post 1 Body",
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
             },
             new Comment
             {
@@ -213,7 +232,7 @@ public static class ModelSeeder
                 PostId = 2,
                 UserId = 2,
                 Body = "Post 2 Body",
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
             },
             new Comment
             {
@@ -221,7 +240,7 @@ public static class ModelSeeder
                 PostId = 3,
                 UserId = 3,
                 Body = "Post 3 Body",
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
             },
             new Comment
             {
@@ -229,7 +248,7 @@ public static class ModelSeeder
                 PostId = 4,
                 UserId = 4,
                 Body = "Post 4 Body",
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
             },
             new Comment
             {
@@ -237,7 +256,7 @@ public static class ModelSeeder
                 PostId = 5,
                 UserId = 5,
                 Body = "Post 5 Body",
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
             }
         );
     }
@@ -300,42 +319,6 @@ public static class ModelSeeder
             {
                 Id = 5,
                 CourseId = 5,
-            }
-        );
-    }
-
-    private static void SeedCohortMembers(ref ModelBuilder modelBuilder)
-    {
-        modelBuilder.Entity<CohortMember>().HasData(
-            new CohortMember
-            {
-                Id = 1,
-                UserId = 1,
-                CohortId = 1,
-            },
-            new CohortMember
-            {
-                Id = 2,
-                UserId = 2,
-                CohortId = 2,
-            },
-            new CohortMember
-            {
-                Id = 3,
-                UserId = 3,
-                CohortId = 3,
-            },
-            new CohortMember
-            {
-                Id = 4,
-                UserId = 4,
-                CohortId = 4,
-            },
-            new CohortMember
-            {
-                Id = 5,
-                UserId = 5,
-                CohortId = 5,
             }
         );
     }
