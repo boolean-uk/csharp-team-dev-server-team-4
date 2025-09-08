@@ -58,7 +58,6 @@ public class GetUserTests
     {
         var getUsersResponse = await _client.GetAsync($"users?searchTerm=Michael");
         var jsonResponse = await getUsersResponse.Content.ReadAsStringAsync();
-        Console.WriteLine(jsonResponse);
         var result = JsonSerializer.Deserialize<ResponseDTO<UsersSuccessDTO>>(jsonResponse);
 
         Assert.That(result.Data.Users.Count, Is.EqualTo(2));

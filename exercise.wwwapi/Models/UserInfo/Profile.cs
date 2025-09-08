@@ -43,8 +43,9 @@ public class Profile
     [JsonIgnore]
     public User User { get; set; }
 
-    [NotMapped]
-    [JsonIgnore]
-    public string Fullname { get { return $"{FirstName} {LastName}"; } }
+    public string GetFullName() 
+    { 
+        return $"{FirstName} {LastName}"; 
+    }
 
 }

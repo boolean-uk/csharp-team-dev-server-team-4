@@ -27,7 +27,7 @@ public static class UserEndpoints
     {
         var users = app.MapGroup("users");
         users.MapPost("/", Register).WithSummary("Create user");
-        users.MapGet("/", GetUsers).WithSummary("Get all users or iflter by first name, last name or full name");
+        users.MapGet("/", GetUsers).WithSummary("Get all users or filter by first name, last name or full name");
         users.MapGet("/{id}", GetUserById).WithSummary("Get user by user id");
         app.MapPost("/login", Login).WithSummary("Localhost Login");
         users.MapPatch("/{id}", UpdateUser).RequireAuthorization().WithSummary("Update a user");
@@ -41,12 +41,10 @@ public static class UserEndpoints
 
         var results = (await userRepository.GetAllAsync(u => u.Profile)).ToList();
 
-        if (searchTerm is not null && !string.IsNullOrWhiteSpace(searchTerm))
+        if (!string.IsNullOrWhiteSpace(searchTerm))
         {
             results = results.Where(
-               u => u.Profile.FirstName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
-               || u.Profile.LastName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
-               || u.Profile.Fullname.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+               u => u.Profile.GetFullName().Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
            .ToList();
         }
 
