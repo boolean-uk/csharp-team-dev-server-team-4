@@ -1,6 +1,8 @@
 ﻿using exercise.wwwapi.DTOs;
-using System.Text.Json;
+using exercise.wwwapi.DTOs.GetUsers;
+using exercise.wwwapi.DTOs.Login;
 using exercise.wwwapi.Endpoints;
+using System.Text.Json;
 
 namespace api.tests.UserEndpointTests;
 
@@ -40,7 +42,6 @@ public class GetUserTests
     {
         const int userId = 1353275;
             
-        await _client.GetAsync($"users/{userId}");
         var getUserResponse = await _client.GetAsync($"users/{userId}");
         Assert.That(getUserResponse.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.NotFound));
     }
@@ -50,6 +51,47 @@ public class GetUserTests
     {
         var getUsersResponse = await _client.GetAsync($"users");
         Assert.That(getUsersResponse.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.OK));
+    }
+
+    [Test]
+    public async Task GetFilteredUsersByFirstNameTest()
+    {
+        var getUsersResponse = await _client.GetAsync($"users?searchTerm=Michael");
+        var jsonResponse = await getUsersResponse.Content.ReadAsStringAsync();
+        Console.WriteLine(jsonResponse);
+        var result = JsonSerializer.Deserialize<ResponseDTO<UsersSuccessDTO>>(jsonResponse);
+
+        Assert.That(result.Data.Users.Count, Is.EqualTo(2));
+    }
+
+    [Test]
+    public async Task GetFilteredUsersByLastNameTest()
+    {
+        var getUsersResponse = await _client.GetAsync($"users?searchTerm=Jackson");
+        var jsonResponse = await getUsersResponse.Content.ReadAsStringAsync();
+        var result = JsonSerializer.Deserialize<ResponseDTO<UsersSuccessDTO>>(jsonResponse);
+
+        Assert.That(result.Data.Users.Count, Is.EqualTo(1));
+    }
+
+    [Test]
+    public async Task GetFilteredUsersTestFails()
+    {
+        var getUsersResponse = await _client.GetAsync($"users?searchTerm=test%20test");
+        var jsonResponse = await getUsersResponse.Content.ReadAsStringAsync();
+        var result = JsonSerializer.Deserialize<ResponseDTO<UsersSuccessDTO>>(jsonResponse);
+
+        Assert.That(result.Data.Users.Count, Is.EqualTo(0));
+    }
+
+    [Test]
+    public async Task GetFilteredUsersByFullNameTest()
+    {
+        var getUsersResponse = await _client.GetAsync($"users?searchTerm=Michael%20Jackson");
+        var jsonResponse = await getUsersResponse.Content.ReadAsStringAsync();
+        var result = JsonSerializer.Deserialize<ResponseDTO<UsersSuccessDTO>>(jsonResponse);
+
+        Assert.That(result.Data.Users.Count, Is.EqualTo(1));
     }
 
 }
