@@ -94,4 +94,14 @@ public class GetUserTests
         Assert.That(result.Data.Users.Count, Is.EqualTo(1));
     }
 
+    [Test]
+    public async Task GetFilteredUsersByLetterTest()
+    {
+        var getUsersResponse = await _client.GetAsync($"users?searchTerm=m");
+        var jsonResponse = await getUsersResponse.Content.ReadAsStringAsync();
+        var result = JsonSerializer.Deserialize<ResponseDTO<UsersSuccessDTO>>(jsonResponse);
+
+        Assert.That(result.Data.Users.Count, Is.EqualTo(3));
+    }
+
 }

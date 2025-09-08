@@ -44,9 +44,9 @@ public static class UserEndpoints
         if (searchTerm is not null)
         {
             results = results.Where(
-           u => u.Profile.FirstName.Equals(searchTerm, StringComparison.OrdinalIgnoreCase)
-           || u.Profile.LastName.Equals(searchTerm, StringComparison.OrdinalIgnoreCase)
-           || u.Profile.Fullname.Equals(searchTerm, StringComparison.OrdinalIgnoreCase))
+               u => u.Profile.FirstName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
+               || u.Profile.LastName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
+               || u.Profile.Fullname.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
            .ToList();
         }
 
