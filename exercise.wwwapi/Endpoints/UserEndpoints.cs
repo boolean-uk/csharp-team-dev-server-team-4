@@ -35,19 +35,25 @@ public static class UserEndpoints
     }
 
     [ProducesResponseType(StatusCodes.Status200OK)]
-    private static async Task<IResult> GetUsers(IRepository<User> userRepository, string? firstName,
+    private static async Task<IResult> GetUsers(IRepository<User> userRepository, string? searchTerm,
         ClaimsPrincipal user)
     {
-        var results = (await userRepository.GetAllAsync()).ToList();
+
+        var results = (await userRepository.GetAllAsync(u => u.Profile)).ToList();
+
+        if (searchTerm is not null)
+        {
+            results = results.Where(
+           u => u.Profile.FirstName.Equals(searchTerm, StringComparison.OrdinalIgnoreCase)
+           || u.Profile.LastName.Equals(searchTerm, StringComparison.OrdinalIgnoreCase)
+           || u.Profile.Fullname.Equals(searchTerm, StringComparison.OrdinalIgnoreCase))
+           .ToList();
+        }
+
 
         var userData = new UsersSuccessDTO
         {
-            Users = string.IsNullOrEmpty(firstName)
-                ? results
-                : results
-                    .Where(u => u.Profile.FirstName
-                        .Equals(firstName, StringComparison.OrdinalIgnoreCase))
-                    .ToList(),
+            Users = results
         };
         var response = new ResponseDTO<UsersSuccessDTO>
         {
