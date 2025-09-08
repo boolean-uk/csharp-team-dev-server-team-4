@@ -1,6 +1,6 @@
 ﻿using exercise.wwwapi.DTOs;
 using exercise.wwwapi.DTOs.Login;
-using exercise.wwwapi.DTOs.UpdatePost;
+using exercise.wwwapi.DTOs.Posts.UpdatePost;
 using exercise.wwwapi.Endpoints;
 using NUnit.Framework;
 using System.Net.Http.Headers;

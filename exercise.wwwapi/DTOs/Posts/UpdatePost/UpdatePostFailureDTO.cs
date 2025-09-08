@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace exercise.wwwapi.DTOs.UpdatePost
+namespace exercise.wwwapi.DTOs.Posts.UpdatePost
 {
     public class UpdatePostFailureDTO
     {

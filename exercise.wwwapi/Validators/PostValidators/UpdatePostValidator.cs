@@ -1,4 +1,4 @@
-﻿using exercise.wwwapi.DTOs.UpdatePost;
+﻿using exercise.wwwapi.DTOs.Posts.UpdatePost;
 using FluentValidation;
 
 namespace exercise.wwwapi.Validators.PostValidators

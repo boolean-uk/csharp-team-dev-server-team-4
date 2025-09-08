@@ -1,8 +1,8 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace exercise.wwwapi.DTOs.UpdatePost
+namespace exercise.wwwapi.DTOs.Posts
 {
-    public class UpdatePostSuccessDTO
+    public class PostDTO
     {
         [JsonPropertyName("id")]
         public int Id { get; set; }

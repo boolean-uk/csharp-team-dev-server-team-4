@@ -19,7 +19,9 @@ using exercise.wwwapi.Models;
 using exercise.wwwapi.Models.UserInfo;
 using exercise.wwwapi.DTOs.Posts;
 using exercise.wwwapi.Validators.PostValidators;
-using exercise.wwwapi.DTOs.UpdatePost;
+using exercise.wwwapi.DTOs.Posts.UpdatePost;
+using exercise.wwwapi.DTOs.Comments;
+using exercise.wwwapi.DTOs.Comments.UpdateComment;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -50,6 +52,10 @@ builder.Services.AddScoped<IValidator<UpdateUserRequestDTO>, UserUpdateValidator
 // Post validators
 builder.Services.AddScoped<IValidator<CreatePostRequestDTO>, CreatePostValidator>();
 builder.Services.AddScoped<IValidator<UpdatePostRequestDTO>, UpdatePostValidator>();
+
+// Comment validators
+builder.Services.AddScoped<IValidator<CreateCommentRequestDTO>, CreateCommentsValidator>();
+builder.Services.AddScoped<IValidator<UpdateCommentRequestDTO>, UpdateCommentsValidator>();
 
 // Database context
 builder.Services.AddDbContext<DataContext>(options =>
@@ -178,6 +184,7 @@ app.ConfigureSecureApi();
 app.ConfigureLogEndpoints();
 app.ConfigureCohortEndpoints();
 app.ConfigurePostEndpoints();
+app.ConfigureCommentEndpoints();
 app.Run();
 
 public partial class Program

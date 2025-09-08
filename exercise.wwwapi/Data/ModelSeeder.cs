@@ -209,7 +209,7 @@ public static class ModelSeeder
                 Id = 1,
                 PostId = 1,
                 UserId = 1,
-                Body = "Post 1 Body",
+                Body = "Comment 1 Body",
                 CreatedAt = _seedTime,
             },
             new Comment
@@ -217,7 +217,7 @@ public static class ModelSeeder
                 Id = 2,
                 PostId = 2,
                 UserId = 2,
-                Body = "Post 2 Body",
+                Body = "Comment 2 Body",
                 CreatedAt = _seedTime,
             },
             new Comment
@@ -225,7 +225,7 @@ public static class ModelSeeder
                 Id = 3,
                 PostId = 3,
                 UserId = 3,
-                Body = "Post 3 Body",
+                Body = "Comment 3 Body",
                 CreatedAt = _seedTime,
             },
             new Comment
@@ -233,7 +233,7 @@ public static class ModelSeeder
                 Id = 4,
                 PostId = 4,
                 UserId = 4,
-                Body = "Post 4 Body",
+                Body = "Comment 4 Body",
                 CreatedAt = _seedTime,
             },
             new Comment
@@ -241,7 +241,7 @@ public static class ModelSeeder
                 Id = 5,
                 PostId = 5,
                 UserId = 5,
-                Body = "Post 5 Body",
+                Body = "Comment 5 Body",
                 CreatedAt = _seedTime,
             }
         );

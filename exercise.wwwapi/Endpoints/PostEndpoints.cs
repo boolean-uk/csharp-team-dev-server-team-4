@@ -1,7 +1,7 @@
 ﻿using exercise.wwwapi.DTOs;
 using exercise.wwwapi.DTOs.GetObjects;
 using exercise.wwwapi.DTOs.Posts;
-using exercise.wwwapi.DTOs.UpdatePost;
+using exercise.wwwapi.DTOs.Posts.UpdatePost;
 using exercise.wwwapi.Helpers;
 using exercise.wwwapi.Repository;
 using FluentValidation;
@@ -63,10 +63,9 @@ public static class PostEndpoints
             }
         };
 
-        return Results.Ok(response);
+        return Results.Created($"/{post.Id}", response);
     }
 
-    [Authorize]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     private static async Task<IResult> GetAllPosts(IRepository<Post> postRepository,
