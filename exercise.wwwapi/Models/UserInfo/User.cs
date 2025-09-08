@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace exercise.wwwapi.Models.UserInfo;
 
@@ -15,5 +16,9 @@ public class User
 
     public ICollection<Post> Posts { get; set; }
     public ICollection<Comment> Comments { get; set; }
-    public ICollection<CohortMember> CohortMembers { get; set; }
+
+    [ForeignKey(nameof(Cohort))]
+    public int? CohortId { get; set; }
+    [JsonIgnore]
+    public Cohort? Cohort { get; set; }
 }
