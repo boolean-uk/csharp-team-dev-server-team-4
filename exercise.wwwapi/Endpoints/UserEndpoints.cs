@@ -27,29 +27,49 @@ public static class UserEndpoints
     {
         var users = app.MapGroup("users");
         users.MapPost("/", Register).WithSummary("Create user");
-        users.MapGet("/", GetUsers).WithSummary("Get all users by first name if provided");
+        users.MapGet("/by_cohort/{id}", GetUsersByCohort).WithSummary("Get all users from a cohort");
+        users.MapGet("/", GetUsers).WithSummary("Get all users or filter by first name, last name or full name");
         users.MapGet("/{id}", GetUserById).WithSummary("Get user by user id");
         app.MapPost("/login", Login).WithSummary("Localhost Login");
         users.MapPatch("/{id}", UpdateUser).RequireAuthorization().WithSummary("Update a user");
         users.MapDelete("/{id}", DeleteUser).RequireAuthorization().WithSummary("Delete a user");
     }
 
-    [Authorize]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    private static async Task<IResult> GetUsers(IRepository<User> userRepository, string? firstName,
+    private static async Task<IResult> GetUsers(IRepository<User> userRepository, string? searchTerm,
         ClaimsPrincipal user)
     {
-        var results = (await userRepository.GetAllAsync()).ToList();
+        var results = (await userRepository.GetAllAsync(u => u.Profile)).ToList();
+
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            results = results.Where(u =>
+                    u.Profile.GetFullName().Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+
 
         var userData = new UsersSuccessDTO
         {
-            Users = string.IsNullOrEmpty(firstName)
-                ? results
-                : results
-                    .Where(u => u.Profile.FirstName
-                        .Equals(firstName, StringComparison.OrdinalIgnoreCase))
-                    .ToList(),
+            Users = results
+        };
+        var response = new ResponseDTO<UsersSuccessDTO>
+        {
+            Status = "success",
+            Data = userData
+        };
+        return TypedResults.Ok(response);
+    }
+
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    private static async Task<IResult> GetUsersByCohort(IRepository<User> userRepository, int id)
+    {
+        var all = await userRepository.GetAllAsync(u => u.Profile);
+        var results = all.Where(u => u.CohortId == id).ToList();
+
+        var userData = new UsersSuccessDTO
+        {
+            Users = results
         };
         var response = new ResponseDTO<UsersSuccessDTO>
         {
@@ -111,8 +131,12 @@ public static class UserEndpoints
                 FirstName = string.IsNullOrEmpty(request.FirstName) ? string.Empty : request.FirstName,
                 LastName = string.IsNullOrEmpty(request.LastName) ? string.Empty : request.LastName,
                 Bio = string.IsNullOrEmpty(request.Bio) ? string.Empty : request.Bio,
-                Github = string.IsNullOrEmpty(request.Github) ? string.Empty : request.Github
-            }
+                Github = string.IsNullOrEmpty(request.Github) ? string.Empty : request.Github,
+                StartDate = DateTime.MinValue,
+                EndDate = DateTime.MinValue,
+                Specialism = Specialism.None,
+            },
+            CohortId = request.CohortId
         };
 
         userRepository.Insert(user);
@@ -132,7 +156,11 @@ public static class UserEndpoints
                     Github = user.Profile.Github,
                     Username = user.Credential.Username,
                     Email = user.Credential.Email,
-                    Phone = user.Profile.Phone
+                    Phone = user.Profile.Phone,
+                    StartDate = user.Profile.StartDate,
+                    EndDate = user.Profile.EndDate,
+                    Specialism = user.Profile.Specialism,
+                    CohortId = user.CohortId
                 }
             }
         };
@@ -185,6 +213,10 @@ public static class UserEndpoints
                     Github = user.Profile.Github,
                     Username = user.Credential.Username,
                     Phone = user.Profile.Phone,
+                    StartDate = user.Profile.StartDate,
+                    EndDate = user.Profile.EndDate,
+                    Specialism = user.Profile.Specialism,
+                    CohortId = user.CohortId
                 }
             }
         };
@@ -217,7 +249,11 @@ public static class UserEndpoints
                 Github = user.Profile.Github,
                 Username = user.Credential.Username,
                 Email = user.Credential.Email,
-                Phone = user.Profile.Phone
+                Phone = user.Profile.Phone,
+                StartDate = user.Profile.StartDate,
+                EndDate = user.Profile.EndDate,
+                Specialism = user.Profile.Specialism,
+                CohortId = user.CohortId
             }
         };
         return TypedResults.Ok(response);
@@ -340,6 +376,10 @@ public static class UserEndpoints
                 Bio = user.Profile.Bio,
                 Github = user.Profile.Github,
                 Phone = user.Profile.Phone,
+                StartDate = user.Profile.StartDate,
+                EndDate = user.Profile.EndDate,
+                Specialism = user.Profile.Specialism,
+                CohortId = user.CohortId
             }
         };
 

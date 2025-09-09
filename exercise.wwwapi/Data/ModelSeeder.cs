@@ -20,13 +20,13 @@ public static class ModelSeeder
 
     public static void Seed(ModelBuilder modelBuilder)
     {
-        SeedCourses(ref modelBuilder);
-        SeedCohorts(ref modelBuilder);
         SeedUsers(ref modelBuilder);
         SeedCredentials(ref modelBuilder);
         SeedProfiles(ref modelBuilder);
         SeedPosts(ref modelBuilder);
         SeedComments(ref modelBuilder);
+        SeedCourses(ref modelBuilder);
+        SeedCohorts(ref modelBuilder);
         SeedModules(ref modelBuilder);
         SeedUnits(ref modelBuilder);
         SeedExercises(ref modelBuilder);
@@ -84,42 +84,57 @@ public static class ModelSeeder
             new Profile()
             {
                 UserId = 1,
-                LastName = "",
-                FirstName = "",
+                LastName = "Jackson",
+                FirstName = "Michael",
                 Github = "",
                 Bio = "",
+                StartDate = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
+                EndDate = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
+                Specialism = Specialism.Fullstack,
             },
             new Profile()
             {
                 UserId = 2,
-                LastName = "",
-                FirstName = "",
+                LastName = "Jordan",
+                FirstName = "Michael",
                 Github = "",
                 Bio = "",
+                StartDate = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
+                EndDate = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
+                Specialism = Specialism.Backend,
             },
             new Profile()
             {
                 UserId = 3,
-                LastName = "",
-                FirstName = "",
+                LastName = "Messi",
+                FirstName = "Lionel",
                 Github = "",
                 Bio = "",
+                StartDate = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
+                EndDate = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
+                Specialism = Specialism.Fullstack,
             },
             new Profile()
             {
                 UserId = 4,
-                LastName = "",
-                FirstName = "",
+                LastName = "Ronaldo",
+                FirstName = "Cristiano",
                 Github = "",
                 Bio = "",
+                StartDate = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
+                EndDate = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
+                Specialism = Specialism.Fullstack,
             },
             new Profile()
             {
                 UserId = 5,
-                LastName = "",
-                FirstName = "",
+                LastName = "Richie",
+                FirstName = "Lionel",
                 Github = "",
                 Bio = "",
+                StartDate = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
+                EndDate = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
+                Specialism = Specialism.Frontend,
             }
         );
     }
@@ -135,12 +150,12 @@ public static class ModelSeeder
             new User
             {
                 Id = 2,
-                CohortId = 2,
+                CohortId = 2
             },
             new User
             {
                 Id = 3,
-                CohortId = 3,
+                CohortId= 3
             },
             new User
             {
@@ -150,7 +165,7 @@ public static class ModelSeeder
             new User
             {
                 Id = 5,
-                CohortId = 5,
+                CohortId = 5
             }
         );
     }

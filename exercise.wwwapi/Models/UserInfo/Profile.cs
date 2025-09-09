@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using exercise.wwwapi.Enums;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
@@ -30,6 +31,21 @@ public class Profile
     [Column("photo_url", TypeName = "varchar(1000)")] 
     public string? PhotoUrl { get; set; }
 
+    [Column("start_date", TypeName = "date")]
+    public DateTime StartDate { get; set; }
+
+    [Column("end_date", TypeName = "date")]
+    public DateTime EndDate { get; set; }
+
+    [Column("specialism", TypeName = "varchar(20)")]
+    public Specialism Specialism { get; set; }
+
     [JsonIgnore]
     public User User { get; set; }
+
+    public string GetFullName() 
+    { 
+        return $"{FirstName} {LastName}"; 
+    }
+
 }
