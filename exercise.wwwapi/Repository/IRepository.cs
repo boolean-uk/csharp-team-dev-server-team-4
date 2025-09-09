@@ -14,6 +14,8 @@ public interface IRepository<T> where T : class
     /// </remarks>
     void Insert(T obj);
 
+    Task InsertAsync(T obj);
+
     void Update(T obj);
     void Delete(T obj);
     void Save();

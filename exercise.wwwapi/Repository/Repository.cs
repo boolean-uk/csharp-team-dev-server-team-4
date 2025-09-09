@@ -88,6 +88,11 @@ public class Repository<T> : IRepository<T> where T : class
         _table.Add(obj);
     }
 
+    public async Task InsertAsync(T obj)
+    {
+        await _table.AddAsync(obj);
+    }
+
     public void Update(T obj)
     {
         _table.Attach(obj);
