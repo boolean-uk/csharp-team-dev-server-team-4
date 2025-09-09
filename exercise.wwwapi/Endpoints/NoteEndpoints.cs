@@ -15,15 +15,15 @@ namespace exercise.wwwapi.Endpoints
         {
             var notes = app.MapGroup("/users{userId}/notes");
             notes.MapPost("/", CreateNote).WithSummary("Create a note");
-            notes.MapGet("/", GetAllNotes).WithSummary("Get all notes");
-            //notes.MapGet("/{noteId}", GetNoteById).WithSummary("Get note by id");
-            //notes.MapPatch("/{nodeId}", EditNote).WithSummary("Edit note");
-            //notes.MapDelete("/{nodeId}", DeleteNote).WithSummary("Edit note");
+            notes.MapGet("/", GetAllNotesForUser).WithSummary("Get all notes for user");
+            app.MapGet("notes/{noteId}", GetNoteById).WithSummary("Get note by id");
+            app.MapPatch("/{nodeId}", EditNote).WithSummary("Edit note");
+            app.MapDelete("/{nodeId}", DeleteNote).WithSummary("Delete note");
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        private static async Task<IResult> GetAllNotes(IRepository<User> userRepository, int userId)
+        private static async Task<IResult> GetAllNotesForUser(IRepository<User> userRepository, int userId)
         {
             var user = await userRepository.GetByIdAsync(userId, u => u.Notes);
 
@@ -84,16 +84,113 @@ namespace exercise.wwwapi.Endpoints
             await noteRepository.InsertAsync(note);
             await noteRepository.SaveAsync();
 
-            var noteResponse = new NoteResponseDTO
+            var response = new ResponseDTO<NoteResponseDTO>
             {
-                Id = note.Id,
-                UserId = note.UserId,
-                Title = note.Title,
-                Content = note.Content,
-                DateCreated = note.CreatedAt
+                Status = "success",
+                Data = new NoteResponseDTO
+                {
+                    Id = note.Id,
+                    UserId = note.UserId,
+                    Title = note.Title,
+                    Content = note.Content,
+                    DateCreated = note.CreatedAt
+                }
             };
 
-            return TypedResults.Ok(noteResponse);
+            return TypedResults.Ok(response);
+        }
+
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        private static async Task<IResult> GetNoteById(IRepository<Note> noteRepository, int noteId)
+        {
+            var note = await noteRepository.GetByIdAsync(noteId);
+            if (note is null)
+            {
+                return TypedResults.NotFound();
+            }
+
+            var response = new ResponseDTO<NoteResponseDTO>
+            {
+                Status = "success",
+                Data = new NoteResponseDTO
+                {
+                    Id = note.Id,
+                    UserId = note.UserId,
+                    Title = note.Title,
+                    Content = note.Content,
+                    DateCreated = note.CreatedAt
+                }
+            };
+
+            return TypedResults.Ok(response);
+        }
+
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        private static async Task<IResult> DeleteNote(IRepository<Note> noteRepository, int noteId)
+        {
+            var note = await noteRepository.GetByIdAsync(noteId);
+            if (note is null)
+            {
+                return TypedResults.NotFound();
+            }
+
+            noteRepository.Delete(note);
+            await noteRepository.SaveAsync();
+
+            var response = new ResponseDTO<NoteResponseDTO>
+            {
+                Status = "success",
+                Data = new NoteResponseDTO
+                {
+                    Id = note.Id,
+                    UserId = note.UserId,
+                    Title = note.Title,
+                    Content = note.Content,
+                    DateCreated = note.CreatedAt
+                }
+            };
+
+            return TypedResults.Ok(response);
+        }
+
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        private static async Task<IResult> EditNote(IRepository<Note> noteRepository, UpdateNoteRequestDTO request, int noteId)
+        {
+            if (string.IsNullOrWhiteSpace(request.Title) && string.IsNullOrWhiteSpace(request.Content))
+            {
+                return TypedResults.BadRequest("Empty request. Enter title and content");
+            }
+
+            var note = await noteRepository.GetByIdAsync(noteId);
+            if (note is null)
+            {
+                return TypedResults.NotFound();
+            }
+
+            if (request.Title is not null) note.Title = request.Title;
+            if (request.Content is not null) note.Content = request.Content;
+
+            noteRepository.Update(note);
+            await noteRepository.SaveAsync();
+
+            var response = new ResponseDTO<NoteResponseDTO>
+            {
+                Status = "success",
+                Data = new NoteResponseDTO
+                {
+                    Id = note.Id,
+                    UserId = note.UserId,
+                    Title = note.Title,
+                    Content = note.Content,
+                    DateCreated = note.CreatedAt
+                }
+            };
+
+            return TypedResults.Ok(response);
         }
 
     }
