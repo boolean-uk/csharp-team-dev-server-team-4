@@ -316,6 +316,39 @@ namespace exercise.wwwapi.Migrations
                         });
                 });
 
+            modelBuilder.Entity("exercise.wwwapi.Models.Note", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("varchar(1000)")
+                        .HasColumnName("content");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("varchar(1000)")
+                        .HasColumnName("title");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("notes");
+                });
+
             modelBuilder.Entity("exercise.wwwapi.Models.Post", b =>
                 {
                     b.Property<int>("Id")
@@ -727,6 +760,17 @@ namespace exercise.wwwapi.Migrations
                     b.Navigation("Course");
                 });
 
+            modelBuilder.Entity("exercise.wwwapi.Models.Note", b =>
+                {
+                    b.HasOne("exercise.wwwapi.Models.UserInfo.User", "User")
+                        .WithMany("Notes")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("exercise.wwwapi.Models.Post", b =>
                 {
                     b.HasOne("exercise.wwwapi.Models.UserInfo.User", "Author")
@@ -813,6 +857,8 @@ namespace exercise.wwwapi.Migrations
 
                     b.Navigation("Credential")
                         .IsRequired();
+
+                    b.Navigation("Notes");
 
                     b.Navigation("Posts");
 

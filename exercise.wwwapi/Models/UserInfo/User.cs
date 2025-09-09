@@ -16,6 +16,7 @@ public class User
 
     public ICollection<Post> Posts { get; set; }
     public ICollection<Comment> Comments { get; set; }
+    public ICollection<Note> Notes { get; set; }
 
     [ForeignKey(nameof(Cohort))]
     public int? CohortId { get; set; }
