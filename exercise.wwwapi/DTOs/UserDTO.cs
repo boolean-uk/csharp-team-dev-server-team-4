@@ -1,4 +1,6 @@
-﻿using exercise.wwwapi.Enums;
+﻿using exercise.wwwapi.DTOs.Notes;
+using exercise.wwwapi.Enums;
+using exercise.wwwapi.Models;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
@@ -41,4 +43,7 @@ public class UserDTO
 
     [JsonPropertyName("cohortId")]
     public int? CohortId { get; set; }
+
+    [JsonPropertyName("notes")]
+    public ICollection<NoteResponseDTO> Notes { get; set; }
 }

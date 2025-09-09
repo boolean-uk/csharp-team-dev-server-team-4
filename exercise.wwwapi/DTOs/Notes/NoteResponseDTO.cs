@@ -10,9 +10,6 @@ namespace exercise.wwwapi.DTOs.Notes
         [JsonPropertyName("id")]
         public int Id { get; set; }
 
-        [JsonPropertyName("userid")]
-        public int UserId { get; set; }
-
         [JsonPropertyName("title")]
         public string Title { get; set; }
         
@@ -20,6 +17,6 @@ namespace exercise.wwwapi.DTOs.Notes
         public string Content { get; set; }
 
         [JsonPropertyName("createdat")]
-        public DateTime DateCreated { get; set; }
+        public DateTime CreatedAt { get; set; }
     }
 }

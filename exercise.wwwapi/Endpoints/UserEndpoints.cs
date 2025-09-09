@@ -16,6 +16,7 @@ using exercise.wwwapi.Enums;
 using exercise.wwwapi.Helpers;
 using exercise.wwwapi.Models.UserInfo;
 using User = exercise.wwwapi.Models.UserInfo.User;
+using exercise.wwwapi.DTOs.Notes;
 
 namespace exercise.wwwapi.EndPoints;
 
@@ -207,12 +208,13 @@ public static class UserEndpoints
 
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public static async Task<IResult> GetUserById(IRepository<User> userRepository, int id)
+    public static async Task<IResult> GetUserById(IRepository<User> userRepository, int id, ClaimsPrincipal claimsPrinciple)
     {
         var user = await userRepository.GetByIdAsync(
             id,
             user => user.Credential,
-            user => user.Profile
+            user => user.Profile,
+            user => user.Notes
         );
         if (user == null)
         {
@@ -238,6 +240,20 @@ public static class UserEndpoints
                 CohortId = user.CohortId
             }
         };
+
+        var userRole = claimsPrinciple.Role();
+
+        if (userRole == "Teacher")
+        {
+            response.Data.Notes = user.Notes.Select(note => new NoteResponseDTO
+            {
+                Id = note.Id,
+                Title = note.Title,
+                Content = note.Content,
+                CreatedAt = note.CreatedAt
+            }).ToList();
+        }
+
         return TypedResults.Ok(response);
     }
 
@@ -374,7 +390,8 @@ public static class UserEndpoints
         {
             new(ClaimTypes.Sid, user.Id.ToString()),
             new(ClaimTypes.Name, user.Credential.Username),
-            new(ClaimTypes.Email, user.Credential.Email)
+            new(ClaimTypes.Email, user.Credential.Email),
+            new(ClaimTypes.Role, user.Credential.Role.ToString())
         };
 
         var tokenKey = Environment.GetEnvironmentVariable(Globals.EnvironmentEnvVariable) == "Staging"

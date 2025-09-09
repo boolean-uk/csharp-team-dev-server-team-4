@@ -38,10 +38,9 @@ namespace exercise.wwwapi.Endpoints
                 noteResponse.Add(new NoteResponseDTO
                 {
                     Id = note.Id,
-                    UserId = note.UserId,
                     Title = note.Title,
                     Content = note.Content,
-                    DateCreated = note.CreatedAt
+                    CreatedAt = note.CreatedAt
                 });
             }
 
@@ -90,10 +89,9 @@ namespace exercise.wwwapi.Endpoints
                 Data = new NoteResponseDTO
                 {
                     Id = note.Id,
-                    UserId = note.UserId,
                     Title = note.Title,
                     Content = note.Content,
-                    DateCreated = note.CreatedAt
+                    CreatedAt = note.CreatedAt
                 }
             };
 
@@ -116,10 +114,9 @@ namespace exercise.wwwapi.Endpoints
                 Data = new NoteResponseDTO
                 {
                     Id = note.Id,
-                    UserId = note.UserId,
                     Title = note.Title,
                     Content = note.Content,
-                    DateCreated = note.CreatedAt
+                    CreatedAt = note.CreatedAt
                 }
             };
 
@@ -145,10 +142,9 @@ namespace exercise.wwwapi.Endpoints
                 Data = new NoteResponseDTO
                 {
                     Id = note.Id,
-                    UserId = note.UserId,
                     Title = note.Title,
                     Content = note.Content,
-                    DateCreated = note.CreatedAt
+                    CreatedAt = note.CreatedAt
                 }
             };
 
@@ -183,10 +179,9 @@ namespace exercise.wwwapi.Endpoints
                 Data = new NoteResponseDTO
                 {
                     Id = note.Id,
-                    UserId = note.UserId,
                     Title = note.Title,
                     Content = note.Content,
-                    DateCreated = note.CreatedAt
+                    CreatedAt = note.CreatedAt
                 }
             };
 
