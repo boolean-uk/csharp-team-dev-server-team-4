@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using exercise.wwwapi.Enums;
+using System.Text.Json.Serialization;
 
 namespace exercise.wwwapi.DTOs.UpdateUser;
 
