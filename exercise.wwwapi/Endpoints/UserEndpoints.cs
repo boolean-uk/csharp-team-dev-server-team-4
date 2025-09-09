@@ -62,21 +62,8 @@ public static class UserEndpoints
     }
 
     [ProducesResponseType(StatusCodes.Status200OK)]
-    private static async Task<IResult> GetUsersByCohort(IRepository<User> userRepository, int id,
-        ClaimsPrincipal user)
+    private static async Task<IResult> GetUsersByCohort(IRepository<User> userRepository, int id)
     {
-        var userRealId = user.UserRealId();
-        if (userRealId == null)
-        {
-            return TypedResults.Unauthorized();
-        }
-
-        var actingUser = await userRepository.GetByIdAsync(userRealId);
-        if (actingUser == null || actingUser.CohortId != id)
-        {
-            return TypedResults.Unauthorized();
-        }
-
         var all = await userRepository.GetAllAsync(u => u.Profile);
         var results = all.Where(u => u.CohortId == id).ToList();
 

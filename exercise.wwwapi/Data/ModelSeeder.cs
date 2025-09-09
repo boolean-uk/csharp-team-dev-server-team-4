@@ -20,8 +20,6 @@ public static class ModelSeeder
 
     public static void Seed(ModelBuilder modelBuilder)
     {
-        SeedCourses(ref modelBuilder);
-        SeedCohorts(ref modelBuilder);
         SeedUsers(ref modelBuilder);
         SeedCredentials(ref modelBuilder);
         SeedProfiles(ref modelBuilder);
