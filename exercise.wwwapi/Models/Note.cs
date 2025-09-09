@@ -12,6 +12,7 @@ namespace exercise.wwwapi.Models
         [Column("id")]
         public int Id { get; set; }
         [ForeignKey(nameof(User))]
+        [Column("user_id")]
         public int UserId { get; set; }
         
         [JsonIgnore]

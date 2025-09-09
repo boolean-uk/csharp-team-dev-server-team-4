@@ -340,13 +340,56 @@ namespace exercise.wwwapi.Migrations
                         .HasColumnName("title");
 
                     b.Property<int>("UserId")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("user_id");
 
                     b.HasKey("Id");
 
                     b.HasIndex("UserId");
 
                     b.ToTable("notes");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Content = "note1note1 note1 note1 content",
+                            CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, 0, DateTimeKind.Utc),
+                            Title = "Title Note 1",
+                            UserId = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Content = "note2 note2 note2 note2 content",
+                            CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, 0, DateTimeKind.Utc),
+                            Title = "Title Note 2",
+                            UserId = 2
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Content = "note3 note3 note3 note3 content",
+                            CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, 0, DateTimeKind.Utc),
+                            Title = "Title Note 3",
+                            UserId = 3
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Content = "note4 note4 note4 note4 content",
+                            CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, 0, DateTimeKind.Utc),
+                            Title = "Title Note 4",
+                            UserId = 4
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Content = "note5 note5 note5 note5 content",
+                            CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, 0, DateTimeKind.Utc),
+                            Title = "Title Note 5",
+                            UserId = 5
+                        });
                 });
 
             modelBuilder.Entity("exercise.wwwapi.Models.Post", b =>
