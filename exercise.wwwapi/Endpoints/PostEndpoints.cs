@@ -23,48 +23,64 @@ public static class PostEndpoints
         posts.MapDelete("/{id}", DeletePost).RequireAuthorization().WithSummary("Delete a post");
     }
 
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public static async Task<IResult> CreatePost(CreatePostRequestDTO request, IRepository<Post> postRepository,
-        IValidator<CreatePostRequestDTO> validator)
+[Authorize]
+[ProducesResponseType(StatusCodes.Status201Created)]
+[ProducesResponseType(StatusCodes.Status400BadRequest)]
+[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+public static async Task<IResult> CreatePost(
+    CreatePostRequestDTO request,
+    IRepository<Post> postRepository,
+    IValidator<CreatePostRequestDTO> validator,
+    ClaimsPrincipal claimsPrincipal)
+{
+    var userId = claimsPrincipal.UserRealId();
+    if (userId == null) return Results.Unauthorized();
+
+    var validation = await validator.ValidateAsync(request);
+    if (!validation.IsValid)
     {
+        var failureDTO = new CreatePostFailureDTO();
+        foreach (var error in validation.Errors)
+            if (error.PropertyName.Equals("Body", StringComparison.OrdinalIgnoreCase))
+                failureDTO.BodyErrors.Add(error.ErrorMessage);
 
-        var validation = await validator.ValidateAsync(request);
-        if (!validation.IsValid)
+        return Results.BadRequest(new ResponseDTO<CreatePostFailureDTO>
         {
-            var failureDTO = new CreatePostFailureDTO();
-
-            foreach (var error in validation.Errors)
-            {
-                if (error.PropertyName.Equals("body", StringComparison.OrdinalIgnoreCase))
-                    failureDTO.BodyErrors.Add(error.ErrorMessage);
-            }
-
-            var failResponse = new ResponseDTO<CreatePostFailureDTO> { Status = "fail", Data = failureDTO };
-            return Results.BadRequest(failResponse);
-        }
-
-        var post = new Post
-        {
-            Body = request.Body,
-            CreatedAt = DateTime.UtcNow
-        };
-
-        var response = new ResponseDTO<CreatePostSuccessDTO>
-        {
-            Status = "success",
-            Data = new CreatePostSuccessDTO
-            {
-                Posts =
-                {
-                    Body = post.Body,
-                    CreatedAt = post.CreatedAt
-                }
-            }
-        };
-
-        return Results.Created($"/{post.Id}", response);
+            Status = "fail",
+            Data = failureDTO
+        });
     }
+
+    var post = new Post
+    {
+        AuthorId = userId.Value,
+        Body = request.Body!,
+        Likes = 0,
+        CreatedAt = DateTime.UtcNow
+    };
+
+    postRepository.Insert(post);
+    await postRepository.SaveAsync();
+
+    var response = new ResponseDTO<CreatePostSuccessDTO>
+    {
+        Status = "success",
+        Data = new CreatePostSuccessDTO
+        {
+            Posts = new PostDTO
+            {
+                Id = post.Id,
+                AuthorId = post.AuthorId,
+                Body = post.Body,
+                Likes = post.Likes,
+                CreatedAt = post.CreatedAt
+            }
+        }
+    };
+
+    return Results.Created($"/posts/{post.Id}", response);
+}
+
 
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

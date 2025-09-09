@@ -1,7 +1,6 @@
 ﻿using exercise.wwwapi.DTOs;
 using exercise.wwwapi.DTOs.Comments;
 using exercise.wwwapi.DTOs.Comments.UpdateComment;
-using exercise.wwwapi.DTOs.GetObjects;
 using exercise.wwwapi.Helpers;
 using exercise.wwwapi.Models;
 using exercise.wwwapi.Repository;
@@ -15,13 +14,14 @@ namespace exercise.wwwapi.Endpoints;
 
 public static class CommentEndpoints
 {
-    public static void ConfigureCommentEndpoints(this WebApplication app)
+    public static async Task ConfigureCommentEndpoints(this WebApplication app)
     {
         var comments = app.MapGroup("comments");
-        comments.MapGet("/posts/{postId}/comments", GetCommentsPerPost).WithSummary("Get all comments for a post");
-        comments.MapPost("/posts/{postId}/comments", CreateComment).RequireAuthorization().WithSummary("Create a comment");
         comments.MapPatch("/{id}", UpdateComment).RequireAuthorization().WithSummary("Update a comment");
         comments.MapDelete("/{id}", DeleteComment).RequireAuthorization().WithSummary("Delete a comment");
+        
+        app.MapGet("/posts/{postId}/comments", GetCommentsPerPost).WithSummary("Get all comments for a post");
+        app.MapPost("/posts/{postId}/comments", CreateComment).RequireAuthorization().WithSummary("Create a comment");
     }
 
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -65,6 +65,7 @@ public static class CommentEndpoints
         int postId)
     {
         var userIdClaim = claimsPrincipal.UserRealId();
+
         var validation = await validator.ValidateAsync(request);
         if (!validation.IsValid)
         {

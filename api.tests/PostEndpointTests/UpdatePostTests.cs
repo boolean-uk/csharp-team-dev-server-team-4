@@ -2,10 +2,8 @@
 using exercise.wwwapi.DTOs.Login;
 using exercise.wwwapi.DTOs.Posts.UpdatePost;
 using exercise.wwwapi.Endpoints;
-using NUnit.Framework;
 using System.Net.Http.Headers;
 using System.Text.Json;
-// If needed: using exercise.wwwapi.DTOs.Posts;
 
 namespace api.tests.PostEndpointTests
 {

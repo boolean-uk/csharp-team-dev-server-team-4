@@ -24,7 +24,7 @@ namespace api.tests.PostEndpointTests
         }
 
         [Test]
-        public async Task GetAllPostsTest()
+        public async Task GetAllPostsPassesTest()
         {
             var loginUser = new LoginRequestDTO { Email = "test1@test1", Password = "Test1test1%" };
             var loginContent = new StringContent(JsonSerializer.Serialize(loginUser), System.Text.Encoding.UTF8, "application/json");
@@ -35,30 +35,54 @@ namespace api.tests.PostEndpointTests
             var login = JsonSerializer.Deserialize<ResponseDTO<LoginSuccessDTO>>(loginJson);
             Assert.That(login, Is.Not.Null);
 
-            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", login!.Data.Token);
+            _client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", login!.Data.Token);
 
-            var resp = await _client.GetAsync("posts");
-            Assert.That(resp.IsSuccessStatusCode, Is.True);
+            var response = await _client.GetAsync("posts");
+            Assert.That(response.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.OK));
 
-            var postsJson = await resp.Content.ReadAsStringAsync();
-            var responseDto = JsonSerializer.Deserialize<ResponseDTO<PostsSuccessDtoForTest>>(postsJson);
+            var json = await response.Content.ReadAsStringAsync();
+            using var doc = JsonDocument.Parse(json);
 
-            Assert.That(responseDto, Is.Not.Null, "Deserialization failed");
-            Assert.That(responseDto!.Data.Posts.Count, Is.GreaterThanOrEqualTo(5));
-            Assert.That(responseDto.Data.Posts.Any(p => p.Id == 1 && p.AuthorId == 1), Is.True);
+            var posts = doc.RootElement
+                .GetProperty("data")
+                .GetProperty("posts");
+
+            Assert.That(posts.ValueKind, Is.EqualTo(JsonValueKind.Array));
+            Assert.That(posts.GetArrayLength(), Is.GreaterThanOrEqualTo(5));
         }
-    }
-    internal class PostsSuccessDtoForTest
-    {
-        public List<PostDtoForTest> Posts { get; set; } = new();
-    }
 
-    internal class PostDtoForTest
-    {
-        public int Id { get; set; }
-        public int AuthorId { get; set; }
-        public string Body { get; set; } = "";
-        public int Likes { get; set; }
-        public DateTime CreatedAt { get; set; }
+        [Test]
+        public async Task GetAllPostsContainsExpectedPostTest()
+        {
+            var loginUser = new LoginRequestDTO { Email = "test1@test1", Password = "Test1test1%" };
+            var loginContent = new StringContent(JsonSerializer.Serialize(loginUser), System.Text.Encoding.UTF8, "application/json");
+            var loginResponse = await _client.PostAsync("login", loginContent);
+            Assert.That(loginResponse.IsSuccessStatusCode, Is.True);
+
+            var loginJson = await loginResponse.Content.ReadAsStringAsync();
+            var login = JsonSerializer.Deserialize<ResponseDTO<LoginSuccessDTO>>(loginJson);
+            Assert.That(login, Is.Not.Null);
+
+            _client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", login!.Data.Token);
+
+            var response = await _client.GetAsync("posts");
+            Assert.That(response.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.OK));
+
+            var json = await response.Content.ReadAsStringAsync();
+            using var doc = JsonDocument.Parse(json);
+
+            var posts = doc.RootElement
+                .GetProperty("data")
+                .GetProperty("posts");
+
+            var found = posts.EnumerateArray().Any(p =>
+                p.GetProperty("id").GetInt32() == 1 &&
+                p.GetProperty("authorId").GetInt32() == 1
+            );
+
+            Assert.That(found, Is.True, "Expected to find seeded post with id=1 and authorId=1.");
+        }
     }
 }
