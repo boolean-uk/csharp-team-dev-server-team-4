@@ -15,5 +15,5 @@ public class Cohort
     [ForeignKey(nameof(Course))]
     public int CourseId { get; set; }
     public Course Course { get; set; }
-    public ICollection<User> Users { get; set; }
+    public ICollection<User> Users { get; set; } =  new List<User>();
 }
