@@ -27,7 +27,7 @@ public static class UserEndpoints
     {
         var users = app.MapGroup("users");
         users.MapPost("/", Register).WithSummary("Create user");
-        users.MapGet("/", GetUsers).WithSummary("Get all users by first name if provided");
+        users.MapGet("/", GetUsers).WithSummary("Get all users or filter by first name, last name or full name");
         users.MapGet("/{id}", GetUserById).WithSummary("Get user by user id");
         app.MapPost("/login", Login).WithSummary("Localhost Login");
         users.MapPatch("/{id}", UpdateUser).RequireAuthorization().WithSummary("Update a user");
@@ -35,19 +35,23 @@ public static class UserEndpoints
     }
 
     [ProducesResponseType(StatusCodes.Status200OK)]
-    private static async Task<IResult> GetUsers(IRepository<User> userRepository, string? firstName,
+    private static async Task<IResult> GetUsers(IRepository<User> userRepository, string? searchTerm,
         ClaimsPrincipal user)
     {
-        var results = (await userRepository.GetAllAsync()).ToList();
+
+        var results = (await userRepository.GetAllAsync(u => u.Profile)).ToList();
+
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            results = results.Where(
+               u => u.Profile.GetFullName().Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+           .ToList();
+        }
+
 
         var userData = new UsersSuccessDTO
         {
-            Users = string.IsNullOrEmpty(firstName)
-                ? results
-                : results
-                    .Where(u => u.Profile.FirstName
-                        .Equals(firstName, StringComparison.OrdinalIgnoreCase))
-                    .ToList(),
+            Users = results
         };
         var response = new ResponseDTO<UsersSuccessDTO>
         {

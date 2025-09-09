@@ -43,4 +43,9 @@ public class Profile
     [JsonIgnore]
     public User User { get; set; }
 
+    public string GetFullName() 
+    { 
+        return $"{FirstName} {LastName}"; 
+    }
+
 }

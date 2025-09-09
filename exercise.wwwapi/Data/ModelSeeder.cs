@@ -83,8 +83,8 @@ public static class ModelSeeder
             new Profile()
             {
                 UserId = 1,
-                LastName = "",
-                FirstName = "",
+                LastName = "Jackson",
+                FirstName = "Michael",
                 Github = "",
                 Bio = "",
                 StartDate = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
@@ -94,8 +94,8 @@ public static class ModelSeeder
             new Profile()
             {
                 UserId = 2,
-                LastName = "",
-                FirstName = "",
+                LastName = "Jordan",
+                FirstName = "Michael",
                 Github = "",
                 Bio = "",
                 StartDate = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
@@ -105,8 +105,8 @@ public static class ModelSeeder
             new Profile()
             {
                 UserId = 3,
-                LastName = "",
-                FirstName = "",
+                LastName = "Messi",
+                FirstName = "Lionel",
                 Github = "",
                 Bio = "",
                 StartDate = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
@@ -116,8 +116,8 @@ public static class ModelSeeder
             new Profile()
             {
                 UserId = 4,
-                LastName = "",
-                FirstName = "",
+                LastName = "Ronaldo",
+                FirstName = "Cristiano",
                 Github = "",
                 Bio = "",
                 StartDate = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
@@ -127,8 +127,8 @@ public static class ModelSeeder
             new Profile()
             {
                 UserId = 5,
-                LastName = "",
-                FirstName = "",
+                LastName = "Richie",
+                FirstName = "Lionel",
                 Github = "",
                 Bio = "",
                 StartDate = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
