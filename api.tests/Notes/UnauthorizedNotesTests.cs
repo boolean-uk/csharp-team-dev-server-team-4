@@ -18,6 +18,7 @@ public class UnauthorizedNotesTests
     private HttpClient _client;
     private StringContent? _contentLogin;
     private StringContent? _contentCreate;
+    private StringContent? _contentUpdate;
 
     [SetUp]
     public void Setup()
@@ -48,6 +49,19 @@ public class UnauthorizedNotesTests
             Encoding.UTF8,
             "application/json"
         );
+
+        // PATCH note
+        var updateNote = new UpdateNoteRequestDTO 
+        { 
+            Title = "test2",
+            Content = "test2" 
+        };
+
+        var _contentUpdate = new StringContent(
+            JsonSerializer.Serialize(updateNote),
+            Encoding.UTF8,
+            "application/json"
+        );
     }
 
     [TearDown]
@@ -57,6 +71,7 @@ public class UnauthorizedNotesTests
 
         _contentLogin?.Dispose();        
         _contentCreate?.Dispose();
+        _contentUpdate?.Dispose();
     }
 
     [Test]
@@ -154,16 +169,23 @@ public class UnauthorizedNotesTests
     [Test]
     public async Task UpdateStudentNoteByNonUserReceiveUnauthorizedTest()
     {
-        //TODO
-        var response = await _client.GetAsync("/users/1/notes");
+        var response = await _client.PatchAsync("/notes/1", _contentUpdate);
         Assert.That(response.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.Unauthorized));
     }
 
     [Test]
     public async Task UpdateStudentNoteByStudentReceiveUnauthorizedTest()
     {
-        //TODO
-        var response = await _client.GetAsync("/users/1/notes");
+        var loginResponse = await _client.PostAsync("login", _contentLogin);
+        Assert.That(loginResponse.IsSuccessStatusCode, Is.True);
+
+        var jsonResponse = await loginResponse.Content.ReadAsStringAsync();
+        var result = JsonSerializer.Deserialize<ResponseDTO<LoginSuccessDTO>>(jsonResponse);
+        Assert.That(result, Is.Not.Null);
+
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", result.Data.Token);
+
+        var response = await _client.PatchAsync("/notes/1", _contentUpdate);
         Assert.That(response.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.Unauthorized));
     }
 }
