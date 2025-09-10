@@ -71,7 +71,8 @@ public static class UserEndpoints
                         Id = note.Id,
                         Title = note.Title,
                         Content = note.Content,
-                        CreatedAt = note.CreatedAt
+                        CreatedAt = note.CreatedAt,
+                        UpdatedAt = note.UpdatedAt
                     }).ToList() : new List<NoteResponseDTO>()
             }).ToList()
         };
@@ -272,7 +273,8 @@ public static class UserEndpoints
                 Id = note.Id,
                 Title = note.Title,
                 Content = note.Content,
-                CreatedAt = note.CreatedAt
+                CreatedAt = note.CreatedAt,
+                UpdatedAt = note.UpdatedAt
             }).ToList();
         }
 

@@ -63,7 +63,8 @@ namespace exercise.wwwapi.Endpoints
                     Id = note.Id,
                     Title = note.Title,
                     Content = note.Content,
-                    CreatedAt = note.CreatedAt
+                    CreatedAt = note.CreatedAt,
+                    UpdatedAt = note.UpdatedAt
                 });
             }
 
@@ -120,6 +121,7 @@ namespace exercise.wwwapi.Endpoints
                 Title = request.Title,
                 Content = request.Content,
                 CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
                 UserId = userId
             };
 
@@ -166,7 +168,8 @@ namespace exercise.wwwapi.Endpoints
                     Id = note.Id,
                     Title = note.Title,
                     Content = note.Content,
-                    CreatedAt = note.CreatedAt
+                    CreatedAt = note.CreatedAt,
+                    UpdatedAt = note.UpdatedAt
                 }
             };
 
@@ -201,7 +204,8 @@ namespace exercise.wwwapi.Endpoints
                     Id = note.Id,
                     Title = note.Title,
                     Content = note.Content,
-                    CreatedAt = note.CreatedAt
+                    CreatedAt = note.CreatedAt,
+                    UpdatedAt = note.UpdatedAt
                 }
             };
 
@@ -245,6 +249,7 @@ namespace exercise.wwwapi.Endpoints
 
             if (request.Title is not null) note.Title = request.Title;
             if (request.Content is not null) note.Content = request.Content;
+            note.UpdatedAt = DateTime.UtcNow;
 
             noteRepository.Update(note);
             await noteRepository.SaveAsync();
@@ -257,7 +262,8 @@ namespace exercise.wwwapi.Endpoints
                     Id = note.Id,
                     Title = note.Title,
                     Content = note.Content,
-                    CreatedAt = note.CreatedAt
+                    CreatedAt = note.CreatedAt,
+                    UpdatedAt = note.UpdatedAt
                 }
             };
 

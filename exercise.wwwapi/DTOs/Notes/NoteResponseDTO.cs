@@ -18,5 +18,8 @@ namespace exercise.wwwapi.DTOs.Notes
 
         [JsonPropertyName("createdat")]
         public DateTime CreatedAt { get; set; }
+
+        [JsonPropertyName("updatedat")]
+        public DateTime UpdatedAt { get; set; }
     }
 }

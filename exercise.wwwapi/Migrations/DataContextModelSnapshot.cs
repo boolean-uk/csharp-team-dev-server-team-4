@@ -339,6 +339,10 @@ namespace exercise.wwwapi.Migrations
                         .HasColumnType("varchar(1000)")
                         .HasColumnName("title");
 
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
                     b.Property<int>("UserId")
                         .HasColumnType("integer")
                         .HasColumnName("user_id");
@@ -356,6 +360,7 @@ namespace exercise.wwwapi.Migrations
                             Content = "note1note1 note1 note1 content",
                             CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, 0, DateTimeKind.Utc),
                             Title = "Title Note 1",
+                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             UserId = 1
                         },
                         new
@@ -364,6 +369,7 @@ namespace exercise.wwwapi.Migrations
                             Content = "note2 note2 note2 note2 content",
                             CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, 0, DateTimeKind.Utc),
                             Title = "Title Note 2",
+                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             UserId = 2
                         },
                         new
@@ -372,6 +378,7 @@ namespace exercise.wwwapi.Migrations
                             Content = "note3 note3 note3 note3 content",
                             CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, 0, DateTimeKind.Utc),
                             Title = "Title Note 3",
+                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             UserId = 3
                         },
                         new
@@ -380,6 +387,7 @@ namespace exercise.wwwapi.Migrations
                             Content = "note4 note4 note4 note4 content",
                             CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, 0, DateTimeKind.Utc),
                             Title = "Title Note 4",
+                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             UserId = 4
                         },
                         new
@@ -388,7 +396,8 @@ namespace exercise.wwwapi.Migrations
                             Content = "note5 note5 note5 note5 content",
                             CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, 0, DateTimeKind.Utc),
                             Title = "Title Note 5",
-                            UserId = 5
+                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = 4
                         });
                 });
 

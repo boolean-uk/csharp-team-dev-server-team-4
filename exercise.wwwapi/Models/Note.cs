@@ -21,8 +21,11 @@ namespace exercise.wwwapi.Models
         public string Title { get; set; }
         [Column("content", TypeName = "varchar(1000)")]
         public string Content { get; set; }
-        [Column("created_at")]
 
+        [Column("created_at")]
         public DateTime CreatedAt { get; set; }
+
+        [Column("updated_at")]
+        public DateTime UpdatedAt { get; set; }
     }
 }
