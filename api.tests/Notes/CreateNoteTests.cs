@@ -56,7 +56,7 @@ namespace api.tests.Notes
         }
 
         [Test]
-        public async Task UpdateNoteTestContentValidationFails()
+        public async Task CreateNoteTestContentValidationFails()
         {
             await AuthenticateAsTeacherAsync();
 
@@ -80,7 +80,7 @@ namespace api.tests.Notes
         }
 
         [Test]
-        public async Task UpdateNoteTestTitleTooLongValidationFails()
+        public async Task CreateNoteTestTitleTooLongValidationFails()
         {
             await AuthenticateAsTeacherAsync();
 
@@ -104,7 +104,7 @@ namespace api.tests.Notes
         }
 
         [Test]
-        public async Task UpdateNoteTestContentTooLongValidationFails()
+        public async Task CreateNoteTestContentTooLongValidationFails()
         {
             await AuthenticateAsTeacherAsync();
 
@@ -128,7 +128,7 @@ namespace api.tests.Notes
         }
 
         [Test]
-        public async Task UpdateNoteTestSuccess()
+        public async Task CreateNoteTestSuccess()
         {
             await AuthenticateAsTeacherAsync();
 
