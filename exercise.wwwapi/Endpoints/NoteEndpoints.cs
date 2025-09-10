@@ -19,14 +19,15 @@ namespace exercise.wwwapi.Endpoints
         public static void ConfigureNoteApi(this WebApplication app)
         {
             var notes = app.MapGroup("/users{userId}/notes");
-            notes.MapPost("/", CreateNote).WithSummary("Create a note");
-            notes.MapGet("/", GetAllNotesForUser).WithSummary("Get all notes for user");
-            app.MapGet("notes/{noteId}", GetNoteById).WithSummary("Get note by id");
-            app.MapPatch("notes/{noteId}", UpdateNote).WithSummary("Update note");
-            app.MapDelete("notes/{noteId}", DeleteNote).WithSummary("Delete note");
+            notes.MapPost("/", CreateNote).RequireAuthorization().WithSummary("Create a note");
+            notes.MapGet("/", GetAllNotesForUser).RequireAuthorization().WithSummary("Get all notes for user");
+            app.MapGet("notes/{noteId}", GetNoteById).RequireAuthorization().WithSummary("Get note by id");
+            app.MapPatch("notes/{noteId}", UpdateNote).RequireAuthorization().WithSummary("Update note");
+            app.MapDelete("notes/{noteId}", DeleteNote).RequireAuthorization().WithSummary("Delete note");
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         private static async Task<IResult> GetAllNotesForUser(IRepository<User> userRepository, int userId, string? searchTerm, ClaimsPrincipal claimsPrinciple)
         {
@@ -80,6 +81,7 @@ namespace exercise.wwwapi.Endpoints
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         private static async Task<IResult> CreateNote(IRepository<User> userRepository, IRepository<Note> noteRepository, 
             CreateNoteRequestDTO request, int userId, ClaimsPrincipal claimsPrinciple, IValidator<CreateNoteRequestDTO> validator)
@@ -140,6 +142,7 @@ namespace exercise.wwwapi.Endpoints
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         private static async Task<IResult> GetNoteById(IRepository<Note> noteRepository, int noteId, ClaimsPrincipal claimsPrinciple)
         {
@@ -171,6 +174,7 @@ namespace exercise.wwwapi.Endpoints
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         private static async Task<IResult> DeleteNote(IRepository<Note> noteRepository, int noteId, ClaimsPrincipal claimsPrinciple)
         {
@@ -205,6 +209,7 @@ namespace exercise.wwwapi.Endpoints
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         private static async Task<IResult> UpdateNote(IRepository<Note> noteRepository, UpdateNoteRequestDTO request, int noteId, ClaimsPrincipal claimsPrinciple, IValidator<UpdateNoteRequestDTO> validator)
