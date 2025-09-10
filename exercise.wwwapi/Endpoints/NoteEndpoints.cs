@@ -1,12 +1,15 @@
 ﻿using exercise.wwwapi.DTOs;
 using exercise.wwwapi.DTOs.GetUsers;
 using exercise.wwwapi.DTOs.Notes;
+using exercise.wwwapi.DTOs.Register;
 using exercise.wwwapi.Helpers;
 using exercise.wwwapi.Models;
 using exercise.wwwapi.Models.UserInfo;
 using exercise.wwwapi.Repository;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Win32;
+using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 
 namespace exercise.wwwapi.Endpoints
@@ -19,7 +22,7 @@ namespace exercise.wwwapi.Endpoints
             notes.MapPost("/", CreateNote).WithSummary("Create a note");
             notes.MapGet("/", GetAllNotesForUser).WithSummary("Get all notes for user");
             app.MapGet("notes/{noteId}", GetNoteById).WithSummary("Get note by id");
-            app.MapPatch("/{nodeId}", EditNote).WithSummary("Edit note");
+            app.MapPatch("/{nodeId}", UpdateNote).WithSummary("Update note");
             app.MapDelete("/{nodeId}", DeleteNote).WithSummary("Delete note");
         }
 
@@ -78,7 +81,8 @@ namespace exercise.wwwapi.Endpoints
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        private static async Task<IResult> CreateNote(IRepository<User> userRepository, IRepository<Note> noteRepository, CreateNoteRequestDTO request, int userId, ClaimsPrincipal claimsPrinciple)
+        private static async Task<IResult> CreateNote(IRepository<User> userRepository, IRepository<Note> noteRepository, 
+            CreateNoteRequestDTO request, int userId, ClaimsPrincipal claimsPrinciple, IValidator<CreateNoteRequestDTO> validator)
         {
             var authorized = AuthorizeTeacher(claimsPrinciple);
             if (!authorized)
@@ -86,9 +90,21 @@ namespace exercise.wwwapi.Endpoints
                 return TypedResults.Unauthorized();
             }
 
-            if (string.IsNullOrWhiteSpace(request.Title) && string.IsNullOrWhiteSpace(request.Content))
+            var validation = await validator.ValidateAsync(request);
+            if (!validation.IsValid)
             {
-                return TypedResults.BadRequest("Empty request. Enter title and content");
+                var failureDTO = new CreateNoteFailureDTO();
+
+                foreach (var error in validation.Errors)
+                {
+                    if (error.PropertyName.Equals("title", StringComparison.OrdinalIgnoreCase))
+                        failureDTO.TitleErrors.Add(error.ErrorMessage);
+                    else if (error.PropertyName.Equals("content", StringComparison.OrdinalIgnoreCase))
+                        failureDTO.ContentErrors.Add(error.ErrorMessage);
+                }
+
+                var failResponse = new ResponseDTO<CreateNoteFailureDTO> { Status = "fail", Data = failureDTO };
+                return Results.BadRequest(failResponse);
             }
 
             var user = await userRepository.GetByIdAsync(userId);
@@ -191,7 +207,7 @@ namespace exercise.wwwapi.Endpoints
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        private static async Task<IResult> EditNote(IRepository<Note> noteRepository, UpdateNoteRequestDTO request, int noteId, ClaimsPrincipal claimsPrinciple)
+        private static async Task<IResult> UpdateNote(IRepository<Note> noteRepository, UpdateNoteRequestDTO request, int noteId, ClaimsPrincipal claimsPrinciple, IValidator<UpdateNoteRequestDTO> validator)
         {
             var authorized = AuthorizeTeacher(claimsPrinciple);
             if (!authorized)
@@ -199,9 +215,21 @@ namespace exercise.wwwapi.Endpoints
                 return TypedResults.Unauthorized();
             }
 
-            if (string.IsNullOrWhiteSpace(request.Title) && string.IsNullOrWhiteSpace(request.Content))
+            var validation = await validator.ValidateAsync(request);
+            if (!validation.IsValid)
             {
-                return TypedResults.BadRequest("Empty request. Enter title and content");
+                var failureDTO = new UpdateNoteFailureDTO();
+
+                foreach (var error in validation.Errors)
+                {
+                    if (error.PropertyName.Equals("title", StringComparison.OrdinalIgnoreCase))
+                        failureDTO.TitleErrors.Add(error.ErrorMessage);
+                    else if (error.PropertyName.Equals("content", StringComparison.OrdinalIgnoreCase))
+                        failureDTO.ContentErrors.Add(error.ErrorMessage);
+                }
+
+                var failResponse = new ResponseDTO<UpdateNoteFailureDTO> { Status = "fail", Data = failureDTO };
+                return Results.BadRequest(failResponse);
             }
 
             var note = await noteRepository.GetByIdAsync(noteId);

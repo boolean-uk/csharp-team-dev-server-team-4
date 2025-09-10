@@ -17,6 +17,8 @@ using System.Text;
 using exercise.wwwapi;
 using exercise.wwwapi.Models;
 using exercise.wwwapi.Models.UserInfo;
+using exercise.wwwapi.DTOs.Notes;
+using exercise.wwwapi.Validators.NoteValidators;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -44,6 +46,8 @@ builder.Services.AddScoped<ILogger, Logger<string>>();
 // Register validators
 builder.Services.AddScoped<IValidator<RegisterRequestDTO>, UserRegisterValidator>();
 builder.Services.AddScoped<IValidator<UpdateUserRequestDTO>, UserUpdateValidator>();
+builder.Services.AddScoped<IValidator<CreateNoteRequestDTO>, CreateNoteValidator>();
+builder.Services.AddScoped<IValidator<UpdateNoteRequestDTO>, UpdateNoteValidator>();
 
 // Database context
 builder.Services.AddDbContext<DataContext>(options =>

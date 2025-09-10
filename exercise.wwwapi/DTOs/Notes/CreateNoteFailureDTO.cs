@@ -4,7 +4,11 @@ namespace exercise.wwwapi.DTOs.Notes
 {
     public class CreateNoteFailureDTO
     {
-        [JsonPropertyName("errors")]
-        public List<string> Errors { get; set; }
+        
+        [JsonPropertyName("titleErrors")]
+        public List<string> TitleErrors { get; set; } = [];
+
+        [JsonPropertyName("contentErrors")]
+        public List<string> ContentErrors { get; set; } = [];
     }
 }
