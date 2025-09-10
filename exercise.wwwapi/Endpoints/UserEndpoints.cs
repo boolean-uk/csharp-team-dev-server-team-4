@@ -39,8 +39,7 @@ public static class UserEndpoints
     private static async Task<IResult> GetUsers(IRepository<User> userRepository, string? searchTerm,
         ClaimsPrincipal user)
     {
-
-        var results = (await userRepository.GetAllAsync(u => u.Profile)).ToList();
+        var results = (await userRepository.GetAllAsync(u => u.Profile, u => u.Credential, u => u.Notes)).ToList();
 
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
@@ -48,12 +47,35 @@ public static class UserEndpoints
                u => u.Profile.GetFullName().Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
            .ToList();
         }
-
+        var userRole = user.Role();
 
         var userData = new UsersSuccessDTO
         {
-            Users = results
+            Users = results.Select(user => new UserDTO
+            {
+                Id = user.Id,
+                FirstName = user.Profile.FirstName,
+                LastName = user.Profile.LastName,
+                Bio = user.Profile.Bio,
+                Github = user.Profile.Github,
+                Username = user.Credential.Username,
+                Email = user.Credential.Email,
+                Phone = user.Profile.Phone,
+                StartDate = user.Profile.StartDate,
+                EndDate = user.Profile.EndDate,
+                Specialism = user.Profile.Specialism,
+                CohortId = user.CohortId,
+                Notes = userRole == "Teacher" && user.Notes != null ?
+                    user.Notes.Select(note => new NoteResponseDTO
+                    {
+                        Id = note.Id,
+                        Title = note.Title,
+                        Content = note.Content,
+                        CreatedAt = note.CreatedAt
+                    }).ToList() : new List<NoteResponseDTO>()
+            }).ToList()
         };
+
         var response = new ResponseDTO<UsersSuccessDTO>
         {
             Status = "success",
