@@ -2,7 +2,7 @@
 
 namespace exercise.wwwapi.DTOs.Notes
 {
-    public class NoteRequestDTO
+    public class CreateNoteRequestDTO
     {
         [JsonPropertyName("title")]
         public required string Title { get; set; }

@@ -1,11 +1,13 @@
 ﻿using exercise.wwwapi.DTOs;
 using exercise.wwwapi.DTOs.GetUsers;
 using exercise.wwwapi.DTOs.Notes;
+using exercise.wwwapi.Helpers;
 using exercise.wwwapi.Models;
 using exercise.wwwapi.Models.UserInfo;
 using exercise.wwwapi.Repository;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Win32;
+using System.Security.Claims;
 
 namespace exercise.wwwapi.Endpoints
 {
@@ -23,8 +25,14 @@ namespace exercise.wwwapi.Endpoints
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        private static async Task<IResult> GetAllNotesForUser(IRepository<User> userRepository, int userId, string? searchTerm)
+        private static async Task<IResult> GetAllNotesForUser(IRepository<User> userRepository, int userId, string? searchTerm, ClaimsPrincipal claimsPrinciple)
         {
+            var authorized = AuthorizeTeacher(claimsPrinciple);
+            if (!authorized)
+            {
+                return TypedResults.Unauthorized();
+            }
+
             var user = await userRepository.GetByIdAsync(userId, u => u.Notes);
 
             if (user is null)
@@ -70,8 +78,14 @@ namespace exercise.wwwapi.Endpoints
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        private static async Task<IResult> CreateNote(IRepository<User> userRepository, NoteRequestDTO request, int userId, IRepository<Note> noteRepository)
+        private static async Task<IResult> CreateNote(IRepository<User> userRepository, IRepository<Note> noteRepository, CreateNoteRequestDTO request, int userId, ClaimsPrincipal claimsPrinciple)
         {
+            var authorized = AuthorizeTeacher(claimsPrinciple);
+            if (!authorized)
+            {
+                return TypedResults.Unauthorized();
+            }
+
             if (string.IsNullOrWhiteSpace(request.Title) && string.IsNullOrWhiteSpace(request.Content))
             {
                 return TypedResults.BadRequest("Empty request. Enter title and content");
@@ -111,8 +125,14 @@ namespace exercise.wwwapi.Endpoints
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        private static async Task<IResult> GetNoteById(IRepository<Note> noteRepository, int noteId)
+        private static async Task<IResult> GetNoteById(IRepository<Note> noteRepository, int noteId, ClaimsPrincipal claimsPrinciple)
         {
+            var authorized = AuthorizeTeacher(claimsPrinciple);
+            if (!authorized)
+            {
+                return TypedResults.Unauthorized();
+            }
+
             var note = await noteRepository.GetByIdAsync(noteId);
             if (note is null)
             {
@@ -136,8 +156,14 @@ namespace exercise.wwwapi.Endpoints
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        private static async Task<IResult> DeleteNote(IRepository<Note> noteRepository, int noteId)
+        private static async Task<IResult> DeleteNote(IRepository<Note> noteRepository, int noteId, ClaimsPrincipal claimsPrinciple)
         {
+            var authorized = AuthorizeTeacher(claimsPrinciple);
+            if (!authorized)
+            {
+                return TypedResults.Unauthorized();
+            }
+
             var note = await noteRepository.GetByIdAsync(noteId);
             if (note is null)
             {
@@ -165,8 +191,14 @@ namespace exercise.wwwapi.Endpoints
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        private static async Task<IResult> EditNote(IRepository<Note> noteRepository, UpdateNoteRequestDTO request, int noteId)
+        private static async Task<IResult> EditNote(IRepository<Note> noteRepository, UpdateNoteRequestDTO request, int noteId, ClaimsPrincipal claimsPrinciple)
         {
+            var authorized = AuthorizeTeacher(claimsPrinciple);
+            if (!authorized)
+            {
+                return TypedResults.Unauthorized();
+            }
+
             if (string.IsNullOrWhiteSpace(request.Title) && string.IsNullOrWhiteSpace(request.Content))
             {
                 return TypedResults.BadRequest("Empty request. Enter title and content");
@@ -197,6 +229,16 @@ namespace exercise.wwwapi.Endpoints
             };
 
             return TypedResults.Ok(response);
+        }
+
+        private static bool AuthorizeTeacher(ClaimsPrincipal claims)
+        {
+            if (claims.IsInRole("Teacher"))
+            {
+                return true;
+            }
+
+            return false;
         }
 
     }
