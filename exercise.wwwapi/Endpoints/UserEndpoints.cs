@@ -130,7 +130,7 @@ public static class UserEndpoints
                 Username = request.Username,
                 PasswordHash = passwordHash,
                 Email = request.Email,
-                Role = Role.Teacher,
+                Role = Role.Student,
             },
             Profile = new Profile
             {
