@@ -18,7 +18,7 @@ namespace exercise.wwwapi.Endpoints
     {
         public static void ConfigureNoteApi(this WebApplication app)
         {
-            var notes = app.MapGroup("/users{userId}/notes");
+            var notes = app.MapGroup("/users/{userId}/notes");
             notes.MapPost("/", CreateNote).RequireAuthorization().WithSummary("Create a note");
             notes.MapGet("/", GetAllNotesForUser).RequireAuthorization().WithSummary("Get all notes for user");
             app.MapGet("notes/{noteId}", GetNoteById).RequireAuthorization().WithSummary("Get note by id");

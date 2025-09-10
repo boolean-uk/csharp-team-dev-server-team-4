@@ -67,7 +67,7 @@ public class UnauthorizedNotesTests
     [Test]
     public async Task GetAllStudentNotesByNonUserReceiveUnauthorizedTest()
     {
-        var response = await _client.GetAsync("/users/1/notes");
+        var response = await _client.GetAsync("/users/1/notes/");
         Assert.That(response.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.Unauthorized));
     }
 
