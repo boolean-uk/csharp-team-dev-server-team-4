@@ -187,7 +187,7 @@ public class UnauthorizedNotesTests
 
         _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", result.Data.Token);
 
-        var response = await _client.GetAsync("/users/1/notes");
+        var response = await _client.DeleteAsync("/notes/1");
         Assert.That(response.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.Unauthorized));
     }
 
