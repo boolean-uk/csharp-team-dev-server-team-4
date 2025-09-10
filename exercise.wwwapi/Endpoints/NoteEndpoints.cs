@@ -23,7 +23,7 @@ namespace exercise.wwwapi.Endpoints
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        private static async Task<IResult> GetAllNotesForUser(IRepository<User> userRepository, int userId)
+        private static async Task<IResult> GetAllNotesForUser(IRepository<User> userRepository, int userId, string? searchTerm)
         {
             var user = await userRepository.GetByIdAsync(userId, u => u.Notes);
 
@@ -32,8 +32,19 @@ namespace exercise.wwwapi.Endpoints
                 return TypedResults.NotFound($"User with id {userId} was not found");
             }
 
+            var notes = user.Notes;
+
+            if (!String.IsNullOrWhiteSpace(searchTerm)) 
+            {
+                notes = notes.Where(
+                u => u.Title.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) 
+                || u.Content.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
+                )
+                .ToList();
+            }
+
             var noteResponse = new List<NoteResponseDTO>();
-            foreach (var note in user.Notes)
+            foreach (var note in notes)
             {
                 noteResponse.Add(new NoteResponseDTO
                 {
