@@ -22,8 +22,8 @@ namespace exercise.wwwapi.Endpoints
             notes.MapPost("/", CreateNote).WithSummary("Create a note");
             notes.MapGet("/", GetAllNotesForUser).WithSummary("Get all notes for user");
             app.MapGet("notes/{noteId}", GetNoteById).WithSummary("Get note by id");
-            app.MapPatch("notes/{nodeId}", UpdateNote).WithSummary("Update note");
-            app.MapDelete("notes/{nodeId}", DeleteNote).WithSummary("Delete note");
+            app.MapPatch("notes/{noteId}", UpdateNote).WithSummary("Update note");
+            app.MapDelete("notes/{noteId}", DeleteNote).WithSummary("Delete note");
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
