@@ -7,14 +7,15 @@ namespace exercise.wwwapi.Data;
 
 public static class ModelSeeder
 {
-    // Necessary because the seeder requires them to be constant values 
+    private static readonly DateTime _seedTime = new DateTime(2025, 01, 01, 0, 0, 0, DateTimeKind.Utc);
+
     private static string[] _passwordHashes =
     [
         "$2a$11$NlNrSkH2Uop6Nl90BHeF9udj/s5N79m9j94htBwtiwPMzoJ5EXozW", // Test1test1%
         "$2a$11$MYFrTWP6v64imGdsbibutOW/DSZiu3wg5rWR1Nm5Zjb5XBNut5HKq", // Test2test2%
         "$2a$11$JyMDiDHwh8hrcjNmp0zb8uZGFettl5dyJ3FDa3S5iOCTYnDn6GZqm", // Test3test3%
         "$2a$11$.daNf2PApH/oqC8MGCQq5uHqw2zmjmIiIB8A6WZ/nLXjbI4iuQsEW", // Test4test4%
-        "$2a$11$HmeURzynKz6PqTVeZxfDIeg6MRpzI/5ZAY1GyHW0hJuNUvv7ixOOO" // Test5test5%
+        "$2a$11$HmeURzynKz6PqTVeZxfDIeg6MRpzI/5ZAY1GyHW0hJuNUvv7ixOOO"  // Test5test5%
     ];
 
     public static void Seed(ModelBuilder modelBuilder)
@@ -159,7 +160,7 @@ public static class ModelSeeder
             new User
             {
                 Id = 4,
-                CohortId = 4
+                CohortId = 4,
             },
             new User
             {
@@ -178,7 +179,7 @@ public static class ModelSeeder
                 AuthorId = 1,
                 Body = "Post 1 Body",
                 Likes = 5,
-                CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
+                CreatedAt = _seedTime,
             },
             new Post
             {
@@ -186,7 +187,7 @@ public static class ModelSeeder
                 AuthorId = 2,
                 Body = "Post 2 Body",
                 Likes = 3,
-                CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
+                CreatedAt = _seedTime,
             },
             new Post
             {
@@ -194,7 +195,7 @@ public static class ModelSeeder
                 AuthorId = 3,
                 Body = "Post 3 Body",
                 Likes = 10,
-                CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
+                CreatedAt = _seedTime,
             },
             new Post
             {
@@ -202,7 +203,7 @@ public static class ModelSeeder
                 AuthorId = 4,
                 Body = "Post 4 Body",
                 Likes = 7,
-                CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
+                CreatedAt = _seedTime,
             },
             new Post
             {
@@ -210,7 +211,7 @@ public static class ModelSeeder
                 AuthorId = 5,
                 Body = "Post 5 Body",
                 Likes = 9,
-                CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
+                CreatedAt = _seedTime,
             }
         );
     }
@@ -223,40 +224,40 @@ public static class ModelSeeder
                 Id = 1,
                 PostId = 1,
                 UserId = 1,
-                Body = "Post 1 Body",
-                CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
+                Body = "Comment 1 Body",
+                CreatedAt = _seedTime,
             },
             new Comment
             {
                 Id = 2,
                 PostId = 2,
                 UserId = 2,
-                Body = "Post 2 Body",
-                CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
+                Body = "Comment 2 Body",
+                CreatedAt = _seedTime,
             },
             new Comment
             {
                 Id = 3,
                 PostId = 3,
                 UserId = 3,
-                Body = "Post 3 Body",
-                CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
+                Body = "Comment 3 Body",
+                CreatedAt = _seedTime,
             },
             new Comment
             {
                 Id = 4,
                 PostId = 4,
                 UserId = 4,
-                Body = "Post 4 Body",
-                CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
+                Body = "Comment 4 Body",
+                CreatedAt = _seedTime,
             },
             new Comment
             {
                 Id = 5,
                 PostId = 5,
                 UserId = 5,
-                Body = "Post 5 Body",
-                CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
+                Body = "Comment 5 Body",
+                CreatedAt = _seedTime,
             }
         );
     }

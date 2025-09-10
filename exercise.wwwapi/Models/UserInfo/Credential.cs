@@ -2,10 +2,13 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using exercise.wwwapi.Enums;
+using Microsoft.EntityFrameworkCore;
 
 namespace exercise.wwwapi.Models.UserInfo;
 
 [Table("credentials")]
+[Index(nameof(Email), IsUnique = true)]
+[Index(nameof(Username), IsUnique = true)]
 public class Credential
 {
     [Key]

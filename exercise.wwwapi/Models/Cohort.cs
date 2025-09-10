@@ -1,6 +1,6 @@
-﻿using exercise.wwwapi.Models.UserInfo;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using exercise.wwwapi.Models.UserInfo;
 
 namespace exercise.wwwapi.Models;
 
@@ -15,5 +15,5 @@ public class Cohort
     [ForeignKey(nameof(Course))]
     public int CourseId { get; set; }
     public Course Course { get; set; }
-    public ICollection<User> Members { get; set; }
+    public ICollection<User> Users { get; set; } =  new List<User>();
 }
