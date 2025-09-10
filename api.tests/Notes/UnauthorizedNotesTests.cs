@@ -39,26 +39,7 @@ public class UnauthorizedNotesTests
     [Test]
     public async Task GetNoteByIdByStudentReceiveUnauthorizedTest()
     {
-        var loginUser = new LoginRequestDTO
-        {
-            Email = "test1@test1",
-            Password = "Test1test1%"
-        };
-
-        var contentLogin = new StringContent(
-            JsonSerializer.Serialize(loginUser),
-            Encoding.UTF8,
-            "application/json"
-        );
-
-        var loginResponse = await _client.PostAsync("login", contentLogin);
-        Assert.That(loginResponse.IsSuccessStatusCode, Is.True);
-
-        var jsonResponse = await loginResponse.Content.ReadAsStringAsync();
-        var result = JsonSerializer.Deserialize<ResponseDTO<LoginSuccessDTO>>(jsonResponse);
-        Assert.That(result, Is.Not.Null);
-
-        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", result.Data.Token);
+        await AuthenticateAsStudentAsync();
 
         var response = await _client.GetAsync("/notes/1");
         Assert.That(response.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.Unauthorized));
@@ -74,26 +55,7 @@ public class UnauthorizedNotesTests
     [Test]
     public async Task GetAllStudentNotesByStudentReceiveUnauthorizedTest()
     {
-        var loginUser = new LoginRequestDTO
-        {
-            Email = "test1@test1",
-            Password = "Test1test1%"
-        };
-
-        var contentLogin = new StringContent(
-            JsonSerializer.Serialize(loginUser),
-            Encoding.UTF8,
-            "application/json"
-        );
-
-        var loginResponse = await _client.PostAsync("login", contentLogin);
-        Assert.That(loginResponse.IsSuccessStatusCode, Is.True);
-
-        var jsonResponse = await loginResponse.Content.ReadAsStringAsync();
-        var result = JsonSerializer.Deserialize<ResponseDTO<LoginSuccessDTO>>(jsonResponse);
-        Assert.That(result, Is.Not.Null);
-
-        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", result.Data.Token);
+        await AuthenticateAsStudentAsync();
 
         var response = await _client.GetAsync("/users/1/notes");
         Assert.That(response.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.Unauthorized));
@@ -120,17 +82,7 @@ public class UnauthorizedNotesTests
     [Test]
     public async Task CreateStudentNoteByStudentReceiveUnauthorizedTest()
     {
-        var loginUser = new LoginRequestDTO
-        {
-            Email = "test1@test1",
-            Password = "Test1test1%"
-        };
-
-        var contentLogin = new StringContent(
-            JsonSerializer.Serialize(loginUser),
-            Encoding.UTF8,
-            "application/json"
-        );
+        await AuthenticateAsStudentAsync();
 
         var createNote = new CreateNoteRequestDTO
         {
@@ -142,15 +94,6 @@ public class UnauthorizedNotesTests
             Encoding.UTF8,
             "application/json"
         );
-
-        var loginResponse = await _client.PostAsync("login", contentLogin);
-        Assert.That(loginResponse.IsSuccessStatusCode, Is.True);
-
-        var jsonResponse = await loginResponse.Content.ReadAsStringAsync();
-        var result = JsonSerializer.Deserialize<ResponseDTO<LoginSuccessDTO>>(jsonResponse);
-        Assert.That(result, Is.Not.Null);
-
-        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", result.Data.Token);
 
         var response = await _client.PostAsync("/users/1/notes", contentCreate);
         Assert.That(response.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.Unauthorized));
@@ -166,26 +109,7 @@ public class UnauthorizedNotesTests
     [Test]
     public async Task DeleteStudentNoteByStudentReceiveUnauthorizedTest()
     {
-        var loginUser = new LoginRequestDTO
-        {
-            Email = "test1@test1",
-            Password = "Test1test1%"
-        };
-
-        var contentLogin = new StringContent(
-            JsonSerializer.Serialize(loginUser),
-            Encoding.UTF8,
-            "application/json"
-        );
-
-        var loginResponse = await _client.PostAsync("login", contentLogin);
-        Assert.That(loginResponse.IsSuccessStatusCode, Is.True);
-
-        var jsonResponse = await loginResponse.Content.ReadAsStringAsync();
-        var result = JsonSerializer.Deserialize<ResponseDTO<LoginSuccessDTO>>(jsonResponse);
-        Assert.That(result, Is.Not.Null);
-
-        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", result.Data.Token);
+        await AuthenticateAsStudentAsync();
 
         var response = await _client.DeleteAsync("/notes/1");
         Assert.That(response.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.Unauthorized));
@@ -213,17 +137,7 @@ public class UnauthorizedNotesTests
     [Test]
     public async Task UpdateStudentNoteByStudentReceiveUnauthorizedTest()
     {
-        var loginUser = new LoginRequestDTO
-        {
-            Email = "test1@test1",
-            Password = "Test1test1%"
-        };
-
-        var contentLogin = new StringContent(
-            JsonSerializer.Serialize(loginUser),
-            Encoding.UTF8,
-            "application/json"
-        );
+        await AuthenticateAsStudentAsync();
 
         var updateNote = new UpdateNoteRequestDTO
         {
@@ -237,16 +151,32 @@ public class UnauthorizedNotesTests
             "application/json"
         );
 
-        var loginResponse = await _client.PostAsync("login", contentLogin);
-        Assert.That(loginResponse.IsSuccessStatusCode, Is.True);
-
-        var jsonResponse = await loginResponse.Content.ReadAsStringAsync();
-        var result = JsonSerializer.Deserialize<ResponseDTO<LoginSuccessDTO>>(jsonResponse);
-        Assert.That(result, Is.Not.Null);
-
-        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", result.Data.Token);
-
         var response = await _client.PatchAsync("/notes/1", contentUpdate);
         Assert.That(response.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.Unauthorized));
+    }
+
+    private async Task AuthenticateAsStudentAsync()
+    {
+        var loginUser = new LoginRequestDTO
+        {
+            Email = "test1@test1",
+            Password = "Test1test1%"
+        };
+
+        var loginContent = new StringContent(
+            JsonSerializer.Serialize(loginUser),
+            Encoding.UTF8,
+            "application/json"
+        );
+
+        var loginResponse = await _client.PostAsync("login", loginContent);
+        Assert.That(loginResponse.IsSuccessStatusCode, Is.True);
+
+        var loginJson = await loginResponse.Content.ReadAsStringAsync();
+        var login = JsonSerializer.Deserialize<ResponseDTO<LoginSuccessDTO>>(loginJson);
+        Assert.That(login, Is.Not.Null);
+
+        _client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", login!.Data.Token);
     }
 }

@@ -31,28 +31,7 @@ namespace api.tests.Notes
         public async Task DeleteNoteTestNotFound()
         {
             int noteId = 523523;
-            // login to a teacher user
-            var loginUser = new LoginRequestDTO
-            {
-                Email = "test2@test2",
-                Password = "Test2test2%"
-            };
-
-            var loginContent = new StringContent(
-                JsonSerializer.Serialize(loginUser),
-                Encoding.UTF8,
-                "application/json"
-            );
-
-            var loginResponse = await _client.PostAsync("login", loginContent);
-            Assert.That(loginResponse.IsSuccessStatusCode, Is.True);
-
-            var loginJson = await loginResponse.Content.ReadAsStringAsync();
-            var login = JsonSerializer.Deserialize<ResponseDTO<LoginSuccessDTO>>(loginJson);
-            Assert.That(login, Is.Not.Null);
-
-            _client.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", login!.Data.Token);
+            await AuthenticateAsTeacherAsync();
 
             var response = await _client.DeleteAsync($"/notes/{noteId}");
             Assert.That(response.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.NotFound));
@@ -62,7 +41,14 @@ namespace api.tests.Notes
         public async Task DeleteNoteTestSuccess()
         {
             int noteId = 5;
-            // login to a teacher user
+            await AuthenticateAsTeacherAsync();
+
+            var response = await _client.DeleteAsync($"/notes/{noteId}");
+            Assert.That(response.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.OK));
+        }
+
+        private async Task AuthenticateAsTeacherAsync()
+        {
             var loginUser = new LoginRequestDTO
             {
                 Email = "test2@test2",
@@ -84,9 +70,6 @@ namespace api.tests.Notes
 
             _client.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Bearer", login!.Data.Token);
-
-            var response = await _client.DeleteAsync($"/notes/{noteId}");
-            Assert.That(response.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.OK));
         }
     }
 }
