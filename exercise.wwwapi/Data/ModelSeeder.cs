@@ -475,7 +475,7 @@ public static class ModelSeeder
             new Note
             {
                 Id = 5,
-                UserId = 5,
+                UserId = 4,
                 Title = "Title Note 5",
                 Content = "note5 note5 note5 note5 content",
                 CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc)
