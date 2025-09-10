@@ -60,9 +60,6 @@ builder.Services.AddScoped<IValidator<UpdateCommentRequestDTO>, UpdateCommentsVa
 // Database context
 builder.Services.AddDbContext<DataContext>(options =>
 {
-        options.UseInMemoryDatabase(Guid.NewGuid().ToString());
-        return;
-    
     if (builder.Configuration.GetValue<string>(Globals.TestingEnvVariable) != null)
     {
         options.UseInMemoryDatabase(Guid.NewGuid().ToString());
