@@ -27,7 +27,11 @@ public static class CohortEndpoints
 
         var cohortData = new CohortsSuccessDTO
         {
-            Cohorts = results
+            Cohorts = results.Select(c => new CohortDTO
+            {
+                Id = c.Id,
+                CourseId = c.CourseId
+            }).ToList()
         };
 
         var response = new ResponseDTO<CohortsSuccessDTO>

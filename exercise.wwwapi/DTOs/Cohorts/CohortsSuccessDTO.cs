@@ -6,6 +6,6 @@ namespace exercise.wwwapi.DTOs.Cohorts
     public class CohortsSuccessDTO
     {
         [JsonPropertyName("cohorts")]
-        public List<Cohort> Cohorts { get; set; } = [];
+        public List<CohortDTO> Cohorts { get; set; } = [];
     }
 }
