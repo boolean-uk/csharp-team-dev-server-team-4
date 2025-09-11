@@ -121,7 +121,7 @@ public static class UserEndpoints
         {
             Credential = new Credential
             {
-                Username = request.Username,
+                Username = string.IsNullOrEmpty(request.Username) ? request.Email : request.Username,
                 PasswordHash = passwordHash,
                 Email = request.Email,
                 Role = Role.Student,
@@ -136,7 +136,7 @@ public static class UserEndpoints
                 EndDate = DateTime.MinValue,
                 Specialism = Specialism.None,
             },
-            CohortId = request.CohortId
+            CohortId = (request.CohortId is null) ? null : request.CohortId
         };
 
         userRepository.Insert(user);
@@ -292,7 +292,7 @@ public static class UserEndpoints
             {
                 Status = "fail",
                 Data = failureDto
-            };
+            };            
             return Results.BadRequest(failResponse);
         }
 
