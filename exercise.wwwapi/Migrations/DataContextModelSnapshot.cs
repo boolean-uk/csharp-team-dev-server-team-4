@@ -316,6 +316,91 @@ namespace exercise.wwwapi.Migrations
                         });
                 });
 
+            modelBuilder.Entity("exercise.wwwapi.Models.Note", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("varchar(1000)")
+                        .HasColumnName("content");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("varchar(1000)")
+                        .HasColumnName("title");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("notes");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Content = "note1note1 note1 note1 content",
+                            CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, 0, DateTimeKind.Utc),
+                            Title = "Title Note 1",
+                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Content = "note2 note2 note2 note2 content",
+                            CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, 0, DateTimeKind.Utc),
+                            Title = "Title Note 2",
+                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = 2
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Content = "note3 note3 note3 note3 content",
+                            CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, 0, DateTimeKind.Utc),
+                            Title = "Title Note 3",
+                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = 3
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Content = "note4 note4 note4 note4 content",
+                            CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, 0, DateTimeKind.Utc),
+                            Title = "Title Note 4",
+                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = 4
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Content = "note5 note5 note5 note5 content",
+                            CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, 0, DateTimeKind.Utc),
+                            Title = "Title Note 5",
+                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = 4
+                        });
+                });
+
             modelBuilder.Entity("exercise.wwwapi.Models.Post", b =>
                 {
                     b.Property<int>("Id")
@@ -727,6 +812,17 @@ namespace exercise.wwwapi.Migrations
                     b.Navigation("Course");
                 });
 
+            modelBuilder.Entity("exercise.wwwapi.Models.Note", b =>
+                {
+                    b.HasOne("exercise.wwwapi.Models.UserInfo.User", "User")
+                        .WithMany("Notes")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("exercise.wwwapi.Models.Post", b =>
                 {
                     b.HasOne("exercise.wwwapi.Models.UserInfo.User", "Author")
@@ -813,6 +909,8 @@ namespace exercise.wwwapi.Migrations
 
                     b.Navigation("Credential")
                         .IsRequired();
+
+                    b.Navigation("Notes");
 
                     b.Navigation("Posts");
 

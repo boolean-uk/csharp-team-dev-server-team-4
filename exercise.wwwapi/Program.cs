@@ -17,6 +17,8 @@ using System.Text;
 using exercise.wwwapi;
 using exercise.wwwapi.Models;
 using exercise.wwwapi.Models.UserInfo;
+using exercise.wwwapi.DTOs.Notes;
+using exercise.wwwapi.Validators.NoteValidators;
 using exercise.wwwapi.DTOs.Posts;
 using exercise.wwwapi.Validators.PostValidators;
 using exercise.wwwapi.DTOs.Posts.UpdatePost;
@@ -40,6 +42,7 @@ builder.Services.AddScoped<IRepository<Cohort>, Repository<Cohort>>();
 builder.Services.AddScoped<IRepository<Module>, Repository<Module>>();
 builder.Services.AddScoped<IRepository<Unit>, Repository<Unit>>();
 builder.Services.AddScoped<IRepository<Exercise>, Repository<Exercise>>();
+builder.Services.AddScoped<IRepository<Note>, Repository<Note>>();
 
 // Register general services
 builder.Services.AddScoped<IConfigurationSettings, ConfigurationSettings>();
@@ -48,6 +51,8 @@ builder.Services.AddScoped<ILogger, Logger<string>>();
 // Register validators
 builder.Services.AddScoped<IValidator<RegisterRequestDTO>, UserRegisterValidator>();
 builder.Services.AddScoped<IValidator<UpdateUserRequestDTO>, UserUpdateValidator>();
+builder.Services.AddScoped<IValidator<CreateNoteRequestDTO>, CreateNoteValidator>();
+builder.Services.AddScoped<IValidator<UpdateNoteRequestDTO>, UpdateNoteValidator>();
 
 // Post validators
 builder.Services.AddScoped<IValidator<CreatePostRequestDTO>, CreatePostValidator>();
@@ -180,6 +185,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 app.ConfigureAuthApi();
+app.ConfigureNoteApi();
 app.ConfigureSecureApi();
 app.ConfigureLogEndpoints();
 app.ConfigureCohortEndpoints();

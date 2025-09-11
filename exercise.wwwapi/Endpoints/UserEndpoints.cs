@@ -16,6 +16,7 @@ using exercise.wwwapi.Enums;
 using exercise.wwwapi.Helpers;
 using exercise.wwwapi.Models.UserInfo;
 using User = exercise.wwwapi.Models.UserInfo.User;
+using exercise.wwwapi.DTOs.Notes;
 
 namespace exercise.wwwapi.EndPoints;
 
@@ -39,7 +40,7 @@ public static class UserEndpoints
     private static async Task<IResult> GetUsers(IRepository<User> userRepository, string? searchTerm,
         ClaimsPrincipal user)
     {
-        var results = (await userRepository.GetAllAsync(u => u.Profile)).ToList();
+        var results = (await userRepository.GetAllAsync(u => u.Profile, u => u.Credential, u => u.Notes)).ToList();
 
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
@@ -47,12 +48,36 @@ public static class UserEndpoints
                     u.Profile.GetFullName().Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
                 .ToList();
         }
-
+        var userRole = user.Role();
 
         var userData = new UsersSuccessDTO
         {
-            Users = results
+            Users = results.Select(user => new UserDTO
+            {
+                Id = user.Id,
+                FirstName = user.Profile.FirstName,
+                LastName = user.Profile.LastName,
+                Bio = user.Profile.Bio,
+                Github = user.Profile.Github,
+                Username = user.Credential.Username,
+                Email = user.Credential.Email,
+                Phone = user.Profile.Phone,
+                StartDate = user.Profile.StartDate,
+                EndDate = user.Profile.EndDate,
+                Specialism = user.Profile.Specialism,
+                CohortId = user.CohortId,
+                Notes = userRole == "Teacher" ?
+                    user.Notes.Select(note => new NoteResponseDTO
+                    {
+                        Id = note.Id,
+                        Title = note.Title,
+                        Content = note.Content,
+                        CreatedAt = note.CreatedAt,
+                        UpdatedAt = note.UpdatedAt
+                    }).ToList() : new List<NoteResponseDTO>()
+            }).ToList()
         };
+
         var response = new ResponseDTO<UsersSuccessDTO>
         {
             Status = "success",
@@ -62,14 +87,39 @@ public static class UserEndpoints
     }
 
     [ProducesResponseType(StatusCodes.Status200OK)]
-    private static async Task<IResult> GetUsersByCohort(IRepository<User> userRepository, int id)
+    private static async Task<IResult> GetUsersByCohort(IRepository<User> userRepository, int id, ClaimsPrincipal user)
     {
-        var all = await userRepository.GetAllAsync(u => u.Profile);
+        var all = await userRepository.GetAllAsync(u => u.Profile, u => u.Credential, u => u.Notes);
         var results = all.Where(u => u.CohortId == id).ToList();
+
+        var userRole = user.Role();
 
         var userData = new UsersSuccessDTO
         {
-            Users = results
+            Users = results.Select(user => new UserDTO
+            {
+                Id = user.Id,
+                FirstName = user.Profile.FirstName,
+                LastName = user.Profile.LastName,
+                Bio = user.Profile.Bio,
+                Github = user.Profile.Github,
+                Username = user.Credential.Username,
+                Email = user.Credential.Email,
+                Phone = user.Profile.Phone,
+                StartDate = user.Profile.StartDate,
+                EndDate = user.Profile.EndDate,
+                Specialism = user.Profile.Specialism,
+                CohortId = user.CohortId,
+                Notes = userRole == "Teacher" ?
+                    user.Notes.Select(note => new NoteResponseDTO
+                    {
+                        Id = note.Id,
+                        Title = note.Title,
+                        Content = note.Content,
+                        CreatedAt = note.CreatedAt,
+                        UpdatedAt = note.UpdatedAt
+                    }).ToList() : new List<NoteResponseDTO>()
+            }).ToList()
         };
         var response = new ResponseDTO<UsersSuccessDTO>
         {
@@ -225,12 +275,13 @@ public static class UserEndpoints
 
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public static async Task<IResult> GetUserById(IRepository<User> userRepository, int id)
+    public static async Task<IResult> GetUserById(IRepository<User> userRepository, int id, ClaimsPrincipal claimsPrincipal)
     {
         var user = await userRepository.GetByIdAsync(
             id,
             user => user.Credential,
-            user => user.Profile
+            user => user.Profile,
+            user => user.Notes
         );
         if (user == null)
         {
@@ -256,6 +307,21 @@ public static class UserEndpoints
                 CohortId = user.CohortId
             }
         };
+
+        var userRole = claimsPrincipal.Role();
+
+        if (userRole == "Teacher")
+        {
+            response.Data.Notes = user.Notes.Select(note => new NoteResponseDTO
+            {
+                Id = note.Id,
+                Title = note.Title,
+                Content = note.Content,
+                CreatedAt = note.CreatedAt,
+                UpdatedAt = note.UpdatedAt
+            }).ToList();
+        }
+
         return TypedResults.Ok(response);
     }
 
@@ -392,7 +458,8 @@ public static class UserEndpoints
         {
             new(ClaimTypes.Sid, user.Id.ToString()),
             new(ClaimTypes.Name, user.Credential.Username),
-            new(ClaimTypes.Email, user.Credential.Email)
+            new(ClaimTypes.Email, user.Credential.Email),
+            new(ClaimTypes.Role, user.Credential.Role.ToString())
         };
 
         var tokenKey = Environment.GetEnvironmentVariable(Globals.EnvironmentEnvVariable) == "Staging"

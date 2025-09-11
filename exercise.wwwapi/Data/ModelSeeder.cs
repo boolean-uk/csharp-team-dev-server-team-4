@@ -1,6 +1,7 @@
 ﻿using exercise.wwwapi.Enums;
 using exercise.wwwapi.Models;
 using exercise.wwwapi.Models.UserInfo;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
 namespace exercise.wwwapi.Data;
@@ -30,6 +31,7 @@ public static class ModelSeeder
         SeedModules(ref modelBuilder);
         SeedUnits(ref modelBuilder);
         SeedExercises(ref modelBuilder);
+        SeedNotes(ref modelBuilder);
     }
 
     private static void SeedCredentials(ref ModelBuilder modelBuilder)
@@ -433,6 +435,51 @@ public static class ModelSeeder
                 UnitId = 5,
                 Title = "Exercise 5",
                 Description = "Exercise 5 description"
+            }
+        );
+    }
+    private static void SeedNotes(ref ModelBuilder modelBuilder) 
+    {
+        modelBuilder.Entity<Note>().HasData(
+            new Note
+            {
+                Id = 1,
+                UserId = 1,
+                Title = "Title Note 1",
+                Content = "note1note1 note1 note1 content",
+                CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc)
+            },
+            new Note
+            {
+                Id = 2,
+                UserId = 2,
+                Title = "Title Note 2",
+                Content = "note2 note2 note2 note2 content",
+                CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc)
+            },
+            new Note
+            {
+                Id = 3,
+                UserId = 3,
+                Title = "Title Note 3",
+                Content = "note3 note3 note3 note3 content",
+                CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc)
+            },
+            new Note
+            {
+                Id = 4,
+                UserId = 4,
+                Title = "Title Note 4",
+                Content = "note4 note4 note4 note4 content",
+                CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc)
+            },
+            new Note
+            {
+                Id = 5,
+                UserId = 4,
+                Title = "Title Note 5",
+                Content = "note5 note5 note5 note5 content",
+                CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc)
             }
         );
     }
