@@ -29,4 +29,10 @@ public static class ClaimsPrincipalHelper
         return claim?.Value;
     }
 
+    public static int? PostRealId(this ClaimsPrincipal post)
+    {
+        Claim? claim = post.FindFirst(ClaimTypes.Sid);
+        return int.Parse(claim?.Value);
+    }
+
 }

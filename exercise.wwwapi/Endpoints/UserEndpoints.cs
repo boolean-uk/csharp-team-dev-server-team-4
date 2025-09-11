@@ -28,6 +28,7 @@ public static class UserEndpoints
     {
         var users = app.MapGroup("users");
         users.MapPost("/", Register).WithSummary("Create user");
+        users.MapGet("/by_cohort/{id}", GetUsersByCohort).WithSummary("Get all users from a cohort");
         users.MapGet("/", GetUsers).WithSummary("Get all users or filter by first name, last name or full name");
         users.MapGet("/{id}", GetUserById).WithSummary("Get user by user id");
         app.MapPost("/login", Login).WithSummary("Localhost Login");
@@ -43,9 +44,9 @@ public static class UserEndpoints
 
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
-            results = results.Where(
-               u => u.Profile.GetFullName().Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
-           .ToList();
+            results = results.Where(u =>
+                    u.Profile.GetFullName().Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                .ToList();
         }
         var userRole = user.Role();
 
@@ -77,6 +78,49 @@ public static class UserEndpoints
             }).ToList()
         };
 
+        var response = new ResponseDTO<UsersSuccessDTO>
+        {
+            Status = "success",
+            Data = userData
+        };
+        return TypedResults.Ok(response);
+    }
+
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    private static async Task<IResult> GetUsersByCohort(IRepository<User> userRepository, int id, ClaimsPrincipal user)
+    {
+        var all = await userRepository.GetAllAsync(u => u.Profile);
+        var results = all.Where(u => u.CohortId == id).ToList();
+
+        var userRole = user.Role();
+
+        var userData = new UsersSuccessDTO
+        {
+            Users = results.Select(user => new UserDTO
+            {
+                Id = user.Id,
+                FirstName = user.Profile.FirstName,
+                LastName = user.Profile.LastName,
+                Bio = user.Profile.Bio,
+                Github = user.Profile.Github,
+                Username = user.Credential.Username,
+                Email = user.Credential.Email,
+                Phone = user.Profile.Phone,
+                StartDate = user.Profile.StartDate,
+                EndDate = user.Profile.EndDate,
+                Specialism = user.Profile.Specialism,
+                CohortId = user.CohortId,
+                Notes = userRole == "Teacher" && user.Notes != null ?
+                    user.Notes.Select(note => new NoteResponseDTO
+                    {
+                        Id = note.Id,
+                        Title = note.Title,
+                        Content = note.Content,
+                        CreatedAt = note.CreatedAt,
+                        UpdatedAt = note.UpdatedAt
+                    }).ToList() : new List<NoteResponseDTO>()
+            }).ToList()
+        };
         var response = new ResponseDTO<UsersSuccessDTO>
         {
             Status = "success",

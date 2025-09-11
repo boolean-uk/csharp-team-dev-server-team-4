@@ -52,6 +52,13 @@ public class GetUserTests
         var getUsersResponse = await _client.GetAsync($"users");
         Assert.That(getUsersResponse.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.OK));
     }
+    
+    [Test]
+    public async Task GetUsersByCohortTest()
+    {
+        var getUsersResponse = await _client.GetAsync($"users/by_cohort/1");
+        Assert.That(getUsersResponse.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.OK));
+    }
 
     [Test]
     public async Task GetFilteredUsersByFirstNameTest()
