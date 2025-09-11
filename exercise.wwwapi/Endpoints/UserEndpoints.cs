@@ -136,7 +136,7 @@ public static class UserEndpoints
                 EndDate = DateTime.MinValue,
                 Specialism = Specialism.None,
             },
-            CohortId = (request.CohortId is null) ? null : request.CohortId
+            CohortId = request.CohortId
         };
 
         userRepository.Insert(user);
@@ -292,7 +292,7 @@ public static class UserEndpoints
             {
                 Status = "fail",
                 Data = failureDto
-            };            
+            };
             return Results.BadRequest(failResponse);
         }
 
