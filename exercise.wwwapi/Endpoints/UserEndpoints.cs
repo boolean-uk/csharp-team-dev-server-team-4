@@ -66,7 +66,7 @@ public static class UserEndpoints
                 EndDate = user.Profile.EndDate,
                 Specialism = user.Profile.Specialism,
                 CohortId = user.CohortId,
-                Notes = userRole == "Teacher" && user.Notes.Count > 0 ?
+                Notes = userRole == "Teacher" ?
                     user.Notes.Select(note => new NoteResponseDTO
                     {
                         Id = note.Id,
@@ -110,7 +110,7 @@ public static class UserEndpoints
                 EndDate = user.Profile.EndDate,
                 Specialism = user.Profile.Specialism,
                 CohortId = user.CohortId,
-                Notes = userRole == "Teacher" && user.Notes.Count > 0  ?
+                Notes = userRole == "Teacher" ?
                     user.Notes.Select(note => new NoteResponseDTO
                     {
                         Id = note.Id,
