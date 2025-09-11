@@ -89,7 +89,7 @@ public static class UserEndpoints
     [ProducesResponseType(StatusCodes.Status200OK)]
     private static async Task<IResult> GetUsersByCohort(IRepository<User> userRepository, int id, ClaimsPrincipal user)
     {
-        var all = await userRepository.GetAllAsync(u => u.Profile);
+        var all = await userRepository.GetAllAsync(u => u.Profile, u => u.Credential, u => u.Notes);
         var results = all.Where(u => u.CohortId == id).ToList();
 
         var userRole = user.Role();
