@@ -14,7 +14,7 @@ public class RegisterRequestDTO
     public required string Password { get; set; }
         
     [JsonPropertyName("username")]
-    public required string Username { get; set; } 
+    public string? Username { get; set; } 
         
     [JsonPropertyName("firstName")]
     public string? FirstName { get; set; }

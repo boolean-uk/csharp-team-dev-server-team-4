@@ -121,7 +121,7 @@ public static class UserEndpoints
         {
             Credential = new Credential
             {
-                Username = request.Username,
+                Username = string.IsNullOrEmpty(request.Username) ? request.Email : request.Username,
                 PasswordHash = passwordHash,
                 Email = request.Email,
                 Role = Role.Student,
