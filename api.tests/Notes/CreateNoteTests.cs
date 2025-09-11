@@ -37,7 +37,6 @@ namespace api.tests.Notes
             await AuthenticateAsTeacherAsync();
 
             int userId = 1;
-            int noteId = 1;
 
             var createNote = new CreateNoteRequestDTO
             {
@@ -61,7 +60,6 @@ namespace api.tests.Notes
             await AuthenticateAsTeacherAsync();
 
             int userId = 1;
-            int noteId = 1;
 
             var createNote = new CreateNoteRequestDTO
             {
@@ -85,7 +83,6 @@ namespace api.tests.Notes
             await AuthenticateAsTeacherAsync();
 
             int userId = 1;
-            int noteId = 1;
 
             var createNote = new CreateNoteRequestDTO
             {
@@ -109,7 +106,6 @@ namespace api.tests.Notes
             await AuthenticateAsTeacherAsync();
 
             int userId = 1;
-            int noteId = 1;
 
             var createNote = new CreateNoteRequestDTO
             {
@@ -133,7 +129,6 @@ namespace api.tests.Notes
             await AuthenticateAsTeacherAsync();
 
             int userId = 1;
-            int noteId = 1;
 
             var createNote = new CreateNoteRequestDTO
             {

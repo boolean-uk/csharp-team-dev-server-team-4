@@ -66,7 +66,7 @@ public static class UserEndpoints
                 EndDate = user.Profile.EndDate,
                 Specialism = user.Profile.Specialism,
                 CohortId = user.CohortId,
-                Notes = userRole == "Teacher" && user.Notes != null ?
+                Notes = userRole == "Teacher" && user.Notes.Count > 0 ?
                     user.Notes.Select(note => new NoteResponseDTO
                     {
                         Id = note.Id,
@@ -110,7 +110,7 @@ public static class UserEndpoints
                 EndDate = user.Profile.EndDate,
                 Specialism = user.Profile.Specialism,
                 CohortId = user.CohortId,
-                Notes = userRole == "Teacher" && user.Notes != null ?
+                Notes = userRole == "Teacher" && user.Notes.Count > 0  ?
                     user.Notes.Select(note => new NoteResponseDTO
                     {
                         Id = note.Id,
@@ -275,7 +275,7 @@ public static class UserEndpoints
 
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public static async Task<IResult> GetUserById(IRepository<User> userRepository, int id, ClaimsPrincipal claimsPrinciple)
+    public static async Task<IResult> GetUserById(IRepository<User> userRepository, int id, ClaimsPrincipal claimsPrincipal)
     {
         var user = await userRepository.GetByIdAsync(
             id,
@@ -308,7 +308,7 @@ public static class UserEndpoints
             }
         };
 
-        var userRole = claimsPrinciple.Role();
+        var userRole = claimsPrincipal.Role();
 
         if (userRole == "Teacher")
         {

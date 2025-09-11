@@ -125,7 +125,7 @@ namespace exercise.wwwapi.Endpoints
                 UserId = userId
             };
 
-            await noteRepository.InsertAsync(note);
+            noteRepository.Insert(note);
             await noteRepository.SaveAsync();
 
             var response = new ResponseDTO<NoteResponseDTO>

@@ -34,7 +34,6 @@ public class UpdateNotesTests
     {
         await AuthenticateAsTeacherAsync();
 
-        int userId = 1;
         int noteId = 15476587;
 
         var updateNote = new UpdateNoteRequestDTO
@@ -58,7 +57,6 @@ public class UpdateNotesTests
     {
         await AuthenticateAsTeacherAsync();
 
-        int userId = 1;
         int noteId = 1;
 
         var updateNote = new UpdateNoteRequestDTO
@@ -82,7 +80,6 @@ public class UpdateNotesTests
     {
         await AuthenticateAsTeacherAsync();
 
-        int userId = 1;
         int noteId = 1;
 
         var updateNote = new UpdateNoteRequestDTO
@@ -106,7 +103,6 @@ public class UpdateNotesTests
     {
         await AuthenticateAsTeacherAsync();
 
-        int userId = 1;
         int noteId = 1;
 
         var updateNote = new UpdateNoteRequestDTO
@@ -130,7 +126,6 @@ public class UpdateNotesTests
     {
         await AuthenticateAsTeacherAsync();
 
-        int userId = 1;
         int noteId = 1;
 
         var updateNote = new UpdateNoteRequestDTO
@@ -154,7 +149,6 @@ public class UpdateNotesTests
     {
         await AuthenticateAsTeacherAsync();
 
-        int userId = 1;
         int noteId = 1;
 
         var updateNote = new UpdateNoteRequestDTO
