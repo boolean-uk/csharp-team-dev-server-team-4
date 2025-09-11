@@ -1,4 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using exercise.wwwapi.DTOs;
+using exercise.wwwapi.DTOs.Cohorts;
+using exercise.wwwapi.Models;
+using exercise.wwwapi.Repository;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace exercise.wwwapi.Endpoints;
 
@@ -7,11 +13,29 @@ public static class CohortEndpoints
     public static void ConfigureCohortEndpoints(this WebApplication app)
     {
         var cohorts = app.MapGroup("cohorts");
-        cohorts.MapPost("/", CreateCohort).WithSummary("Create a cohort");
+        cohorts.MapPost("/", GetCohorts).WithSummary("List all cohorts");
     }
+
+    [Authorize]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public static async Task<IResult> CreateCohort()
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public static async Task<IResult> GetCohorts(IRepository<Cohort> cohortRepository, ClaimsPrincipal user)
     {
-        return TypedResults.Ok();
+        var results = (await cohortRepository.GetAllAsync(
+            c => c.Course
+        )).ToList();
+
+        var cohortData = new CohortsSuccessDTO
+        {
+            Cohorts = results
+        };
+
+        var response = new ResponseDTO<CohortsSuccessDTO>
+        {
+            Status = "success",
+            Data = cohortData
+        };
+
+        return TypedResults.Ok(response);
     }
 }

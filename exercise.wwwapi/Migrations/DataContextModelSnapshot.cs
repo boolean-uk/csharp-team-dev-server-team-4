@@ -85,7 +85,7 @@ namespace exercise.wwwapi.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
-                        .HasColumnName("create_at");
+                        .HasColumnName("created_at");
 
                     b.Property<int>("PostId")
                         .HasColumnType("integer")
@@ -107,40 +107,40 @@ namespace exercise.wwwapi.Migrations
                         new
                         {
                             Id = 1,
-                            Body = "Post 1 Body",
-                            CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, 0, DateTimeKind.Utc),
+                            Body = "Comment 1 Body",
+                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             PostId = 1,
                             UserId = 1
                         },
                         new
                         {
                             Id = 2,
-                            Body = "Post 2 Body",
-                            CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, 0, DateTimeKind.Utc),
+                            Body = "Comment 2 Body",
+                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             PostId = 2,
                             UserId = 2
                         },
                         new
                         {
                             Id = 3,
-                            Body = "Post 3 Body",
-                            CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, 0, DateTimeKind.Utc),
+                            Body = "Comment 3 Body",
+                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             PostId = 3,
                             UserId = 3
                         },
                         new
                         {
                             Id = 4,
-                            Body = "Post 4 Body",
-                            CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, 0, DateTimeKind.Utc),
+                            Body = "Comment 4 Body",
+                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             PostId = 4,
                             UserId = 4
                         },
                         new
                         {
                             Id = 5,
-                            Body = "Post 5 Body",
-                            CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, 0, DateTimeKind.Utc),
+                            Body = "Comment 5 Body",
+                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             PostId = 5,
                             UserId = 5
                         });
@@ -439,7 +439,7 @@ namespace exercise.wwwapi.Migrations
                             Id = 1,
                             AuthorId = 1,
                             Body = "Post 1 Body",
-                            CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Likes = 5
                         },
                         new
@@ -447,7 +447,7 @@ namespace exercise.wwwapi.Migrations
                             Id = 2,
                             AuthorId = 2,
                             Body = "Post 2 Body",
-                            CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Likes = 3
                         },
                         new
@@ -455,7 +455,7 @@ namespace exercise.wwwapi.Migrations
                             Id = 3,
                             AuthorId = 3,
                             Body = "Post 3 Body",
-                            CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Likes = 10
                         },
                         new
@@ -463,7 +463,7 @@ namespace exercise.wwwapi.Migrations
                             Id = 4,
                             AuthorId = 4,
                             Body = "Post 4 Body",
-                            CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Likes = 7
                         },
                         new
@@ -471,7 +471,7 @@ namespace exercise.wwwapi.Migrations
                             Id = 5,
                             AuthorId = 5,
                             Body = "Post 5 Body",
-                            CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Likes = 9
                         });
                 });
@@ -559,6 +559,12 @@ namespace exercise.wwwapi.Migrations
                         .HasColumnName("username");
 
                     b.HasKey("UserId");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.HasIndex("Username")
+                        .IsUnique();
 
                     b.ToTable("credentials");
 
@@ -724,7 +730,8 @@ namespace exercise.wwwapi.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int?>("CohortId")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("cohort_id");
 
                     b.HasKey("Id");
 
@@ -870,7 +877,7 @@ namespace exercise.wwwapi.Migrations
             modelBuilder.Entity("exercise.wwwapi.Models.UserInfo.User", b =>
                 {
                     b.HasOne("exercise.wwwapi.Models.Cohort", "Cohort")
-                        .WithMany("Members")
+                        .WithMany("Users")
                         .HasForeignKey("CohortId");
 
                     b.Navigation("Cohort");
@@ -878,7 +885,7 @@ namespace exercise.wwwapi.Migrations
 
             modelBuilder.Entity("exercise.wwwapi.Models.Cohort", b =>
                 {
-                    b.Navigation("Members");
+                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("exercise.wwwapi.Models.Course", b =>
