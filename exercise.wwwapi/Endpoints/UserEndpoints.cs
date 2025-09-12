@@ -18,6 +18,7 @@ using exercise.wwwapi.Models.UserInfo;
 using User = exercise.wwwapi.Models.UserInfo.User;
 using exercise.wwwapi.DTOs.Notes;
 using System.Diagnostics;
+using exercise.wwwapi.Models;
 
 namespace exercise.wwwapi.EndPoints;
 
@@ -134,7 +135,7 @@ public static class UserEndpoints
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     private static async Task<IResult> Register(RegisterRequestDTO request, IRepository<User> userRepository,
-        IValidator<RegisterRequestDTO> validator)
+        IRepository<Cohort> cohortRepository, IValidator<RegisterRequestDTO> validator)
     {
         // Validate
         var validation = await validator.ValidateAsync(request);
@@ -164,6 +165,20 @@ public static class UserEndpoints
 
             var failResponse = new ResponseDTO<RegisterFailureDTO> { Status = "fail", Data = failureDto };
             return Results.Conflict(failResponse);
+        }
+
+        // Check if CohortId exists
+        if (request.CohortId != null)
+        {
+            var cohort = await cohortRepository.GetByIdAsync(request.CohortId.Value);
+            if (cohort == null)
+            {
+                var failureDto = new RegisterFailureDTO();
+                failureDto.EmailErrors.Add("Invalid CohortId");
+
+                var failResponse = new ResponseDTO<RegisterFailureDTO> { Status = "fail", Data = failureDto };
+                return Results.BadRequest(failResponse);
+            }
         }
 
         var passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);

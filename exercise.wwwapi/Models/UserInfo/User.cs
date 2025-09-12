@@ -19,6 +19,7 @@ public class User
     public ICollection<Note> Notes { get; set; }
 
     [ForeignKey(nameof(Cohort))]
+    [Column("cohort_id")]
     public int? CohortId { get; set; }
     [JsonIgnore]
     public Cohort? Cohort { get; set; }

@@ -232,7 +232,7 @@ public static class ModelSeeder
             new Comment
             {
                 Id = 2,
-                PostId = 2,
+                PostId = 1,
                 UserId = 2,
                 Body = "Comment 2 Body",
                 CreatedAt = _seedTime,
@@ -240,7 +240,7 @@ public static class ModelSeeder
             new Comment
             {
                 Id = 3,
-                PostId = 3,
+                PostId = 2,
                 UserId = 3,
                 Body = "Comment 3 Body",
                 CreatedAt = _seedTime,
@@ -248,7 +248,7 @@ public static class ModelSeeder
             new Comment
             {
                 Id = 4,
-                PostId = 4,
+                PostId = 2,
                 UserId = 4,
                 Body = "Comment 4 Body",
                 CreatedAt = _seedTime,
@@ -256,7 +256,7 @@ public static class ModelSeeder
             new Comment
             {
                 Id = 5,
-                PostId = 5,
+                PostId = 3,
                 UserId = 5,
                 Body = "Comment 5 Body",
                 CreatedAt = _seedTime,
