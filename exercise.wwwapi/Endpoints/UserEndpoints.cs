@@ -17,6 +17,7 @@ using exercise.wwwapi.Helpers;
 using exercise.wwwapi.Models.UserInfo;
 using User = exercise.wwwapi.Models.UserInfo.User;
 using exercise.wwwapi.DTOs.Notes;
+using System.Diagnostics;
 
 namespace exercise.wwwapi.EndPoints;
 
@@ -334,8 +335,18 @@ public static class UserEndpoints
         IValidator<UpdateUserRequestDTO> validator, ClaimsPrincipal claimsPrinciple
     )
     {
+        var authorized = AuthorizeTeacher(claimsPrinciple);
+        if (!authorized && (request.StartDate is not null 
+            || request.EndDate is not null 
+            || request.CohortId is not null
+            || request.Specialism is not null
+            || request.Role is not null))
+        {
+            return Results.Unauthorized();
+        }
+
         var userIdClaim = claimsPrinciple.UserRealId();
-        if (userIdClaim == null || userIdClaim != id)
+        if (AuthorizeStudent(claimsPrinciple) && (userIdClaim is null || userIdClaim != id))
         {
             return Results.Unauthorized();
         }
@@ -381,6 +392,11 @@ public static class UserEndpoints
         if (request.Github != null) user.Profile.Github = GITHUB_URL + request.Github;
         if (request.FirstName != null) user.Profile.FirstName = request.FirstName;
         if (request.LastName != null) user.Profile.LastName = request.LastName;
+        if (request.CohortId  != null) user.CohortId = request.CohortId;
+        if (request.Specialism != null)
+            user.Profile.Specialism = (Specialism)request.Specialism;
+        if (request.Role != null)
+            user.Credential.Role = (Role)request.Role;
 
         userRepository.Update(user);
         await userRepository.SaveAsync();
@@ -398,6 +414,11 @@ public static class UserEndpoints
                 Github = user.Profile.Github,
                 Username = user.Credential.Username,
                 Phone = user.Profile.Phone,
+                CohortId = user.CohortId,
+                Specialism = user.Profile.Specialism,
+                Role = user.Credential.Role,
+                StartDate = user.Profile.StartDate,
+                EndDate = user.Profile.EndDate
             }
         };
 
@@ -480,5 +501,24 @@ public static class UserEndpoints
         );
         var jwt = new JwtSecurityTokenHandler().WriteToken(token);
         return jwt;
+    }
+    private static bool AuthorizeTeacher(ClaimsPrincipal claims)
+    {
+        if (claims.IsInRole("Teacher"))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool AuthorizeStudent(ClaimsPrincipal claims)
+    {
+        if (claims.IsInRole("Student"))
+        {
+            return true;
+        }
+
+        return false;
     }
 }
