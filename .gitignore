@@ -74,6 +74,8 @@ ScaffoldingReadMe.txt
 # StyleCop
 StyleCopReport.xml
 
+exercise.wwwapi/Migrations/
+
 # Files built by Visual Studio
 *_i.c
 *_p.c
