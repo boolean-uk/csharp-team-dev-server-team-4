@@ -1,9 +1,11 @@
 ﻿using exercise.wwwapi.DTOs;
 using exercise.wwwapi.DTOs.Login;
 using exercise.wwwapi.DTOs.UpdateUser;
-using System.Net.Http.Headers;
-using System.Text.Json;
 using exercise.wwwapi.Endpoints;
+using exercise.wwwapi.Enums;
+using System.Net.Http.Headers;
+using System.Text;
+using System.Text.Json;
 
 namespace api.tests.UserEndpointTests;
 
@@ -298,7 +300,6 @@ public class UpdateUserTests
         Assert.That(updatedResult!.Data.Username, Is.EqualTo(username));
     }
 
-
     [Test]
     public async Task UpdateUserMobileValidationPassesTest()
     {
@@ -343,5 +344,110 @@ public class UpdateUserTests
         var updatedResult = JsonSerializer.Deserialize<ResponseDTO<UpdateUserSuccessDTO>>(patchResponseContent);
         Assert.That(updatedResult, Is.Not.Null, "Update Failed");
         Assert.That(updatedResult!.Data.Username, Is.EqualTo(username));
+    }
+
+    [Test]
+    public async Task UpdateProtectedPropertiesAsStudent()
+    {
+        await AuthenticateAsStudentAsync();
+
+        var updateUser = new UpdateUserRequestDTO
+        {
+            CohortId = 1,
+            Specialism = Specialism.Frontend,
+            Role = Role.Teacher,
+            StartDate = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
+            EndDate = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
+        };
+
+        var content = new StringContent(
+            JsonSerializer.Serialize(updateUser),
+            System.Text.Encoding.UTF8,
+            "application/json"
+        );
+
+        var patchResponse = await _client.PatchAsync("users/1", content);
+        Assert.That(patchResponse.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.Unauthorized));
+    }
+
+    [Test]
+    public async Task UpdateProtectedPropertiesAsTeacher()
+    {
+        await AuthenticateAsTeacherAsync();
+
+        var updateUser = new UpdateUserRequestDTO
+        {
+            CohortId = 1,
+            Specialism = Specialism.Frontend,
+            Role = Role.Teacher,
+            StartDate = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
+            EndDate = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
+        };
+
+        var content = new StringContent(
+            JsonSerializer.Serialize(updateUser),
+            System.Text.Encoding.UTF8,
+            "application/json"
+        );
+
+        var patchResponse = await _client.PatchAsync("users/1", content);
+        Assert.That(patchResponse.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.OK));
+
+        var patchResponseContent = await patchResponse.Content.ReadAsStringAsync();
+        var updatedResult = JsonSerializer.Deserialize<ResponseDTO<UpdateUserSuccessDTO>>(patchResponseContent);
+        Assert.That(updatedResult, Is.Not.Null, "Update Failed");
+        Assert.That(updatedResult!.Data.CohortId, Is.EqualTo(1));
+        Assert.That(updatedResult!.Data.Specialism, Is.EqualTo(Specialism.Frontend));
+        Assert.That(updatedResult!.Data.Role, Is.EqualTo(Role.Teacher));
+    }
+
+    private async Task AuthenticateAsStudentAsync()
+    {
+        var loginUser = new LoginRequestDTO
+        {
+            Email = "test1@test1",
+            Password = "Test1test1%"
+        };
+
+        var loginContent = new StringContent(
+            JsonSerializer.Serialize(loginUser),
+            Encoding.UTF8,
+            "application/json"
+        );
+
+        var loginResponse = await _client.PostAsync("login", loginContent);
+        Assert.That(loginResponse.IsSuccessStatusCode, Is.True);
+
+        var loginJson = await loginResponse.Content.ReadAsStringAsync();
+        var login = JsonSerializer.Deserialize<ResponseDTO<LoginSuccessDTO>>(loginJson);
+        Assert.That(login, Is.Not.Null);
+
+        _client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", login!.Data.Token);
+    }
+
+    private async Task AuthenticateAsTeacherAsync()
+    {
+        var loginUser = new LoginRequestDTO
+        {
+            Email = "test2@test2",
+            Password = "Test2test2%"
+        };
+
+        var loginContent = new StringContent(
+            JsonSerializer.Serialize(loginUser),
+            Encoding.UTF8,
+            "application/json"
+        );
+
+        var loginResponse = await _client.PostAsync("login", loginContent);
+        Assert.That(loginResponse.IsSuccessStatusCode, Is.True);
+
+        var loginJson = await loginResponse.Content.ReadAsStringAsync();
+        var login = JsonSerializer.Deserialize<ResponseDTO<LoginSuccessDTO>>(loginJson);
+        Assert.That(login, Is.Not.Null);
+
+        _client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", login!.Data.Token);
     }
 }
