@@ -350,6 +350,7 @@ public static class UserEndpoints
         IValidator<UpdateUserRequestDTO> validator, ClaimsPrincipal claimsPrinciple
     )
     {
+        // Only teacher can edit protected fields
         var authorized = AuthorizeTeacher(claimsPrinciple);
         if (!authorized && (request.StartDate is not null 
             || request.EndDate is not null 
@@ -360,12 +361,15 @@ public static class UserEndpoints
             return Results.Unauthorized();
         }
 
-        if (authorized && request.Password is not null) {
+        // Student can edit only own profile
+        var userIdClaim = claimsPrinciple.UserRealId();
+        if (AuthorizeStudent(claimsPrinciple) && (userIdClaim is null || userIdClaim != id))
+        {
             return Results.Unauthorized();
         }
 
-        var userIdClaim = claimsPrinciple.UserRealId();
-        if (AuthorizeStudent(claimsPrinciple) && (userIdClaim is null || userIdClaim != id))
+        // Only user can edit its own  password
+        if ((userIdClaim is null || userIdClaim != id) && request.Password is not null)
         {
             return Results.Unauthorized();
         }

@@ -392,10 +392,17 @@ public class UpdateUserTests
 
         var patchResponse = await _client.PatchAsync("users/1", content);
         Assert.That(patchResponse.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.OK));
+
+        var patchResponseContent = await patchResponse.Content.ReadAsStringAsync();
+        var updatedResult = JsonSerializer.Deserialize<ResponseDTO<UpdateUserSuccessDTO>>(patchResponseContent);
+        Assert.That(updatedResult, Is.Not.Null, "Update Failed");
+        Assert.That(updatedResult!.Data.CohortId, Is.EqualTo(1));
+        Assert.That(updatedResult!.Data.Specialism, Is.EqualTo(Specialism.Frontend));
+        Assert.That(updatedResult!.Data.Role, Is.EqualTo(Role.Teacher));
     }
 
     [Test]
-    public async Task UpdateStudentPasswordAsTeacher()
+    public async Task UpdateUsersPasswordAsTeacher()
     {
         await AuthenticateAsTeacherAsync();
 
@@ -410,8 +417,10 @@ public class UpdateUserTests
             "application/json"
         );
 
-        var patchResponse = await _client.PatchAsync("users/1", content);
-        Assert.That(patchResponse.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.Unauthorized));
+        var patchResponse1 = await _client.PatchAsync("users/1", content);
+        var patchResponse4 = await _client.PatchAsync("users/4", content);
+        Assert.That(patchResponse1.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.Unauthorized));
+        Assert.That(patchResponse4.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.Unauthorized));
     }
 
     private async Task AuthenticateAsStudentAsync()
