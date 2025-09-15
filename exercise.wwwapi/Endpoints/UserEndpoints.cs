@@ -360,6 +360,10 @@ public static class UserEndpoints
             return Results.Unauthorized();
         }
 
+        if (authorized && request.Password is not null) {
+            return Results.Unauthorized();
+        }
+
         var userIdClaim = claimsPrinciple.UserRealId();
         if (AuthorizeStudent(claimsPrinciple) && (userIdClaim is null || userIdClaim != id))
         {

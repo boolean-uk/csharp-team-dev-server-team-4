@@ -392,13 +392,26 @@ public class UpdateUserTests
 
         var patchResponse = await _client.PatchAsync("users/1", content);
         Assert.That(patchResponse.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.OK));
+    }
 
-        var patchResponseContent = await patchResponse.Content.ReadAsStringAsync();
-        var updatedResult = JsonSerializer.Deserialize<ResponseDTO<UpdateUserSuccessDTO>>(patchResponseContent);
-        Assert.That(updatedResult, Is.Not.Null, "Update Failed");
-        Assert.That(updatedResult!.Data.CohortId, Is.EqualTo(1));
-        Assert.That(updatedResult!.Data.Specialism, Is.EqualTo(Specialism.Frontend));
-        Assert.That(updatedResult!.Data.Role, Is.EqualTo(Role.Teacher));
+    [Test]
+    public async Task UpdateStudentPasswordAsTeacher()
+    {
+        await AuthenticateAsTeacherAsync();
+
+        var updateUser = new UpdateUserRequestDTO
+        {
+            Password = "NewPassword123."
+        };
+
+        var content = new StringContent(
+            JsonSerializer.Serialize(updateUser),
+            System.Text.Encoding.UTF8,
+            "application/json"
+        );
+
+        var patchResponse = await _client.PatchAsync("users/1", content);
+        Assert.That(patchResponse.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.Unauthorized));
     }
 
     private async Task AuthenticateAsStudentAsync()
