@@ -401,6 +401,28 @@ public class UpdateUserTests
         Assert.That(updatedResult!.Data.Role, Is.EqualTo(Role.Teacher));
     }
 
+    [Test]
+    public async Task UpdateUsersPasswordAsTeacher()
+    {
+        await AuthenticateAsTeacherAsync();
+
+        var updateUser = new UpdateUserRequestDTO
+        {
+            Password = "NewPassword123."
+        };
+
+        var content = new StringContent(
+            JsonSerializer.Serialize(updateUser),
+            System.Text.Encoding.UTF8,
+            "application/json"
+        );
+
+        var patchResponse1 = await _client.PatchAsync("users/1", content);
+        var patchResponse4 = await _client.PatchAsync("users/4", content);
+        Assert.That(patchResponse1.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.Unauthorized));
+        Assert.That(patchResponse4.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.Unauthorized));
+    }
+
     private async Task AuthenticateAsStudentAsync()
     {
         var loginUser = new LoginRequestDTO
