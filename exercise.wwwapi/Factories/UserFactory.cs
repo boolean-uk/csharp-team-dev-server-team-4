@@ -3,7 +3,6 @@ using exercise.wwwapi.DTOs.Notes;
 using exercise.wwwapi.Enums;
 using exercise.wwwapi.Models;
 using exercise.wwwapi.Models.UserInfo;
-using exercise.wwwapi.Utils;
 using System.Numerics;
 
 namespace exercise.wwwapi.Factories
@@ -26,7 +25,7 @@ namespace exercise.wwwapi.Factories
                 EndDate = user.Profile.EndDate,
                 Specialism = user.Profile.Specialism,
                 CohortId = user.CohortId,
-                Role = RoleToStringMap.GetString(user.Credential.Role),
+                Role = user.Credential.Role.ToString()
             };
 
             if (privilegeLevel == PrivilegeLevel.Teacher) 

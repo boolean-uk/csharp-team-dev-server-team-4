@@ -19,7 +19,6 @@ using User = exercise.wwwapi.Models.UserInfo.User;
 using exercise.wwwapi.DTOs.Notes;
 using System.Diagnostics;
 using exercise.wwwapi.Models;
-using exercise.wwwapi.Utils;
 using exercise.wwwapi.Factories;
 
 namespace exercise.wwwapi.EndPoints;
