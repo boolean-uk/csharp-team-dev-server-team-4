@@ -45,5 +45,7 @@ public class UserDTO
     public int? CohortId { get; set; }
 
     [JsonPropertyName("notes")]
-    public ICollection<NoteResponseDTO> Notes { get; set; }
+    public ICollection<NoteDTO> Notes { get; set; }
+    [JsonPropertyName("role")]
+    public string Role { get; set; }
 }

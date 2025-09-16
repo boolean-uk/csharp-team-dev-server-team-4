@@ -2,6 +2,6 @@
 {
     public class NotesResponseDTO
     {
-        public List<NoteResponseDTO> Notes { get; set; }
+        public List<NoteDTO> Notes { get; set; }
     }
 }

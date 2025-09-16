@@ -2,6 +2,7 @@
 using exercise.wwwapi.DTOs.GetUsers;
 using exercise.wwwapi.DTOs.Notes;
 using exercise.wwwapi.DTOs.Register;
+using exercise.wwwapi.Factories;
 using exercise.wwwapi.Helpers;
 using exercise.wwwapi.Models;
 using exercise.wwwapi.Models.UserInfo;
@@ -55,17 +56,10 @@ namespace exercise.wwwapi.Endpoints
                 .ToList();
             }
 
-            var noteResponse = new List<NoteResponseDTO>();
+            var noteResponse = new List<NoteDTO>();
             foreach (var note in notes)
             {
-                noteResponse.Add(new NoteResponseDTO
-                {
-                    Id = note.Id,
-                    Title = note.Title,
-                    Content = note.Content,
-                    CreatedAt = note.CreatedAt,
-                    UpdatedAt = note.UpdatedAt
-                });
+                noteResponse.Add(NoteFactory.GetNoteDTO(note));
             }
 
             var response = new ResponseDTO<NotesResponseDTO>
@@ -128,16 +122,10 @@ namespace exercise.wwwapi.Endpoints
             noteRepository.Insert(note);
             await noteRepository.SaveAsync();
 
-            var response = new ResponseDTO<NoteResponseDTO>
+            var response = new ResponseDTO<NoteDTO>
             {
                 Status = "success",
-                Data = new NoteResponseDTO
-                {
-                    Id = note.Id,
-                    Title = note.Title,
-                    Content = note.Content,
-                    CreatedAt = note.CreatedAt
-                }
+                Data = NoteFactory.GetNoteDTO(note)
             };
 
             return TypedResults.Ok(response);
@@ -160,17 +148,10 @@ namespace exercise.wwwapi.Endpoints
                 return TypedResults.NotFound();
             }
 
-            var response = new ResponseDTO<NoteResponseDTO>
+            var response = new ResponseDTO<NoteDTO>
             {
                 Status = "success",
-                Data = new NoteResponseDTO
-                {
-                    Id = note.Id,
-                    Title = note.Title,
-                    Content = note.Content,
-                    CreatedAt = note.CreatedAt,
-                    UpdatedAt = note.UpdatedAt
-                }
+                Data = NoteFactory.GetNoteDTO(note)
             };
 
             return TypedResults.Ok(response);
@@ -196,17 +177,10 @@ namespace exercise.wwwapi.Endpoints
             noteRepository.Delete(note);
             await noteRepository.SaveAsync();
 
-            var response = new ResponseDTO<NoteResponseDTO>
+            var response = new ResponseDTO<NoteDTO>
             {
                 Status = "success",
-                Data = new NoteResponseDTO
-                {
-                    Id = note.Id,
-                    Title = note.Title,
-                    Content = note.Content,
-                    CreatedAt = note.CreatedAt,
-                    UpdatedAt = note.UpdatedAt
-                }
+                Data = NoteFactory.GetNoteDTO(note)
             };
 
             return TypedResults.Ok(response);
@@ -254,17 +228,10 @@ namespace exercise.wwwapi.Endpoints
             noteRepository.Update(note);
             await noteRepository.SaveAsync();
 
-            var response = new ResponseDTO<NoteResponseDTO>
+            var response = new ResponseDTO<NoteDTO>
             {
                 Status = "success",
-                Data = new NoteResponseDTO
-                {
-                    Id = note.Id,
-                    Title = note.Title,
-                    Content = note.Content,
-                    CreatedAt = note.CreatedAt,
-                    UpdatedAt = note.UpdatedAt
-                }
+                Data = NoteFactory.GetNoteDTO(note)
             };
 
             return TypedResults.Ok(response);
