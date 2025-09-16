@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 
 namespace exercise.wwwapi.DTOs.Notes
 {
-    public class NoteResponseDTO
+    public class NoteDTO
     {
         [JsonPropertyName("id")]
         public int Id { get; set; }

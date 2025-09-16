@@ -31,14 +31,7 @@ namespace exercise.wwwapi.Factories
 
             if (privilegeLevel == PrivilegeLevel.Teacher) 
             {
-                userDTO.Notes.Select(note => new NoteResponseDTO
-                {
-                    Id = note.Id,
-                    Title = note.Title,
-                    Content = note.Content,
-                    CreatedAt = note.CreatedAt,
-                    UpdatedAt = note.UpdatedAt
-                }).ToList();
+                userDTO.Notes = user.Notes.Select(note => NoteFactory.GetNoteDTO(note)).ToList();  
             }
 
             return userDTO;

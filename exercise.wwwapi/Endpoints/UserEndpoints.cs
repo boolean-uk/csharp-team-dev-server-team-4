@@ -264,7 +264,7 @@ public static class UserEndpoints
 
         if (userRole == "Teacher")
         {
-            response.Data.Notes = user.Notes.Select(note => new NoteResponseDTO
+            response.Data.Notes = user.Notes.Select(note => new NoteDTO
             {
                 Id = note.Id,
                 Title = note.Title,

@@ -62,7 +62,7 @@ namespace api.tests.Notes
             Assert.That(response.IsSuccessStatusCode, Is.True);
 
             var responseJson = await response.Content.ReadAsStringAsync();
-            var noteResult = JsonSerializer.Deserialize<ResponseDTO<NoteResponseDTO>>(responseJson,
+            var noteResult = JsonSerializer.Deserialize<ResponseDTO<NoteDTO>>(responseJson,
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
             Assert.That(noteResult, Is.Not.Null);
