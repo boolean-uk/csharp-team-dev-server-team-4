@@ -1,0 +1,47 @@
+﻿using exercise.wwwapi.DTOs;
+using exercise.wwwapi.DTOs.Notes;
+using exercise.wwwapi.Enums;
+using exercise.wwwapi.Models;
+using exercise.wwwapi.Models.UserInfo;
+using exercise.wwwapi.Utils;
+using System.Numerics;
+
+namespace exercise.wwwapi.Factories
+{
+    public static class UserFactory
+    {
+        public static UserDTO GetUserDTO(User user, PrivilegeLevel privilegeLevel)
+        {
+            var userDTO = new UserDTO()
+            {
+                Id = user.Id,
+                FirstName = user.Profile.FirstName,
+                LastName = user.Profile.LastName,
+                Bio = user.Profile.Bio,
+                Github = user.Profile.Github,
+                Username = user.Credential.Username,
+                Email = user.Credential.Email,
+                Phone = user.Profile.Phone,
+                StartDate = user.Profile.StartDate,
+                EndDate = user.Profile.EndDate,
+                Specialism = user.Profile.Specialism,
+                CohortId = user.CohortId,
+                Role = RoleToStringMap.GetString(user.Credential.Role),
+            };
+
+            if (privilegeLevel == PrivilegeLevel.Teacher) 
+            {
+                userDTO.Notes.Select(note => new NoteResponseDTO
+                {
+                    Id = note.Id,
+                    Title = note.Title,
+                    Content = note.Content,
+                    CreatedAt = note.CreatedAt,
+                    UpdatedAt = note.UpdatedAt
+                }).ToList();
+            }
+
+            return userDTO;
+        }
+    }
+}

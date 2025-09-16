@@ -46,4 +46,6 @@ public class UserDTO
 
     [JsonPropertyName("notes")]
     public ICollection<NoteResponseDTO> Notes { get; set; }
+    [JsonPropertyName("role")]
+    public string Role { get; set; }
 }
