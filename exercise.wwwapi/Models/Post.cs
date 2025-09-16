@@ -26,7 +26,7 @@ public class Post
     [Column("created_at")]
     public DateTime CreatedAt { get; set; }
 
-    [JsonIgnore]
+    //[JsonIgnore]
     public User Author { get; set; }
     public ICollection<Comment> Comments { get; set; } = new List<Comment>();
 }
