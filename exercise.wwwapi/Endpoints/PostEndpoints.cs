@@ -1,6 +1,7 @@
 ﻿using exercise.wwwapi.DTOs;
 using exercise.wwwapi.DTOs.GetObjects;
 using exercise.wwwapi.DTOs.Posts;
+using exercise.wwwapi.DTOs.Posts.GetPosts;
 using exercise.wwwapi.DTOs.Posts.UpdatePost;
 using exercise.wwwapi.Helpers;
 using exercise.wwwapi.Repository;
@@ -19,6 +20,7 @@ public static class PostEndpoints
         var posts = app.MapGroup("posts");
         posts.MapPost("/", CreatePost).WithSummary("Create post");
         posts.MapGet("/", GetAllPosts).WithSummary("Get all posts");
+        posts.MapGet("/v2", GetAllPostsVol2).WithSummary("Get all posts with the required info");
         posts.MapPatch("/{id}", UpdatePost).RequireAuthorization().WithSummary("Update a post");
         posts.MapDelete("/{id}", DeletePost).RequireAuthorization().WithSummary("Delete a post");
     }
@@ -88,7 +90,7 @@ public static async Task<IResult> CreatePost(
             ClaimsPrincipal user)
     {
         var results = (await postRepository.GetAllAsync(
-            p => p.Author,
+            p => p.Author.Profile,
             p => p.Comments
         )).ToList();
 
@@ -98,6 +100,31 @@ public static async Task<IResult> CreatePost(
         };
 
         var response = new ResponseDTO<PostsSuccessDTO>
+        {
+            Status = "success",
+            Data = postData
+        };
+
+        return TypedResults.Ok(response);
+    }
+
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+
+    private static async Task<IResult> GetAllPostsVol2(IRepository<Post> postRepository,
+        ClaimsPrincipal user)
+    {
+        var results = (await postRepository.GetAllAsync(
+            p => p.Author.Profile,
+            p => p.Comments
+        )).ToList();
+
+        var postData = new PostsSuccessDTOVol2
+        {
+            Posts = results.Select(r => new PostDTOVol2(r)).ToList()
+        };
+
+        var response = new ResponseDTO<PostsSuccessDTOVol2>
         {
             Status = "success",
             Data = postData
