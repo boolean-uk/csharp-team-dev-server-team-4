@@ -20,13 +20,14 @@ public static class CohortEndpoints
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public static async Task<IResult> CreateCohort(IRepository<Cohort> cohortRepo, CohortPostDTO? postCohort)
     {
-        if (postCohort == null || postCohort.CourseId == 0)
+        if (postCohort == null || postCohort.StartDate == DateTime.MinValue || postCohort.EndDate == DateTime.MinValue)
         {
             return TypedResults.BadRequest("Missing cohort data");
         }
 
         bool success = false;
         int attempts = 0;
+        int newCohortNumber = 0;
 
         while (!success && attempts < 5)
         {
@@ -37,8 +38,13 @@ public static class CohortEndpoints
                 {
                     maxCohortNumber = 0;
                 }
+                if (postCohort.CohortName == null)
+                {
+                    postCohort.CohortName = $"Cohort {maxCohortNumber + 1}";
+                }
 
-                Cohort newCohort = new Cohort { CohortNumber = (int)(maxCohortNumber + 1), CohortName = postCohort.CohortName, StartDate = postCohort.StartDate, EndDate = postCohort.EndDate };
+                newCohortNumber = (int)(maxCohortNumber + 1);
+                Cohort newCohort = new Cohort { CohortNumber = newCohortNumber, CohortName = postCohort.CohortName, StartDate = postCohort.StartDate, EndDate = postCohort.EndDate };
 
                 cohortRepo.Insert(newCohort);
                 await cohortRepo.SaveAsync();
@@ -51,11 +57,6 @@ public static class CohortEndpoints
                 {
                     attempts++;
                 }
-                else if (ex.InnerException is PostgresException CourseIdEx &&
-                     CourseIdEx.SqlState == "23503") //23503 = No course with given id exists
-                {
-                    return TypedResults.BadRequest("No course with given id exists");
-                }
                 else
                 {
                     Console.WriteLine($"DB update error: {ex.StackTrace}");
@@ -64,7 +65,7 @@ public static class CohortEndpoints
             }
         }
 
-        return TypedResults.Created($"/cohorts/{postCohort.CourseId}");
+        return TypedResults.Created($"/cohorts/{newCohortNumber}");
     }
 
 }
