@@ -1,5 +1,4 @@
 ﻿using exercise.wwwapi.Models;
-using exercise.wwwapi.Models.UserInfo;
 using System.Text.Json.Serialization;
 
 namespace exercise.wwwapi.DTOs.GetObjects

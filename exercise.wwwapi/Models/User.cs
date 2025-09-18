@@ -1,5 +1,4 @@
 ﻿using exercise.wwwapi.Enums;
-using exercise.wwwapi.Models.UserInfo;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;

@@ -21,7 +21,10 @@ public class RegisterRequestDTO
         
     [JsonPropertyName("lastName")]
     public string? LastName { get; set; }
-        
+
+    [JsonPropertyName("mobile")]
+    public string? Mobile { get; set; }
+
     [JsonPropertyName("bio")]
     public string? Bio { get; set; }
         
