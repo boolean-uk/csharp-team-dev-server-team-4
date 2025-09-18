@@ -14,6 +14,6 @@ public class Module
     [Column("title")]
     public string Title { get; set; }
         
-    public ICollection<CohortCourse> CohortCourses { get; set; } = new List<CohortCourse>();
+    public ICollection<CourseModule> CourseModules { get; set; } = new List<CourseModule>();
     public ICollection<Unit> Units { get; set; } = new List<Unit>();
 }
