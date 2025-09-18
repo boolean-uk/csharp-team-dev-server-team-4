@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace exercise.wwwapi.Models
 {
+    [Table("Likes")]
     public class Like
     {
         [Key]
@@ -14,6 +15,7 @@ namespace exercise.wwwapi.Models
         public int PostId { get; set; }
         public Post Post { get; set; }
         [Column("user_id")]
+        [ForeignKey(nameof(User))]
         public int UserId { get; set; }
         public User User { get; set; }
     }
