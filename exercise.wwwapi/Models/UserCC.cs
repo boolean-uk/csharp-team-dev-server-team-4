@@ -11,16 +11,16 @@ namespace exercise.wwwapi.Models
         [Column("id")]
         public int Id { get; set; }
 
-        [ForeignKey(nameof(Course))]
-        [Column("course_id")]
-        public int CourseId { get; set; }
+        [ForeignKey(nameof(CohortCourse))]
+        [Column("cc_id")]
+        public int CcId { get; set; }
 
         [ForeignKey(nameof(User))]
         [Column("user_id")]
 
         public int UserId { get; set; }
 
-        public Course Course { get; set; }
+        public CohortCourse CohortCourse { get; set; }
 
         public User User { get; set; }
 

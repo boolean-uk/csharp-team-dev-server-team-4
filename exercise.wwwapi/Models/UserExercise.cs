@@ -16,16 +16,15 @@ public class UserExercise
     public string SubmissionLink { get; set; }
 
     [Column("submission_time", TypeName = "date")]
-    public DateTime TurnedIn { get; set; }
+    public DateTime SubmitionTime { get; set; }
 
     [Column("grade", TypeName = "int")]
-    public Specialism Specialism { get; set; }
+    public int Grade { get; set; }
 
     [ForeignKey(nameof(User))]
     [Column("user_id")]
     public int UserId { get; set; }
 
-    [JsonIgnore]
     public User User { get; set; }
 
     [Column("submitted")]
