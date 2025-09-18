@@ -73,7 +73,7 @@ public static class UserEndpoints
     [ProducesResponseType(StatusCodes.Status200OK)]
     private static async Task<IResult> GetUsersByCohortCourse(IRepository<CohortCourse> ccRepository, int cc_id, ClaimsPrincipal claimsPrincipal)
     {
-        var response = await ccRepository.GetByIdWithIncludes(a => a.Include(b => b.UserCCs).ThenInclude(a => a.User), cc_id);
+        var response = await ccRepository.GetByIdWithIncludes(a => a.Include(b => b.UserCCs).ThenInclude(a => a.User).ThenInclude(u => u.Notes), cc_id);
 
         var results = response.UserCCs.Select(a => a.User).ToList();
         var dto_results = results.Select(a => new UserDTO(a));
