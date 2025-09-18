@@ -34,7 +34,7 @@ public static class UserEndpoints
         users.MapGet("/by_cohort/{id}", GetUsersByCohort).WithSummary("Get all users from a cohort");
         users.MapGet("/", GetUsers).WithSummary("Get all users or filter by first name, last name or full name");
         users.MapGet("/{id}", GetUserById).WithSummary("Get user by user id");
-        app.MapPost("/login", Login).WithSummary("Localhost Login");
+                app.MapPost("/login", Login).WithSummary("Localhost Login");
         users.MapPatch("/{id}", UpdateUser).RequireAuthorization().WithSummary("Update a user");
         users.MapDelete("/{id}", DeleteUser).RequireAuthorization().WithSummary("Delete a user");
     }

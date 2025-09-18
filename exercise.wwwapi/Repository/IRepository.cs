@@ -18,4 +18,5 @@ public interface IRepository<T> where T : class
     void Delete(T obj);
     void Save();
     Task SaveAsync();
+    Task<object?> GetMaxValueAsync(Expression<Func<T, object>> columnSelection);
 }

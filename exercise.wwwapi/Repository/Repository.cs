@@ -1,6 +1,8 @@
 ﻿using exercise.wwwapi.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
+using System.Numerics;
+using System.Reflection.Metadata.Ecma335;
 
 namespace exercise.wwwapi.Repository;
 
@@ -112,5 +114,10 @@ public class Repository<T> : IRepository<T> where T : class
     public async Task SaveAsync()
     {
         await _db.SaveChangesAsync();
+    }
+
+    public async Task<object?> GetMaxValueAsync(Expression<Func<T, object>> columnSelector)
+    {
+        return await _table.MaxAsync(columnSelector);
     }
 }

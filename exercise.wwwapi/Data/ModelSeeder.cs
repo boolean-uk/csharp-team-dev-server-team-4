@@ -302,26 +302,31 @@ public static class ModelSeeder
             {
                 Id = 1,
                 CourseId = 1,
+                CohortNumber = 1
             },
             new Cohort
             {
                 Id = 2,
                 CourseId = 2,
+                CohortNumber = 2
             },
             new Cohort
             {
                 Id = 3,
                 CourseId = 3,
+                CohortNumber = 3
             },
             new Cohort
             {
                 Id = 4,
                 CourseId = 4,
+                CohortNumber = 4
             },
             new Cohort
             {
                 Id = 5,
                 CourseId = 5,
+                CohortNumber = 5
             }
         );
     }
