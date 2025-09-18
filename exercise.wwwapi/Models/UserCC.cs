@@ -1,4 +1,4 @@
-﻿using exercise.wwwapi.Models.UserInfo;
+﻿using exercise.wwwapi.Models;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
