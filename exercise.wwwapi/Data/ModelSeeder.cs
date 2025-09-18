@@ -1,6 +1,5 @@
 ﻿using exercise.wwwapi.Enums;
 using exercise.wwwapi.Models;
-using exercise.wwwapi.Models.UserInfo;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 

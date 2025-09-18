@@ -1,5 +1,4 @@
 ﻿using System.Text.Json.Serialization;
-using exercise.wwwapi.Models.UserInfo;
 
 namespace exercise.wwwapi.DTOs.GetUsers;
 

@@ -1,9 +1,9 @@
 ﻿using exercise.wwwapi.Helpers;
+using exercise.wwwapi.Models;
 using exercise.wwwapi.Repository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using exercise.wwwapi.Models.UserInfo;
 
 namespace exercise.wwwapi.EndPoints;
 

@@ -24,8 +24,8 @@ namespace exercise.wwwapi.DTOs.Posts.GetPosts
             AuthorId = model.AuthorId;
             Body = model.Body;
             CreatedAt = model.CreatedAt;
-            Firstname = model.Author.Profile.FirstName;
-            Lastname = model.Author.Profile.LastName;
+            Firstname = model.Author.FirstName;
+            Lastname = model.Author.LastName;
             Comments = model.Comments.Select(c => new CommentDTO(c)).ToList();
             Likes = model.Likes.Select(l => new LikeDTO(l)).ToList();
         }

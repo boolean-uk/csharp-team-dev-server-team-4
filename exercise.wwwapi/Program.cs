@@ -16,7 +16,6 @@ using Scalar.AspNetCore;
 using System.Text;
 using exercise.wwwapi;
 using exercise.wwwapi.Models;
-using exercise.wwwapi.Models.UserInfo;
 using exercise.wwwapi.DTOs.Notes;
 using exercise.wwwapi.Validators.NoteValidators;
 using exercise.wwwapi.DTOs.Posts;
@@ -33,8 +32,6 @@ var config = new ConfigurationSettings();
 
 // Register model repositories
 builder.Services.AddScoped<IRepository<User>, Repository<User>>();
-builder.Services.AddScoped<IRepository<Credential>, Repository<Credential>>();
-builder.Services.AddScoped<IRepository<Profile>, Repository<Profile>>();
 builder.Services.AddScoped<IRepository<Post>, Repository<Post>>();
 builder.Services.AddScoped<IRepository<Comment>, Repository<Comment>>();
 builder.Services.AddScoped<IRepository<Course>, Repository<Course>>();

@@ -88,7 +88,7 @@ public static async Task<IResult> CreatePost(
             ClaimsPrincipal user)
     {
         var results = (await postRepository.GetAllAsync(
-            p => p.Author.Profile,
+            p => p.Author,
             p => p.Comments
         )).ToList();
 
@@ -113,7 +113,7 @@ public static async Task<IResult> CreatePost(
         ClaimsPrincipal user)
     {
         var results = (await postRepository.GetAllAsync(
-            p => p.Author.Profile,
+            p => p.Author,
             p => p.Comments,
             p => p.Likes
         )).ToList();

@@ -29,20 +29,11 @@ public class UserDTO
     [JsonPropertyName("username")]
     public string? Username { get; set; }
         
-    [JsonPropertyName("phone")]
-    public string? Phone { get; set; }
-
-    [JsonPropertyName("startDate")]
-    public DateTime? StartDate { get; set; }
-
-    [JsonPropertyName("endDate")]
-    public DateTime? EndDate { get; set; }
+    [JsonPropertyName("mobile")]
+    public string? Mobile { get; set; }
 
     [JsonPropertyName("specialism")]
     public Specialism? Specialism { get; set; }
-
-    [JsonPropertyName("cohortId")]
-    public int? CohortId { get; set; }
 
     [JsonPropertyName("notes")]
     public ICollection<NoteDTO> Notes { get; set; }
