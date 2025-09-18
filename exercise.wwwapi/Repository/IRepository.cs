@@ -4,8 +4,8 @@ namespace exercise.wwwapi.Repository;
 
 public interface IRepository<T>
 {
-    Task<List<T>> GetWithIncludes(Func<IQueryable<T>, IQueryable<T>> includeQuery);
-    Task<T> GetByIdWithIncludes(Func<IQueryable<T>, IQueryable<T>> includeQuery, int id);
+    Task<List<T>> GetWithIncludes(Func<IQueryable<T>, IQueryable<T>>? includeQuery);
+    Task<T> GetByIdWithIncludes(Func<IQueryable<T>, IQueryable<T>>? includeQuery, int id);
     IEnumerable<T> GetAll(params Expression<Func<T, object>>[] includeExpressions);
     Task<IEnumerable<T>> GetAllAsync(params Expression<Func<T, object>>[] includeExpressions);
     T? GetById(object id, params Expression<Func<T, object>>[] includeExpressions);

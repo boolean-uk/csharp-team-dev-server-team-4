@@ -41,6 +41,7 @@ builder.Services.AddScoped<IRepository<Unit>, Repository<Unit>>();
 builder.Services.AddScoped<IRepository<Exercise>, Repository<Exercise>>();
 builder.Services.AddScoped<IRepository<Note>, Repository<Note>>();
 builder.Services.AddScoped<IRepository<CohortCourse>, Repository<CohortCourse>>();
+builder.Services.AddScoped<IRepository<Exercise>, Repository<Exercise>>();
 
 // Register general services
 builder.Services.AddScoped<IConfigurationSettings, ConfigurationSettings>();
@@ -189,6 +190,7 @@ app.ConfigureLogEndpoints();
 app.ConfigureCohortEndpoints();
 app.ConfigurePostEndpoints();
 app.ConfigureCommentEndpoints();
+app.ConfigureExerciseEndpoints();
 app.Run();
 
 public partial class Program
