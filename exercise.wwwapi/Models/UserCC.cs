@@ -1,11 +1,12 @@
 ﻿using exercise.wwwapi.Models;
+using exercise.wwwapi.Repository;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace exercise.wwwapi.Models
-{
+namespace exercise.wwwapi.Models;
+
     [Table("user_cc")]
-    public class UserCC
+    public class UserCC : IEntity
     {
         [Key]
         [Column("id")]
@@ -17,7 +18,6 @@ namespace exercise.wwwapi.Models
 
         [ForeignKey(nameof(User))]
         [Column("user_id")]
-
         public int UserId { get; set; }
 
         public CohortCourse CohortCourse { get; set; }
@@ -25,4 +25,4 @@ namespace exercise.wwwapi.Models
         public User User { get; set; }
 
     }
-}
+

@@ -1,4 +1,5 @@
 ﻿using exercise.wwwapi.Enums;
+using exercise.wwwapi.Repository;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
@@ -6,7 +7,7 @@ using System.Text.Json.Serialization;
 namespace exercise.wwwapi.Models;
 
 [Table("Course_Module")]
-public class CourseModule
+public class CourseModule : IEntity
 {
     [Key]
     [Column("id")]

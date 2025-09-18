@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 
 namespace exercise.wwwapi.Repository;
 
-public class Repository<T> : IRepository<T> where T : class
+public class Repository<T> : IRepository<T>  where T : class, IEntity
 {
     private readonly DataContext _db;
     private readonly DbSet<T> _table;
@@ -112,5 +112,18 @@ public class Repository<T> : IRepository<T> where T : class
     public async Task SaveAsync()
     {
         await _db.SaveChangesAsync();
+    }
+
+    public async Task<List<T>> GetWithIncludes(Func<IQueryable<T>, IQueryable<T>> includeQuery)
+    {
+        IQueryable<T> query = includeQuery(_table);
+        return await query.ToListAsync();
+    }
+
+    public async Task<T> GetByIdWithIncludes(Func<IQueryable<T>, IQueryable<T>> includeQuery, int id)
+    {
+        IQueryable<T> query = includeQuery(_table);
+        var res = await query.Where(a => a.Id == id).FirstOrDefaultAsync();
+        return res;
     }
 }

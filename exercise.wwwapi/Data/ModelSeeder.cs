@@ -31,10 +31,10 @@ public static class ModelSeeder
         SeedExercises(ref modelBuilder);
         SeedNotes(ref modelBuilder);
 
-        SeedCohortCourses(ref modelBuilder);
         SeedCourseModules(ref modelBuilder);
-        SeedUserCC(ref modelBuilder);
         SeedUserExercises(ref modelBuilder);
+        SeedCohortCourses(ref modelBuilder);
+        SeedUserCC(ref modelBuilder);
 
     }
 
@@ -56,7 +56,8 @@ public static class ModelSeeder
                 Mobile = "1234567890",
                 Github = "",
                 Bio = "",               
-                Specialism = Specialism.Frontend
+                Specialism = Specialism.Frontend,
+                PhotoUrl = ""
             },
             new User
             {
@@ -70,7 +71,8 @@ public static class ModelSeeder
                 Mobile = "1234123",
                 Github = "",
                 Bio = "",
-                Specialism = Specialism.Backend
+                Specialism = Specialism.Backend,
+                PhotoUrl = ""
             },
             new User
             {
@@ -84,7 +86,8 @@ public static class ModelSeeder
                 Mobile = "55555555",
                 Github = "",
                 Bio = "",
-                Specialism = Specialism.Frontend
+                Specialism = Specialism.Frontend,
+                PhotoUrl = ""
             }
            
         );
@@ -310,7 +313,7 @@ public static class ModelSeeder
 
     private static void SeedUserExercises(ref ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<UserCC>().HasData(
+        modelBuilder.Entity<UserExercise>().HasData(
             new UserExercise
             {
                 Id = 1,

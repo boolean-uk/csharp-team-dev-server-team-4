@@ -40,6 +40,7 @@ builder.Services.AddScoped<IRepository<Module>, Repository<Module>>();
 builder.Services.AddScoped<IRepository<Unit>, Repository<Unit>>();
 builder.Services.AddScoped<IRepository<Exercise>, Repository<Exercise>>();
 builder.Services.AddScoped<IRepository<Note>, Repository<Note>>();
+builder.Services.AddScoped<IRepository<CohortCourse>, Repository<CohortCourse>>();
 
 // Register general services
 builder.Services.AddScoped<IConfigurationSettings, ConfigurationSettings>();

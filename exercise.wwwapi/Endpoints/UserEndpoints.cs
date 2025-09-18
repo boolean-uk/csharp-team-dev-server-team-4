@@ -19,6 +19,7 @@ using exercise.wwwapi.DTOs.Notes;
 using System.Diagnostics;
 using exercise.wwwapi.Models;
 using exercise.wwwapi.Factories;
+using Microsoft.EntityFrameworkCore;
 
 namespace exercise.wwwapi.EndPoints;
 
@@ -30,7 +31,7 @@ public static class UserEndpoints
     {
         var users = app.MapGroup("users");
         users.MapPost("/", Register).WithSummary("Create user");
-        users.MapGet("/by_cohort/{id}", GetUsersByCohort).WithSummary("Get all users from a cohort");
+        users.MapGet("/by_cohort/{id}", GetUsersByCohortCourse).WithSummary("Get all users from a cohort");
         users.MapGet("/", GetUsers).WithSummary("Get all users or filter by first name, last name or full name");
         users.MapGet("/{id}", GetUserById).WithSummary("Get user by user id");
         app.MapPost("/login", Login).WithSummary("Localhost Login");
@@ -68,28 +69,18 @@ public static class UserEndpoints
         };
         return TypedResults.Ok(response);
     }
+
     [ProducesResponseType(StatusCodes.Status200OK)]
-    private static async Task<IResult> GetUsersByCohort(IRepository<User> userRepository, int id, ClaimsPrincipal claimsPrincipal)
+    private static async Task<IResult> GetUsersByCohortCourse(IRepository<CohortCourse> ccRepository, int cc_id, ClaimsPrincipal claimsPrincipal)
     {
-        var all = await userRepository.GetAllAsync(u => u.Notes);
-        var results = all.Where(u => u.CohortId == id).ToList();
+        var response = await ccRepository.GetByIdWithIncludes(a => a.Include(b => b.UserCCs).ThenInclude(a => a.User), cc_id);
 
-        var userRole = claimsPrincipal.Role();
-        var authorizedAsTeacher = AuthorizeTeacher(claimsPrincipal);
+        var results = response.UserCCs.Select(a => a.User).ToList();
+        var dto_results = results.Select(a => new UserDTO(a));
 
-        var userData = new UsersSuccessDTO
-        {
-            Users = results.Select(user => authorizedAsTeacher
-                ? UserFactory.GetUserDTO(user, PrivilegeLevel.Teacher)
-                : UserFactory.GetUserDTO(user, PrivilegeLevel.Student))
-            .ToList()
-        };
-        var response = new ResponseDTO<UsersSuccessDTO>
-        {
-            Status = "success",
-            Data = userData
-        };
-        return TypedResults.Ok(response);
+
+        return TypedResults.Ok(dto_results);
+
     }
 
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -350,8 +341,8 @@ public static class UserEndpoints
                 Github = user.Github,
                 Username = user.Username,
                 Mobile = user.Mobile,
-                Specialism = user.Specialism,
-                Role = user.Role,
+                Specialism = (Specialism)user.Specialism,
+                Role = (Role)user.Role,
             }
         };
 

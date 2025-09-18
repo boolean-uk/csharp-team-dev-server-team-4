@@ -154,7 +154,7 @@ public class UpdateUserTests
         _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", result.Data.Token);
         var updateUser = new UpdateUserRequestDTO
         {
-            Phone = phone,
+            Mobile = phone,
         };
         var content = new StringContent(
             JsonSerializer.Serialize(updateUser),
@@ -328,7 +328,7 @@ public class UpdateUserTests
         _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", result.Data.Token);
         var updateUser = new UpdateUserRequestDTO
         {
-            Phone = phone,
+            Mobile = phone,
             Username = username,
         };
         var content = new StringContent(
