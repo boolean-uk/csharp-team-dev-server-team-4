@@ -17,10 +17,10 @@ public class Cohort
     [Column("cohort_name", TypeName = "varchar(50)")]
     public string CohortName { get; set; }
 
-    [Column("start_date")]
+    [Column("start_date", TypeName = "date")]
     public DateTime StartDate { get; set; }
 
-    [Column("end_date")]
+    [Column("end_date", TypeName = "date"))]
     public DateTime EndDate { get; set; }
 
     public ICollection<CohortCourse> CohortCourse { get; set; } =  new List<CohortCourse>();

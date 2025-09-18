@@ -11,7 +11,7 @@ namespace exercise.wwwapi.Models
         [Column("id")]
         public int Id { get; set; }
 
-        [ForeignKey(nameof(User))]
+        [ForeignKey(nameof(Course))]
         [Column("course_id")]
         public int CourseId { get; set; }
 
@@ -23,8 +23,6 @@ namespace exercise.wwwapi.Models
         public Course Course { get; set; }
 
         public User User { get; set; }
-
-        public ICollection<User> Users { get; set; } = new List<User>();
 
     }
 }

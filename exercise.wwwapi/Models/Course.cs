@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace exercise.wwwapi.Models;
 
-[Table("course")]
+[Table("courses")]
 public class Course
 {
     [Key]
