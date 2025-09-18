@@ -26,6 +26,7 @@ public static class ModelSeeder
         SeedProfiles(ref modelBuilder);
         SeedPosts(ref modelBuilder);
         SeedComments(ref modelBuilder);
+        SeedLikes(ref modelBuilder);
         SeedCourses(ref modelBuilder);
         SeedCohorts(ref modelBuilder);
         SeedModules(ref modelBuilder);
@@ -180,7 +181,6 @@ public static class ModelSeeder
                 Id = 1,
                 AuthorId = 1,
                 Body = "Post 1 Body",
-                Likes = 5,
                 CreatedAt = _seedTime,
             },
             new Post
@@ -188,7 +188,6 @@ public static class ModelSeeder
                 Id = 2,
                 AuthorId = 2,
                 Body = "Post 2 Body",
-                Likes = 3,
                 CreatedAt = _seedTime,
             },
             new Post
@@ -196,7 +195,6 @@ public static class ModelSeeder
                 Id = 3,
                 AuthorId = 3,
                 Body = "Post 3 Body",
-                Likes = 10,
                 CreatedAt = _seedTime,
             },
             new Post
@@ -204,7 +202,6 @@ public static class ModelSeeder
                 Id = 4,
                 AuthorId = 4,
                 Body = "Post 4 Body",
-                Likes = 7,
                 CreatedAt = _seedTime,
             },
             new Post
@@ -212,7 +209,6 @@ public static class ModelSeeder
                 Id = 5,
                 AuthorId = 5,
                 Body = "Post 5 Body",
-                Likes = 9,
                 CreatedAt = _seedTime,
             }
         );
@@ -262,6 +258,30 @@ public static class ModelSeeder
                 CreatedAt = _seedTime,
             }
         );
+    }
+
+    private static void SeedLikes(ref ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Like>().HasData(
+            new Like
+            {
+                Id = 1,
+                PostId = 1,
+                UserId = 1
+            },
+            new Like
+            {
+                Id = 2,
+                PostId = 1,
+                UserId = 2
+            },
+            new Like
+            {
+                Id = 3,
+                PostId = 1,
+                UserId = 3
+            }
+            );
     }
 
     private static void SeedCourses(ref ModelBuilder modelBuilder)
