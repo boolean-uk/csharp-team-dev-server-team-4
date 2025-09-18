@@ -129,4 +129,9 @@ public class Repository<T> : IRepository<T>  where T : class, IEntity
         var res = await query.Where(a => a.Id == id).FirstOrDefaultAsync();
         return res;
     }
+
+    public Task<object> GetMaxValueAsync(Expression<Func<T, object>> columnSelection)
+    {
+        return _table.MaxAsync(columnSelection);
+    }
 }
