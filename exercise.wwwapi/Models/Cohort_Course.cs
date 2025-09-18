@@ -5,6 +5,7 @@ using exercise.wwwapi.Models.UserInfo;
 
 namespace exercise.wwwapi.Models
 {
+    [Table("cohort_course")]
     public class CohortCourse
     {
         [Key]
@@ -21,6 +22,8 @@ namespace exercise.wwwapi.Models
 
         public Cohort Cohort { get; set; }
         public Course Course { get; set; }
+
+
 
     }
 }

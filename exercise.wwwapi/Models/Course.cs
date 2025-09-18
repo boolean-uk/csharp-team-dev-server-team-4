@@ -11,9 +11,8 @@ public class Course
     public int Id { get; set; }
 
     [Required]
-    [Column("course_name", TypeName = "varchar(100)")]
-    public string CourseName { get; set; }
+    [Column("name", TypeName = "varchar(100)")]
+    public string Name { get; set; }
 
-    public ICollection<Module> Modules { get; set; } = new List<Module>();
-    public ICollection<Cohort> Cohorts { get; set; } = new List<Cohort>();
+    public ICollection<CohortCourse> CohortCourses { get; set; } = new List<CohortCourse>();
 }
