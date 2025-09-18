@@ -7,7 +7,7 @@ namespace exercise.wwwapi.DTOs.GetObjects
     public class PostsSuccessDTOVol2
     {
         [JsonPropertyName("posts")]
-        public List<PostDTOVol2> Posts { get; set; } = [];
+        public List<PostDTO> Posts { get; set; } = [];
     }
 }
 
