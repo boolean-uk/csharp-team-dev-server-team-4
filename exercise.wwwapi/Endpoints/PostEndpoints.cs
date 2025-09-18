@@ -8,6 +8,7 @@ using exercise.wwwapi.Repository;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using Post = exercise.wwwapi.Models.Post;
 
@@ -21,6 +22,7 @@ public static class PostEndpoints
         posts.MapPost("/", CreatePost).WithSummary("Create post");
         posts.MapGet("/", GetAllPosts).WithSummary("Get all posts");
         posts.MapGet("/v2", GetAllPostsVol2).WithSummary("Get all posts with the required info");
+        posts.MapGet("v2/{id}", GetPostById).WithSummary("Get post by id");
         posts.MapPatch("/{id}", UpdatePost).RequireAuthorization().WithSummary("Update a post");
         posts.MapDelete("/{id}", DeletePost).RequireAuthorization().WithSummary("Delete a post");
     }
@@ -132,6 +134,20 @@ public static async Task<IResult> CreatePost(
         return TypedResults.Ok(response);
     }
 
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    private static async Task<IResult> GetPostById(IRepository<Post> postRepository, int id, ClaimsPrincipal user)
+    {
+        var response = await postRepository.GetByIdWithIncludes(p => p.Include(a => a.Author)
+                                                                      .Include(c => c.Comments)
+                                                                      .Include(l => l.Likes), id);
+        var result = new ResponseDTO<PostDTOVol2>()
+        {
+            Status = "success",
+            Data = new PostDTOVol2(response)
+        };
+        return TypedResults.Ok(result);
+    }
     [Authorize]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
