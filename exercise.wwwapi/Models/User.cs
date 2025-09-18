@@ -39,12 +39,12 @@ public class User : IEntity
         public string? PhotoUrl { get; set; }
         [Column ("specialism")]
         public Specialism? Specialism { get; set; }
-        public ICollection<Post>? Posts { get; set; }
-        public ICollection<Like>? Likes { get; set; }
-        public ICollection<Comment>? Comments { get; set; }
-        public ICollection<Note>? Notes { get; set; }
-        public ICollection<UserExercise>? User_Exercises { get; set; }
-        public ICollection<UserCC>? User_CC { get; set; }
+        public ICollection<Post> Posts { get; set; } = new List<Post>();
+        public ICollection<Like> Likes { get; set; } = new List<Like>();
+        public ICollection<Comment> Comments { get; set; } = new List<Comment>();
+        public ICollection<Note> Notes { get; set; } = new List<Note>();
+        public ICollection<UserExercise> User_Exercises { get; set; } = new List<UserExercise>();
+        public ICollection<UserCC> User_CC { get; set; } = new List<UserCC>();
 
     public string GetFullName()
     {
