@@ -14,7 +14,6 @@ public static class CohortEndpoints
     {
         var cohorts = app.MapGroup("cohorts");
         cohorts.MapPost("/", CreateCohort).WithSummary("Create a cohort");
-        cohorts.MapGet("/{id}", GetCohortById).WithSummary("Get a cohort including its course, but not including its users");
     }
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -39,7 +38,7 @@ public static class CohortEndpoints
                     maxCohortNumber = 0;
                 }
 
-                Cohort newCohort = new Cohort { CohortNumber = (int)(maxCohortNumber + 1), CourseId = postCohort.CourseId };
+                Cohort newCohort = new Cohort { CohortNumber = (int)(maxCohortNumber + 1), CohortName = postCohort.CohortName, StartDate = postCohort.StartDate, EndDate = postCohort.EndDate };
 
                 cohortRepo.Insert(newCohort);
                 await cohortRepo.SaveAsync();
@@ -64,26 +63,8 @@ public static class CohortEndpoints
                 }
             }
         }
+
         return TypedResults.Created($"/cohorts/{postCohort.CourseId}");
     }
 
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    public static async Task<IResult> GetCohortById(IRepository<Cohort> cohortRepo, int id)
-    {
-
-        Cohort? cohort = await cohortRepo.GetByIdAsync(id, c => c.Course);
-
-        if (cohort == null)
-        {
-            return TypedResults.NotFound("No course with given id found");
-        }
-
-        CohortDTO response = new CohortDTO {
-            CourseId = cohort.CourseId,
-            CohortNumber = cohort.CohortNumber,
-            Course = new CourseDTO { CourseName = cohort.Course.CourseName } };
-
-        return TypedResults.Ok(response);
-    }
 }

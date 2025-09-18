@@ -16,9 +16,9 @@ public class Cohort
     [Column("cohort_number")]
     public int CohortNumber { get; set; }
 
-    [Column("course_id")]
-    [ForeignKey(nameof(Course))]
-    public int CourseId { get; set; }
-    public Course Course { get; set; }
-    public ICollection<User> Users { get; set; } =  new List<User>();
+    public string CohortName { get; set; }
+
+    public DateTime StartDate { get; set; }
+    public DateTime EndDate { get; set; }
+
 }
