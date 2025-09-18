@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using exercise.wwwapi.Models;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
@@ -20,5 +21,18 @@ namespace exercise.wwwapi.DTOs.Notes
 
         [JsonPropertyName("updatedat")]
         public DateTime UpdatedAt { get; set; }
+        public NoteDTO()
+        {
+            
+        }
+        public NoteDTO(Note model)
+        {
+            Id = model.Id;
+            Title = model.Title;
+            Content = model.Content;
+            CreatedAt = model.CreatedAt;
+            UpdatedAt = model.UpdatedAt;
+
+        }
     }
 }

@@ -3,7 +3,6 @@ using exercise.wwwapi.DTOs.Login;
 using exercise.wwwapi.DTOs.Notes;
 using exercise.wwwapi.Endpoints;
 using exercise.wwwapi.Models;
-using exercise.wwwapi.Models.UserInfo;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -1,10 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using exercise.wwwapi.Repository;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace exercise.wwwapi.Models;
 
 [Table("exercise")]
-public class Exercise
+public class Exercise : IEntity
 {
     [Key]
     [Column("id")]

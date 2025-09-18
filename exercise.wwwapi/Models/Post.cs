@@ -1,11 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using exercise.wwwapi.Repository;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
 namespace exercise.wwwapi.Models;
 
 [Table("posts")]
-public class Post
+public class Post : IEntity
 {
     [Key]
     [Column("id")]

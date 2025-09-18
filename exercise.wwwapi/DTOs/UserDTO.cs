@@ -36,7 +36,30 @@ public class UserDTO
     public Specialism? Specialism { get; set; }
 
     [JsonPropertyName("notes")]
-    public ICollection<NoteDTO> Notes { get; set; }
+    
+    public ICollection<NoteDTO> Notes { get; set; } = new List<NoteDTO>();
     [JsonPropertyName("role")]
     public string Role { get; set; }
+
+    public UserDTO()
+    {
+        
+    }
+
+    public UserDTO(User model)
+    {
+        Id = model.Id;
+        Email = model.Email;
+        FirstName = model.FirstName;
+        LastName = model.LastName;
+        Bio = model.Bio;
+        Github = model.Github;
+        Username = model.Username;
+        Mobile = model.Mobile;
+        Specialism = model.Specialism;
+        Role = model.Role.ToString();
+        Notes = [];
+
+
+    }
 }
