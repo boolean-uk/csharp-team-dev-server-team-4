@@ -42,8 +42,8 @@ public class User
         public ICollection<Like> Likes { get; set; }
         public ICollection<Comment> Comments { get; set; }
         public ICollection<Note> Notes { get; set; }
-        public ICollection<User_Exercise> User_Exercises { get; set; }
-        public ICollection<User_CC> User_CC { get; set; }
+        public ICollection<UserExercise> User_Exercises { get; set; }
+        public ICollection<UserCC> User_CC { get; set; }
 
     public string GetFullName()
     {

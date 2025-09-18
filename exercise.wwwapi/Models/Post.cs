@@ -19,13 +19,10 @@ public class Post
     [Column("body", TypeName = "varchar(1000)")]
     public string Body { get; set; }
 
-    [Column("likes")]
-    public int Likes { get; set; }
-
-    [Column("created_at")]
+    [Column("created_at", TypeName = "date")]
     public DateTime CreatedAt { get; set; }
 
-    [JsonIgnore]
     public User Author { get; set; }
     public ICollection<Comment> Comments { get; set; } = new List<Comment>();
+    public ICollection<Like> Likes { get; set; } = new List<Like>();
 }

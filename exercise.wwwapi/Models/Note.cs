@@ -14,9 +14,8 @@ namespace exercise.wwwapi.Models
         [Column("user_id")]
         public int UserId { get; set; }
         
-        [JsonIgnore]
         public User User { get; set; }
-        [Column("title", TypeName = "varchar(1000)")]
+        [Column("title", TypeName = "varchar(100)")]
         public string Title { get; set; }
         [Column("content", TypeName = "varchar(1000)")]
         public string Content { get; set; }
