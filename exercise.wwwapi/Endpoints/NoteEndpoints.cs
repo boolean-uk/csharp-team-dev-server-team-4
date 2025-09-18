@@ -5,7 +5,6 @@ using exercise.wwwapi.DTOs.Register;
 using exercise.wwwapi.Factories;
 using exercise.wwwapi.Helpers;
 using exercise.wwwapi.Models;
-using exercise.wwwapi.Models.UserInfo;
 using exercise.wwwapi.Repository;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;

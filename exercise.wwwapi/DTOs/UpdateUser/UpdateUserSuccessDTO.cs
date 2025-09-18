@@ -26,8 +26,8 @@ public class UpdateUserSuccessDTO
     [JsonPropertyName("github")]
     public string? Github { get; set; }
         
-    [JsonPropertyName("phone")]
-    public string? Phone { get; set; }
+    [JsonPropertyName("Mobile")]
+    public string? Mobile { get; set; }
 
     [JsonPropertyName("cohortId")]
     public int? CohortId { get; set; }

@@ -1,12 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using exercise.wwwapi.Repository;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
-using exercise.wwwapi.Models.UserInfo;
 
 namespace exercise.wwwapi.Models;
 
 [Table("comments")]
-public class Comment
+public class Comment : IEntity
 {
     [Key]
     [Column("id")]

@@ -14,12 +14,12 @@ using System.Security.Claims;
 using System.Text;
 using exercise.wwwapi.Enums;
 using exercise.wwwapi.Helpers;
-using exercise.wwwapi.Models.UserInfo;
-using User = exercise.wwwapi.Models.UserInfo.User;
+using User = exercise.wwwapi.Models.User;
 using exercise.wwwapi.DTOs.Notes;
 using System.Diagnostics;
 using exercise.wwwapi.Models;
 using exercise.wwwapi.Factories;
+using Microsoft.EntityFrameworkCore;
 
 namespace exercise.wwwapi.EndPoints;
 
@@ -31,7 +31,7 @@ public static class UserEndpoints
     {
         var users = app.MapGroup("users");
         users.MapPost("/", Register).WithSummary("Create user");
-        users.MapGet("/by_cohort/{id}", GetUsersByCohort).WithSummary("Get all users from a cohort");
+        users.MapGet("/by_cohort/{id}", GetUsersByCohortCourse).WithSummary("Get all users from a cohort");
         users.MapGet("/", GetUsers).WithSummary("Get all users or filter by first name, last name or full name");
         users.MapGet("/{id}", GetUserById).WithSummary("Get user by user id");
                 app.MapPost("/login", Login).WithSummary("Localhost Login");
@@ -43,12 +43,12 @@ public static class UserEndpoints
     private static async Task<IResult> GetUsers(IRepository<User> userRepository, string? searchTerm,
         ClaimsPrincipal claimPrincipal)
     {
-        var results = (await userRepository.GetAllAsync(u => u.Profile, u => u.Credential, u => u.Notes)).ToList();
+        var results = (await userRepository.GetAllAsync(u => u.Notes)).ToList();
 
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
             results = results.Where(u =>
-                    u.Profile.GetFullName().Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                    $"{u.FirstName} {u.LastName}".Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
                 .ToList();
         }
         var userRole = claimPrincipal.Role();
@@ -56,8 +56,8 @@ public static class UserEndpoints
 
         var userData = new UsersSuccessDTO
         {
-            Users = results.Select(user => authorizedAsTeacher 
-            ? UserFactory.GetUserDTO(user, PrivilegeLevel.Teacher) 
+            Users = results.Select(user => authorizedAsTeacher
+            ? UserFactory.GetUserDTO(user, PrivilegeLevel.Teacher)
             : UserFactory.GetUserDTO(user, PrivilegeLevel.Student))
             .ToList()
         };
@@ -71,27 +71,16 @@ public static class UserEndpoints
     }
 
     [ProducesResponseType(StatusCodes.Status200OK)]
-    private static async Task<IResult> GetUsersByCohort(IRepository<User> userRepository, int id, ClaimsPrincipal claimsPrincipal)
+    private static async Task<IResult> GetUsersByCohortCourse(IRepository<CohortCourse> ccRepository, int cc_id, ClaimsPrincipal claimsPrincipal)
     {
-        var all = await userRepository.GetAllAsync(u => u.Profile, u => u.Credential, u => u.Notes);
-        var results = all.Where(u => u.CohortId == id).ToList();
+        var response = await ccRepository.GetByIdWithIncludes(a => a.Include(b => b.UserCCs).ThenInclude(a => a.User).ThenInclude(u => u.Notes), cc_id);
 
-        var userRole = claimsPrincipal.Role();
-        var authorizedAsTeacher = AuthorizeTeacher(claimsPrincipal);
+        var results = response.UserCCs.Select(a => a.User).ToList();
+        var dto_results = results.Select(a => new UserDTO(a));
 
-        var userData = new UsersSuccessDTO
-        {
-            Users = results.Select(user => authorizedAsTeacher
-           ? UserFactory.GetUserDTO(user, PrivilegeLevel.Teacher)
-           : UserFactory.GetUserDTO(user, PrivilegeLevel.Student))
-            .ToList()
-        };
-        var response = new ResponseDTO<UsersSuccessDTO>
-        {
-            Status = "success",
-            Data = userData
-        };
-        return TypedResults.Ok(response);
+
+        return TypedResults.Ok(dto_results);
+
     }
 
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -119,9 +108,9 @@ public static class UserEndpoints
         }
 
         // Check if email already exists
-        var users = await userRepository.GetAllAsync(user => user.Credential
+        var users = await userRepository.GetAllAsync(
         );
-        if (users.Any(u => u.Credential.Email == request.Email))
+        if (users.Any(u => u.Email == request.Email))
         {
             var failureDto = new RegisterFailureDTO();
             failureDto.EmailErrors.Add("Email already exists");
@@ -148,24 +137,16 @@ public static class UserEndpoints
 
         var user = new User
         {
-            Credential = new Credential
-            {
-                Username = string.IsNullOrEmpty(request.Username) ? request.Email : request.Username,
-                PasswordHash = passwordHash,
-                Email = request.Email,
-                Role = Role.Student,
-            },
-            Profile = new Profile
-            {
-                FirstName = string.IsNullOrEmpty(request.FirstName) ? string.Empty : request.FirstName,
-                LastName = string.IsNullOrEmpty(request.LastName) ? string.Empty : request.LastName,
-                Bio = string.IsNullOrEmpty(request.Bio) ? string.Empty : request.Bio,
-                Github = string.IsNullOrEmpty(request.Github) ? string.Empty : request.Github,
-                StartDate = DateTime.MinValue,
-                EndDate = DateTime.MinValue,
-                Specialism = Specialism.None,
-            },
-            CohortId = request.CohortId
+            Username = string.IsNullOrEmpty(request.Username) ? request.Email : request.Username,
+            PasswordHash = passwordHash,
+            Email = request.Email,
+            Role = Role.Student,
+            FirstName = string.IsNullOrEmpty(request.FirstName) ? string.Empty : request.FirstName,
+            LastName = string.IsNullOrEmpty(request.LastName) ? string.Empty : request.LastName,
+            Mobile = string.IsNullOrEmpty(request.Mobile) ? string.Empty : request.Mobile,
+            Bio = string.IsNullOrEmpty(request.Bio) ? string.Empty : request.Bio,
+            Github = string.IsNullOrEmpty(request.Github) ? string.Empty : request.Github,
+            Specialism = Specialism.None
         };
 
         userRepository.Insert(user);
@@ -179,17 +160,14 @@ public static class UserEndpoints
                 User =
                 {
                     Id = user.Id,
-                    FirstName = user.Profile.FirstName,
-                    LastName = user.Profile.LastName,
-                    Bio = user.Profile.Bio,
-                    Github = user.Profile.Github,
-                    Username = user.Credential.Username,
-                    Email = user.Credential.Email,
-                    Phone = user.Profile.Phone,
-                    StartDate = user.Profile.StartDate,
-                    EndDate = user.Profile.EndDate,
-                    Specialism = user.Profile.Specialism,
-                    CohortId = user.CohortId
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    Bio = user.Bio,
+                    Github = user.Github,
+                    Username = user.Username,
+                    Email = user.Email,
+                    Mobile = user.Mobile,
+                    Specialism = user.Specialism,
                 }
             }
         };
@@ -202,11 +180,8 @@ public static class UserEndpoints
     private static async Task<IResult> Login(LoginRequestDTO request, IRepository<User> userRepository,
         IConfigurationSettings configurationSettings)
     {
-        var allUsers = await userRepository.GetAllAsync(
-            user => user.Credential,
-            user => user.Profile
-        );
-        var user = allUsers.FirstOrDefault(u => u.Credential.Email == request.Email);
+        var allUsers = await userRepository.GetAllAsync();
+        var user = allUsers.FirstOrDefault(u => u.Email == request.Email);
         if (user == null)
         {
             return Results.BadRequest(new Payload<object>
@@ -215,7 +190,7 @@ public static class UserEndpoints
             });
         }
 
-        if (!BCrypt.Net.BCrypt.Verify(request.Password, user.Credential.PasswordHash))
+        if (!BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
         {
             return Results.BadRequest(new Payload<object>
             {
@@ -244,8 +219,6 @@ public static class UserEndpoints
     {
         var user = await userRepository.GetByIdAsync(
             id,
-            user => user.Credential,
-            user => user.Profile,
             user => user.Notes
         );
         if (user == null)
@@ -331,30 +304,26 @@ public static class UserEndpoints
             return Results.BadRequest(failResponse);
         }
 
-        var user = await userRepository.GetByIdAsync(
-            id,
-            user => user.Credential,
-            user => user.Profile
-        );
+
+        var user = await userRepository.GetByIdAsync(id);
         if (user == null)
         {
             return TypedResults.NotFound();
         }
 
-        if (request.Username != null) user.Credential.Username = request.Username;
-        if (request.Email != null) user.Credential.Email = request.Email;
+        if (request.Username != null) user.Username = request.Username;
+        if (request.Email != null) user.Email = request.Email;
         if (request.Password != null)
-            user.Credential.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
-        if (request.Phone != null) user.Profile.Phone = request.Phone;
-        if (request.Bio != null) user.Profile.Bio = request.Bio;
-        if (request.Github != null) user.Profile.Github = GITHUB_URL + request.Github;
-        if (request.FirstName != null) user.Profile.FirstName = request.FirstName;
-        if (request.LastName != null) user.Profile.LastName = request.LastName;
-        if (request.CohortId  != null) user.CohortId = request.CohortId;
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
+        if (request.Mobile != null) user.Mobile = request.Mobile;
+        if (request.Bio != null) user.Bio = request.Bio;
+        if (request.Github != null) user.Github = GITHUB_URL + request.Github;
+        if (request.FirstName != null) user.FirstName = request.FirstName;
+        if (request.LastName != null) user.LastName = request.LastName;
         if (request.Specialism != null)
-            user.Profile.Specialism = (Specialism)request.Specialism;
+            user.Specialism = (Specialism)request.Specialism;
         if (request.Role != null)
-            user.Credential.Role = (Role)request.Role;
+            user.Role = (Role)request.Role;
 
         userRepository.Update(user);
         await userRepository.SaveAsync();
@@ -365,18 +334,15 @@ public static class UserEndpoints
             Data = new UpdateUserSuccessDTO()
             {
                 Id = user.Id,
-                Email = user.Credential.Email,
-                FirstName = user.Profile.FirstName,
-                LastName = user.Profile.LastName,
-                Bio = user.Profile.Bio,
-                Github = user.Profile.Github,
-                Username = user.Credential.Username,
-                Phone = user.Profile.Phone,
-                CohortId = user.CohortId,
-                Specialism = user.Profile.Specialism,
-                Role = user.Credential.Role,
-                StartDate = user.Profile.StartDate,
-                EndDate = user.Profile.EndDate
+                Email = user.Email,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Bio = user.Bio,
+                Github = user.Github,
+                Username = user.Username,
+                Mobile = user.Mobile,
+                Specialism = (Specialism)user.Specialism,
+                Role = (Role)user.Role,
             }
         };
 
@@ -396,11 +362,7 @@ public static class UserEndpoints
             return Results.Unauthorized();
         }
 
-        var user = await userRepository.GetByIdAsync(
-            id,
-            user => user.Credential,
-            user => user.Profile
-        );
+        var user = await userRepository.GetByIdAsync(id);
         if (user == null)
         {
             return TypedResults.NotFound();
@@ -423,9 +385,9 @@ public static class UserEndpoints
         var claims = new List<Claim>
         {
             new(ClaimTypes.Sid, user.Id.ToString()),
-            new(ClaimTypes.Name, user.Credential.Username),
-            new(ClaimTypes.Email, user.Credential.Email),
-            new(ClaimTypes.Role, user.Credential.Role.ToString())
+            new(ClaimTypes.Name, user.Username),
+            new(ClaimTypes.Email, user.Email),
+            new(ClaimTypes.Role, user.Role.ToString())
         };
 
         var tokenKey = Environment.GetEnvironmentVariable(Globals.EnvironmentEnvVariable) == "Staging"

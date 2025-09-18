@@ -6,7 +6,7 @@ using System.Reflection.Metadata.Ecma335;
 
 namespace exercise.wwwapi.Repository;
 
-public class Repository<T> : IRepository<T> where T : class, IEntity
+public class Repository<T> : IRepository<T>  where T : class, IEntity
 {
     private readonly DataContext _db;
     private readonly DbSet<T> _table;
@@ -128,10 +128,5 @@ public class Repository<T> : IRepository<T> where T : class, IEntity
         IQueryable<T> query = includeQuery(_table);
         var res = await query.Where(a => a.Id == id).FirstOrDefaultAsync();
         return res;
-    }
-
-    public async Task<object?> GetMaxValueAsync(Expression<Func<T, object>> columnSelector)
-    {
-        return await _table.MaxAsync(columnSelector);
     }
 }

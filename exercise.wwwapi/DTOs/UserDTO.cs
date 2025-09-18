@@ -29,23 +29,37 @@ public class UserDTO
     [JsonPropertyName("username")]
     public string? Username { get; set; }
         
-    [JsonPropertyName("phone")]
-    public string? Phone { get; set; }
-
-    [JsonPropertyName("startDate")]
-    public DateTime? StartDate { get; set; }
-
-    [JsonPropertyName("endDate")]
-    public DateTime? EndDate { get; set; }
+    [JsonPropertyName("mobile")]
+    public string? Mobile { get; set; }
 
     [JsonPropertyName("specialism")]
     public Specialism? Specialism { get; set; }
 
-    [JsonPropertyName("cohortId")]
-    public int? CohortId { get; set; }
-
     [JsonPropertyName("notes")]
-    public ICollection<NoteDTO> Notes { get; set; }
+    
+    public ICollection<NoteDTO> Notes { get; set; } = new List<NoteDTO>();
     [JsonPropertyName("role")]
     public string Role { get; set; }
+
+    public UserDTO()
+    {
+        
+    }
+
+    public UserDTO(User model)
+    {
+        Id = model.Id;
+        Email = model.Email;
+        FirstName = model.FirstName;
+        LastName = model.LastName;
+        Bio = model.Bio;
+        Github = model.Github;
+        Username = model.Username;
+        Mobile = model.Mobile;
+        Specialism = model.Specialism;
+        Role = model.Role.ToString();
+        Notes = model.Notes.Select(n => new NoteDTO(n)).ToList();
+
+
+    }
 }

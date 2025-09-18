@@ -19,8 +19,8 @@ namespace exercise.wwwapi.DTOs.Posts.GetPosts
             UserId = model.UserId;
             Body = model.Body;
             CreatedAt = model.CreatedAt;
-            firstName = model.User.Profile.FirstName;
-            lastName = model.User.Profile.LastName;
+            firstName = model.User.FirstName;
+            lastName = model.User.LastName;
         }
     }
 }
