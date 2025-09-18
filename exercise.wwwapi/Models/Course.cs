@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using exercise.wwwapi.Models.UserInfo;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace exercise.wwwapi.Models;
@@ -15,4 +16,7 @@ public class Course
     public string Name { get; set; }
 
     public ICollection<CohortCourse> CohortCourses { get; set; } = new List<CohortCourse>();
-}
+    public ICollection<CourseModule> CourseModules { get; set; } = new List<CourseModule>();
+
+}    
+
