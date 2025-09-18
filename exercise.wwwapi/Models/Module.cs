@@ -10,14 +10,10 @@ public class Module
     [Column("id")]
     public int Id { get; set; }
 
-    [Column("course_id")]
-    [ForeignKey(nameof(Course))]
-    public int CourseId { get; set; }
-
     [Required]
     [Column("title")]
     public string Title { get; set; }
         
-    public Course Course { get; set; }
+    public ICollection<CohortCourse> CohortCourses { get; set; } = new List<CohortCourse>();
     public ICollection<Unit> Units { get; set; } = new List<Unit>();
 }
