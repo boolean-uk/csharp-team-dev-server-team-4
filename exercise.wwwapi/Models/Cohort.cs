@@ -18,7 +18,7 @@ public class Cohort
     public string CohortName { get; set; }
 
     [Column("start_date")]
-    public string StartDate { get; set; }
+    public DateTime StartDate { get; set; }
 
     [Column("end_date")]
     public DateTime EndDate { get; set; }
