@@ -30,6 +30,12 @@ public static class ModelSeeder
         SeedUnits(ref modelBuilder);
         SeedExercises(ref modelBuilder);
         SeedNotes(ref modelBuilder);
+
+        SeedCohortCourses(ref modelBuilder);
+        SeedCourseModules(ref modelBuilder);
+        SeedUserCC(ref modelBuilder);
+        SeedUserExercises(ref modelBuilder);
+
     }
 
    

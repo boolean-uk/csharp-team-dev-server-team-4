@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
-namespace exercise.wwwapi.Models.UserInfo;
+namespace exercise.wwwapi.Models;
 
 [Table("Course_Module")]
 public class CourseModule
