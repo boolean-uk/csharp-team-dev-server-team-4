@@ -389,31 +389,31 @@ public static class ModelSeeder
             {
                 Id = 1,
                 ModuleId = 1,
-                Title = "Module 1",
+                Name = "Module 1",
             },
             new Unit
             {
                 Id = 2,
                 ModuleId = 2,
-                Title = "Module 2",
+                Name = "Module 2",
             },
             new Unit
             {
                 Id = 3,
                 ModuleId = 3,
-                Title = "Module 3",
+                Name = "Module 3",
             },
             new Unit
             {
                 Id = 4,
                 ModuleId = 4,
-                Title = "Module 4",
+                Name = "Module 4",
             },
             new Unit
             {
                 Id = 5,
                 ModuleId = 5,
-                Title = "Module 5",
+                Name = "Module 5",
             }
         );
     }
@@ -425,35 +425,35 @@ public static class ModelSeeder
             {
                 Id = 1,
                 UnitId = 1,
-                Title = "Exercise 1",
+                Name = "Exercise 1",
                 Description = "Exercise 1 description"
             },
             new Exercise
             {
                 Id = 2,
                 UnitId = 2,
-                Title = "Exercise 2",
+                Name = "Exercise 2",
                 Description = "Exercise 2 description"
             },
             new Exercise
             {
                 Id = 3,
                 UnitId = 3,
-                Title = "Exercise 3",
+                Name = "Exercise 3",
                 Description = "Exercise 3 description"
             },
             new Exercise
             {
                 Id = 4,
                 UnitId = 4,
-                Title = "Exercise 4",
+                Name = "Exercise 4",
                 Description = "Exercise 4 description"
             },
             new Exercise
             {
                 Id = 5,
                 UnitId = 5,
-                Title = "Exercise 5",
+                Name = "Exercise 5",
                 Description = "Exercise 5 description"
             }
         );
@@ -465,7 +465,7 @@ public static class ModelSeeder
             {
                 Id = 1,
                 UserId = 1,
-                Title = "Title Note 1",
+                Title = "Name Note 1",
                 Content = "note1note1 note1 note1 content",
                 CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc)
             },
@@ -473,7 +473,7 @@ public static class ModelSeeder
             {
                 Id = 2,
                 UserId = 2,
-                Title = "Title Note 2",
+                Title = "Name Note 2",
                 Content = "note2 note2 note2 note2 content",
                 CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc)
             },
@@ -481,7 +481,7 @@ public static class ModelSeeder
             {
                 Id = 3,
                 UserId = 3,
-                Title = "Title Note 3",
+                Title = "Name Note 3",
                 Content = "note3 note3 note3 note3 content",
                 CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc)
             },
@@ -489,7 +489,7 @@ public static class ModelSeeder
             {
                 Id = 4,
                 UserId = 4,
-                Title = "Title Note 4",
+                Title = "Name Note 4",
                 Content = "note4 note4 note4 note4 content",
                 CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc)
             },
@@ -497,7 +497,7 @@ public static class ModelSeeder
             {
                 Id = 5,
                 UserId = 4,
-                Title = "Title Note 5",
+                Title = "Name Note 5",
                 Content = "note5 note5 note5 note5 content",
                 CreatedAt = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc)
             }

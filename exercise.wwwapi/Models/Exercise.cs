@@ -15,8 +15,12 @@ public class Exercise
     public int UnitId { get; set; }
 
     [Required]
-    [Column("title", TypeName = "varchar(100)")]
-    public string Title { get; set; }
+    [Column("name", TypeName = "varchar(100)")]
+    public string Name { get; set; }
+
+    [Required]
+    [Column("github_link", TypeName = "varchar(200)")]
+    public string GitHubLink { get; set; }
 
     [Required]
     [Column("description", TypeName = "varchar(500)")] 
