@@ -34,6 +34,7 @@ var config = new ConfigurationSettings();
 builder.Services.AddScoped<IRepository<User>, Repository<User>>();
 builder.Services.AddScoped<IRepository<Post>, Repository<Post>>();
 builder.Services.AddScoped<IRepository<Comment>, Repository<Comment>>();
+builder.Services.AddScoped<IRepository<Like>, Repository<Like>>();
 builder.Services.AddScoped<IRepository<Course>, Repository<Course>>();
 builder.Services.AddScoped<IRepository<Cohort>, Repository<Cohort>>();
 builder.Services.AddScoped<IRepository<Module>, Repository<Module>>();
@@ -189,6 +190,7 @@ app.ConfigureLogEndpoints();
 app.ConfigureCohortEndpoints();
 app.ConfigurePostEndpoints();
 app.ConfigureCommentEndpoints();
+app.ConfigureLikeEndpoints();
 app.Run();
 
 public partial class Program
