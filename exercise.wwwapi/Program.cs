@@ -23,6 +23,7 @@ using exercise.wwwapi.Validators.PostValidators;
 using exercise.wwwapi.DTOs.Posts.UpdatePost;
 using exercise.wwwapi.DTOs.Comments;
 using exercise.wwwapi.DTOs.Comments.UpdateComment;
+using exercise.wwwapi.DTOs.Users;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -48,7 +49,7 @@ builder.Services.AddScoped<IConfigurationSettings, ConfigurationSettings>();
 builder.Services.AddScoped<ILogger, Logger<string>>();
 
 // Register validators
-builder.Services.AddScoped<IValidator<RegisterRequestDTO>, UserRegisterValidator>();
+builder.Services.AddScoped<IValidator<PostUserDTO>, UserRegisterValidator>();
 builder.Services.AddScoped<IValidator<UpdateUserRequestDTO>, UserUpdateValidator>();
 builder.Services.AddScoped<IValidator<CreateNoteRequestDTO>, CreateNoteValidator>();
 builder.Services.AddScoped<IValidator<UpdateNoteRequestDTO>, UpdateNoteValidator>();
@@ -191,6 +192,7 @@ app.ConfigureCohortEndpoints();
 app.ConfigurePostEndpoints();
 app.ConfigureCommentEndpoints();
 app.ConfigureExerciseEndpoints();
+app.ConfigureCourseEndpoints();
 app.Run();
 
 public partial class Program

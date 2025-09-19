@@ -23,5 +23,5 @@ public class Cohort : IEntity
     [Column("end_date", TypeName = "date")]
     public DateTime EndDate { get; set; }
 
-    public ICollection<CohortCourse> CohortCourse { get; set; } =  new List<CohortCourse>();
+    public ICollection<CohortCourse> CohortCourses { get; set; } =  new List<CohortCourse>();
 }
