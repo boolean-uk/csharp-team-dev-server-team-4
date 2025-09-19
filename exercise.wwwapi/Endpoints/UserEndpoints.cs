@@ -34,10 +34,10 @@ public static class UserEndpoints
         users.MapPost("/", Register).WithSummary("Create user"); //OKOKOK
         users.MapGet("/by_cohortcourse/{id}", GetUsersByCohortCourse).WithSummary("Get all users from a cohortCourse"); //OKOKOK
         users.MapGet("/by_cohort/{id}", GetUsersByCohort).WithSummary("Get all users from a cohort"); //OKOKOK
-        users.MapGet("/", GetUsers).WithSummary("Get all users or filter by first name, last name or full name");
-        users.MapGet("/{id}", GetUserById).WithSummary("Get user by user id");
-        app.MapPost("/login", Login).WithSummary("Localhost Login");
-        users.MapPatch("/{id}", UpdateUser).RequireAuthorization().WithSummary("Update a user");
+        users.MapGet("/", GetUsers).WithSummary("Get all users or filter by first name, last name or full name");//OKOKOK
+        users.MapGet("/{id}", GetUserById).WithSummary("Get user by user id"); //OKOKOK
+        app.MapPost("/login", Login).WithSummary("Localhost Login"); //OKOKOK
+        users.MapPatch("/{id}", UpdateUser).RequireAuthorization().WithSummary("Update a user");//OKOKOK
         users.MapDelete("/{id}", DeleteUser).RequireAuthorization().WithSummary("Delete a user");
     }
 
@@ -45,7 +45,7 @@ public static class UserEndpoints
     private static async Task<IResult> GetUsers(IRepository<User> userRepository, string? searchTerm,
         ClaimsPrincipal claimPrincipal)
     {
-        var results = (await userRepository.GetAllAsync(u => u.Notes)).ToList();
+        var results = await userRepository.GetWithIncludes(a => a.Include(u => u.Notes));     
 
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
@@ -56,19 +56,9 @@ public static class UserEndpoints
         var userRole = claimPrincipal.Role();
         var authorizedAsTeacher = AuthorizeTeacher(claimPrincipal);
 
-        var userData = new UsersSuccessDTO
-        {
-            Users = results.Select(user => authorizedAsTeacher
-            ? UserFactory.GetUserDTO(user, PrivilegeLevel.Teacher)
-            : UserFactory.GetUserDTO(user, PrivilegeLevel.Student))
-            .ToList()
-        };
+        
 
-        var response = new ResponseDTO<UsersSuccessDTO>
-        {
-            Status = "success",
-            Data = userData
-        };
+        var response = results.Select(u => new UserDTO(u)).ToList();
         return TypedResults.Ok(response);
     }
 
@@ -168,15 +158,17 @@ public static class UserEndpoints
     private static async Task<IResult> Login(LoginRequestDTO request, IRepository<User> userRepository,
         IConfigurationSettings configurationSettings)
     {
-        var allUsers = await userRepository.GetAllAsync();
-        var user = allUsers.FirstOrDefault(u => u.Email == request.Email);
-        if (user == null)
+        var response = await userRepository.GetWithIncludes(x => x.Where(u => u.Email == request.Email)); // uses where-statement to filter data before fetching
+        if (response.Count == 0) 
         {
             return Results.BadRequest(new Payload<object>
             {
-                Status = "User does not exist", Data = new { email = "Invalid email and/or password provided" }
+                Status = "User does not exist",
+                Data = new { email = "Invalid email and/or password provided" }
             });
         }
+        var user = response.FirstOrDefault();
+
 
         if (!BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
         {
@@ -189,7 +181,7 @@ public static class UserEndpoints
 
         var token = CreateToken(user, configurationSettings);
 
-        var response = new ResponseDTO<LoginSuccessDTO>
+        var result = new ResponseDTO<LoginSuccessDTO>
         {
             Status = "Success",
             Data = new LoginSuccessDTO
@@ -198,41 +190,24 @@ public static class UserEndpoints
                 User = UserFactory.GetUserDTO(user, PrivilegeLevel.Student)
             }
         };
-        return Results.Ok(response);
+        return Results.Ok(result);
     }
 
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public static async Task<IResult> GetUserById(IRepository<User> userRepository, int id, ClaimsPrincipal claimsPrincipal)
     {
-        var user = await userRepository.GetByIdAsync(
-            id,
-            user => user.Notes
-        );
-        if (user == null)
+        var response = await userRepository.GetByIdWithIncludes(x => x.Include(u => u.Notes), id);
+
+        if (response == null)
         {
             return TypedResults.NotFound();
         }
 
-        var response = new ResponseDTO<UserDTO>
-        {
-            Status = "success",
-            Data = UserFactory.GetUserDTO(user, PrivilegeLevel.Student)
-        };
+        var result = new UserDTO(response);
 
-        var userRole = claimsPrincipal.Role();
 
-        if (userRole == "Teacher")
-        {
-            response.Data.Notes = user.Notes.Select(note => new NoteDTO
-            {
-                Id = note.Id,
-                Title = note.Title,
-                Content = note.Content,
-                CreatedAt = note.CreatedAt,
-                UpdatedAt = note.UpdatedAt
-            }).ToList();
-        }
+       
 
         return TypedResults.Ok(response);
     }
@@ -242,16 +217,13 @@ public static class UserEndpoints
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public static async Task<IResult> UpdateUser(IRepository<User> userRepository, int id,
-        UpdateUserRequestDTO request,
-        IValidator<UpdateUserRequestDTO> validator, ClaimsPrincipal claimsPrinciple
+        PatchUserDTO request,
+        IValidator<PatchUserDTO> validator, ClaimsPrincipal claimsPrinciple
     )
     {
         // Only teacher can edit protected fields
         var authorized = AuthorizeTeacher(claimsPrinciple);
-        if (!authorized && (request.StartDate is not null 
-            || request.EndDate is not null 
-            || request.CohortId is not null
-            || request.Specialism is not null
+        if (!authorized && (request.Specialism is not null
             || request.Role is not null))
         {
             return Results.Unauthorized();
@@ -316,22 +288,12 @@ public static class UserEndpoints
         userRepository.Update(user);
         await userRepository.SaveAsync();
 
-        var response = new ResponseDTO<UpdateUserSuccessDTO>()
+        var result = await userRepository.GetByIdWithIncludes(x => x.Include(u => u.Notes), id);
+
+        var response = new ResponseDTO<UserDTO>()
         {
             Status = "success",
-            Data = new UpdateUserSuccessDTO()
-            {
-                Id = user.Id,
-                Email = user.Email,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Bio = user.Bio,
-                Github = user.Github,
-                Username = user.Username,
-                Mobile = user.Mobile,
-                Specialism = (Specialism)user.Specialism,
-                Role = (Role)user.Role,
-            }
+            Data = new UserDTO(result)
         };
 
         return TypedResults.Ok(response);
@@ -350,7 +312,7 @@ public static class UserEndpoints
             return Results.Unauthorized();
         }
 
-        var user = await userRepository.GetByIdAsync(id);
+        var user = await userRepository.GetByIdWithIncludes(null, id);
         if (user == null)
         {
             return TypedResults.NotFound();
@@ -378,7 +340,7 @@ public static class UserEndpoints
             new(ClaimTypes.Role, user.Role.ToString())
         };
 
-        var tokenKey = Environment.GetEnvironmentVariable(Globals.EnvironmentEnvVariable) == "Staging"
+        var tokenKey = Environment.GetEnvironmentVariable(Globals.EnvironmentEnvVariable) == "Staging" 
             ? Globals.TestTokenKey
             : Globals.TokenKey;
         var rawToken = configurationSettings.GetValue(tokenKey);

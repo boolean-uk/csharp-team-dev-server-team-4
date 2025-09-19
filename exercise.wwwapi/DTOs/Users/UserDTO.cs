@@ -4,7 +4,7 @@ using exercise.wwwapi.Models;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
-namespace exercise.wwwapi.DTOs;
+namespace exercise.wwwapi.DTOs.Users;
 
 public class UserDTO
 {

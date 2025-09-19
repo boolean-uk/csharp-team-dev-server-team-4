@@ -50,7 +50,7 @@ builder.Services.AddScoped<ILogger, Logger<string>>();
 
 // Register validators
 builder.Services.AddScoped<IValidator<PostUserDTO>, UserRegisterValidator>();
-builder.Services.AddScoped<IValidator<UpdateUserRequestDTO>, UserUpdateValidator>();
+builder.Services.AddScoped<IValidator<PatchUserDTO>, UserUpdateValidator>();
 builder.Services.AddScoped<IValidator<CreateNoteRequestDTO>, CreateNoteValidator>();
 builder.Services.AddScoped<IValidator<UpdateNoteRequestDTO>, UpdateNoteValidator>();
 
@@ -198,3 +198,4 @@ app.Run();
 public partial class Program
 {
 } // needed for testing - please ignore
+
