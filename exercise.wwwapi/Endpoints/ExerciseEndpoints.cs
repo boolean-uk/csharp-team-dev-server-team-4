@@ -34,10 +34,13 @@ public static class ExerciseEndpoints
         var exercises = app.MapGroup("exercises");
         exercises.MapGet("/", GetExercises).WithSummary("Returns all exercises");
         exercises.MapGet("/{id}", GetExerciseById).WithSummary("Returns exercise with provided id");
+        exercises.MapDelete("/{id}", DeleteExerciseById).WithSummary("Deletes exercise with provided id");
+        exercises.MapPut("/{id}", UpdateExerciseById).WithSummary("Update exercise with provided id");
 
         var units = app.MapGroup("units");
         units.MapGet("/", GetUnits).WithSummary("Returns all units");
         units.MapGet("/{id}", GetUnitById).WithSummary("Returns unit with provided id");
+        units.MapPost("/{id}", CreateExerciseInUnit).WithSummary("Create an exercise in the given unit");
 
         var modules = app.MapGroup("modules");
         modules.MapGet("/", GetModules).WithSummary("Returns all modules");
@@ -90,6 +93,85 @@ public static class ExerciseEndpoints
     private static async Task<IResult> GetExerciseById(IRepository<Exercise> exerciseRepository, int id)
     {
         var response = await exerciseRepository.GetByIdWithIncludes(null, id);
-        return TypedResults.Ok(response);
+        var result = new Exercise_noUnit(response);
+        return TypedResults.Ok(result);
     }
+
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    private static async Task<IResult> DeleteExerciseById(IRepository<Exercise> exerciseRepository, ClaimsPrincipal claimsPrincipal, int id)
+    {
+        var authorized = claimsPrincipal.IsInRole("Teacher");
+        if (!authorized)
+        {
+            return Results.Unauthorized();
+        }
+
+        var response = await exerciseRepository.GetByIdWithIncludes(null, id);
+        if (response == null)
+        {
+            return TypedResults.NotFound();
+        }
+
+        var result = new Exercise_noUnit(response);
+        return TypedResults.Ok(result);
+    }
+
+    private static async Task<IResult> UpdateExerciseById(IRepository<Exercise> exerciseRepository, ClaimsPrincipal claimsPrincipal, int id, UpdateCreateExerciseDTO exerciseDTO)
+    {
+        var authorized = claimsPrincipal.IsInRole("Teacher");
+        if (!authorized)
+        {
+            return Results.Unauthorized();
+        }
+
+        var response = await exerciseRepository.GetByIdWithIncludes(null, id);
+        if (response == null)
+        {
+            return TypedResults.NotFound();
+        }
+
+        response.Name = exerciseDTO.Name;
+        response.Description = exerciseDTO.Description;
+        response.GitHubLink = exerciseDTO.GitHubLink;
+
+        exerciseRepository.Update(response);
+        await exerciseRepository.SaveAsync();
+
+        var result = new Exercise_noUnit(response);
+        return TypedResults.Ok(result);
+
+    }
+
+    private static async Task<IResult> CreateExerciseInUnit(
+        IRepository<Exercise> exerciseRepository, 
+        IRepository<Unit> unitRepository, 
+        ClaimsPrincipal claimsPrincipal, 
+        int id, 
+        UpdateCreateExerciseDTO exerciseDTO)
+    {
+        var authorized = claimsPrincipal.IsInRole("Teacher");
+        if (!authorized)
+        {
+            return Results.Unauthorized();
+        }
+
+        var unit = await unitRepository.GetByIdWithIncludes(null, id);
+        if (unit == null)
+        {
+            return TypedResults.NotFound();
+        }
+
+        var newExercise = new Exercise { UnitId = id, Name = exerciseDTO.Name, GitHubLink = exerciseDTO.GitHubLink, Description = exerciseDTO.Description, Unit = unit };
+        exerciseRepository.Insert(newExercise);
+        await exerciseRepository.SaveAsync();
+
+        var result = new Exercise_noUnit(newExercise);
+        return TypedResults.Ok(result);
+    }
+
+
+
+
 }
