@@ -2,7 +2,7 @@
 
 namespace exercise.wwwapi.DTOs.Posts
 {
-    public class PostDTO
+    public class PostDTO_old
     {
         [JsonPropertyName("id")]
         public int Id { get; set; }
@@ -12,9 +12,6 @@ namespace exercise.wwwapi.DTOs.Posts
 
         [JsonPropertyName("body")]
         public string Body { get; set; }
-
-        [JsonPropertyName("likes")]
-        public int Likes { get; set; }
 
         [JsonPropertyName("created_at")]
         public DateTime CreatedAt { get; set; }

@@ -1,4 +1,4 @@
-﻿using exercise.wwwapi.Models.UserInfo;
+﻿using exercise.wwwapi.Repository;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
@@ -6,7 +6,7 @@ using System.Text.Json.Serialization;
 namespace exercise.wwwapi.Models
 {
     [Table("notes")]
-    public class Note
+    public class Note : IEntity
     {
         [Key]
         [Column("id")]
@@ -15,9 +15,8 @@ namespace exercise.wwwapi.Models
         [Column("user_id")]
         public int UserId { get; set; }
         
-        [JsonIgnore]
         public User User { get; set; }
-        [Column("title", TypeName = "varchar(1000)")]
+        [Column("title", TypeName = "varchar(100)")]
         public string Title { get; set; }
         [Column("content", TypeName = "varchar(1000)")]
         public string Content { get; set; }

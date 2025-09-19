@@ -2,8 +2,10 @@
 
 namespace exercise.wwwapi.Repository;
 
-public interface IRepository<T> where T : class
+public interface IRepository<T>
 {
+    Task<List<T>> GetWithIncludes(Func<IQueryable<T>, IQueryable<T>>? includeQuery);
+    Task<T> GetByIdWithIncludes(Func<IQueryable<T>, IQueryable<T>>? includeQuery, int id);
     IEnumerable<T> GetAll(params Expression<Func<T, object>>[] includeExpressions);
     Task<IEnumerable<T>> GetAllAsync(params Expression<Func<T, object>>[] includeExpressions);
     T? GetById(object id, params Expression<Func<T, object>>[] includeExpressions);
@@ -18,4 +20,5 @@ public interface IRepository<T> where T : class
     void Delete(T obj);
     void Save();
     Task SaveAsync();
+    Task<object> GetMaxValueAsync(Expression<Func<T, object>> columnSelection);
 }

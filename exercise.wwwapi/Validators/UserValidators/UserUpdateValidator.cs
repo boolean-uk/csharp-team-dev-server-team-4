@@ -1,9 +1,10 @@
 ﻿using exercise.wwwapi.DTOs.UpdateUser;
+using exercise.wwwapi.DTOs.Users;
 using FluentValidation;
 
 namespace exercise.wwwapi.Validators.UserValidators;
 
-public class UserUpdateValidator : AbstractValidator<UpdateUserRequestDTO>
+public class UserUpdateValidator : AbstractValidator<PatchUserDTO>
 {
     public UserUpdateValidator()
     {
@@ -23,7 +24,7 @@ public class UserUpdateValidator : AbstractValidator<UpdateUserRequestDTO>
         RuleFor(x => x.Password)
             .Matches(@"[^a-zA-Z0-9\s]+").WithMessage("Password must contain at least one special character");
 
-        RuleFor(x => x.Phone)
+        RuleFor(x => x.Mobile)
             .Matches(@"^+?\d{7,15}$").WithMessage("Phone must be a valid phone number.");
     }
 }

@@ -14,12 +14,13 @@ using System.Security.Claims;
 using System.Text;
 using exercise.wwwapi.Enums;
 using exercise.wwwapi.Helpers;
-using exercise.wwwapi.Models.UserInfo;
-using User = exercise.wwwapi.Models.UserInfo.User;
+using User = exercise.wwwapi.Models.User;
 using exercise.wwwapi.DTOs.Notes;
 using System.Diagnostics;
 using exercise.wwwapi.Models;
 using exercise.wwwapi.Factories;
+using Microsoft.EntityFrameworkCore;
+using exercise.wwwapi.DTOs.Users;
 
 namespace exercise.wwwapi.EndPoints;
 
@@ -30,12 +31,13 @@ public static class UserEndpoints
     public static void ConfigureAuthApi(this WebApplication app)
     {
         var users = app.MapGroup("users");
-        users.MapPost("/", Register).WithSummary("Create user");
-        users.MapGet("/by_cohort/{id}", GetUsersByCohort).WithSummary("Get all users from a cohort");
-        users.MapGet("/", GetUsers).WithSummary("Get all users or filter by first name, last name or full name");
-        users.MapGet("/{id}", GetUserById).WithSummary("Get user by user id");
-        app.MapPost("/login", Login).WithSummary("Localhost Login");
-        users.MapPatch("/{id}", UpdateUser).RequireAuthorization().WithSummary("Update a user");
+        users.MapPost("/", Register).WithSummary("Create user"); //OKOKOK
+        users.MapGet("/by_cohortcourse/{id}", GetUsersByCohortCourse).WithSummary("Get all users from a cohortCourse"); //OKOKOK
+        users.MapGet("/by_cohort/{id}", GetUsersByCohort).WithSummary("Get all users from a cohort"); //OKOKOK
+        users.MapGet("/", GetUsers).WithSummary("Get all users or filter by first name, last name or full name");//OKOKOK
+        users.MapGet("/{id}", GetUserById).WithSummary("Get user by user id"); //OKOKOK
+        app.MapPost("/login", Login).WithSummary("Localhost Login"); //OKOKOK
+        users.MapPatch("/{id}", UpdateUser).RequireAuthorization().WithSummary("Update a user");//OKOKOK
         users.MapDelete("/{id}", DeleteUser).RequireAuthorization().WithSummary("Delete a user");
     }
 
@@ -43,62 +45,48 @@ public static class UserEndpoints
     private static async Task<IResult> GetUsers(IRepository<User> userRepository, string? searchTerm,
         ClaimsPrincipal claimPrincipal)
     {
-        var results = (await userRepository.GetAllAsync(u => u.Profile, u => u.Credential, u => u.Notes)).ToList();
+        var results = await userRepository.GetWithIncludes(a => a.Include(u => u.Notes));     
 
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
             results = results.Where(u =>
-                    u.Profile.GetFullName().Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                    $"{u.FirstName} {u.LastName}".Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
                 .ToList();
         }
         var userRole = claimPrincipal.Role();
         var authorizedAsTeacher = AuthorizeTeacher(claimPrincipal);
 
-        var userData = new UsersSuccessDTO
-        {
-            Users = results.Select(user => authorizedAsTeacher 
-            ? UserFactory.GetUserDTO(user, PrivilegeLevel.Teacher) 
-            : UserFactory.GetUserDTO(user, PrivilegeLevel.Student))
-            .ToList()
-        };
+        
 
-        var response = new ResponseDTO<UsersSuccessDTO>
-        {
-            Status = "success",
-            Data = userData
-        };
+        var response = results.Select(u => new UserDTO(u)).ToList();
         return TypedResults.Ok(response);
     }
 
     [ProducesResponseType(StatusCodes.Status200OK)]
-    private static async Task<IResult> GetUsersByCohort(IRepository<User> userRepository, int id, ClaimsPrincipal claimsPrincipal)
+    private static async Task<IResult> GetUsersByCohort(IRepository<Cohort> repository, int course_id, ClaimsPrincipal claimsPrincipal)
     {
-        var all = await userRepository.GetAllAsync(u => u.Profile, u => u.Credential, u => u.Notes);
-        var results = all.Where(u => u.CohortId == id).ToList();
+        var response = await repository.GetByIdWithIncludes(a => a.Include(p => p.CohortCourses).ThenInclude(b => b.UserCCs).ThenInclude(a => a.User).ThenInclude(u => u.Notes), course_id);
+        var results = response.CohortCourses.SelectMany(a => a.UserCCs).Select(a => a.User).ToList();
+        var dto_results = results.Select(a => new UserDTO(a));
 
-        var userRole = claimsPrincipal.Role();
-        var authorizedAsTeacher = AuthorizeTeacher(claimsPrincipal);
+        return TypedResults.Ok(dto_results);
+    }
 
-        var userData = new UsersSuccessDTO
-        {
-            Users = results.Select(user => authorizedAsTeacher
-           ? UserFactory.GetUserDTO(user, PrivilegeLevel.Teacher)
-           : UserFactory.GetUserDTO(user, PrivilegeLevel.Student))
-            .ToList()
-        };
-        var response = new ResponseDTO<UsersSuccessDTO>
-        {
-            Status = "success",
-            Data = userData
-        };
-        return TypedResults.Ok(response);
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    private static async Task<IResult> GetUsersByCohortCourse(IRepository<CohortCourse> ccRepository, int cc_id, ClaimsPrincipal claimsPrincipal)
+    {
+        var response = await ccRepository.GetByIdWithIncludes(a => a.Include(b => b.UserCCs).ThenInclude(a => a.User).ThenInclude(u => u.Notes), cc_id);
+        var results = response.UserCCs.Select(a => a.User).ToList();
+        var dto_results = results.Select(a => new UserDTO(a));
+
+        return TypedResults.Ok(dto_results);
     }
 
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    private static async Task<IResult> Register(RegisterRequestDTO request, IRepository<User> userRepository,
-        IRepository<Cohort> cohortRepository, IValidator<RegisterRequestDTO> validator)
+    private static async Task<IResult> Register(PostUserDTO request, IRepository<User> userRepository,
+        IRepository<Cohort> cohortRepository, IValidator<PostUserDTO> validator)
     {
         // Validate
         var validation = await validator.ValidateAsync(request);
@@ -118,54 +106,25 @@ public static class UserEndpoints
             return Results.BadRequest(failResponse);
         }
 
-        // Check if email already exists
-        var users = await userRepository.GetAllAsync(user => user.Credential
-        );
-        if (users.Any(u => u.Credential.Email == request.Email))
-        {
-            var failureDto = new RegisterFailureDTO();
-            failureDto.EmailErrors.Add("Email already exists");
+        
 
-            var failResponse = new ResponseDTO<RegisterFailureDTO> { Status = "fail", Data = failureDto };
-            return Results.Conflict(failResponse);
-        }
-
-        // Check if CohortId exists
-        if (request.CohortId != null)
-        {
-            var cohort = await cohortRepository.GetByIdAsync(request.CohortId.Value);
-            if (cohort == null)
-            {
-                var failureDto = new RegisterFailureDTO();
-                failureDto.EmailErrors.Add("Invalid CohortId");
-
-                var failResponse = new ResponseDTO<RegisterFailureDTO> { Status = "fail", Data = failureDto };
-                return Results.BadRequest(failResponse);
-            }
-        }
+        
 
         var passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
 
         var user = new User
         {
-            Credential = new Credential
-            {
-                Username = string.IsNullOrEmpty(request.Username) ? request.Email : request.Username,
-                PasswordHash = passwordHash,
-                Email = request.Email,
-                Role = Role.Student,
-            },
-            Profile = new Profile
-            {
-                FirstName = string.IsNullOrEmpty(request.FirstName) ? string.Empty : request.FirstName,
-                LastName = string.IsNullOrEmpty(request.LastName) ? string.Empty : request.LastName,
-                Bio = string.IsNullOrEmpty(request.Bio) ? string.Empty : request.Bio,
-                Github = string.IsNullOrEmpty(request.Github) ? string.Empty : request.Github,
-                StartDate = DateTime.MinValue,
-                EndDate = DateTime.MinValue,
-                Specialism = Specialism.None,
-            },
-            CohortId = request.CohortId
+            Username = string.IsNullOrEmpty(request.Username) ? request.Email : request.Username,
+            PasswordHash = passwordHash,
+            Email = request.Email,
+            Role = Role.Student,
+            FirstName = string.IsNullOrEmpty(request.FirstName) ? string.Empty : request.FirstName,
+            LastName = string.IsNullOrEmpty(request.LastName) ? string.Empty : request.LastName,
+            Mobile = string.IsNullOrEmpty(request.Mobile) ? string.Empty : request.Mobile,
+            Bio = string.IsNullOrEmpty(request.Bio) ? string.Empty : request.Bio,
+            Github = string.IsNullOrEmpty(request.Github) ? string.Empty : request.Github,
+            Specialism = Specialism.None,
+            PhotoUrl = ""
         };
 
         userRepository.Insert(user);
@@ -179,17 +138,14 @@ public static class UserEndpoints
                 User =
                 {
                     Id = user.Id,
-                    FirstName = user.Profile.FirstName,
-                    LastName = user.Profile.LastName,
-                    Bio = user.Profile.Bio,
-                    Github = user.Profile.Github,
-                    Username = user.Credential.Username,
-                    Email = user.Credential.Email,
-                    Phone = user.Profile.Phone,
-                    StartDate = user.Profile.StartDate,
-                    EndDate = user.Profile.EndDate,
-                    Specialism = user.Profile.Specialism,
-                    CohortId = user.CohortId
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    Bio = user.Bio,
+                    Github = user.Github,
+                    Username = user.Username,
+                    Email = user.Email,
+                    Mobile = user.Mobile,
+                    Specialism = user.Specialism,
                 }
             }
         };
@@ -202,20 +158,19 @@ public static class UserEndpoints
     private static async Task<IResult> Login(LoginRequestDTO request, IRepository<User> userRepository,
         IConfigurationSettings configurationSettings)
     {
-        var allUsers = await userRepository.GetAllAsync(
-            user => user.Credential,
-            user => user.Profile
-        );
-        var user = allUsers.FirstOrDefault(u => u.Credential.Email == request.Email);
-        if (user == null)
+        var response = await userRepository.GetWithIncludes(x => x.Where(u => u.Email == request.Email)); // uses where-statement to filter data before fetching
+        if (response.Count == 0) 
         {
             return Results.BadRequest(new Payload<object>
             {
-                Status = "User does not exist", Data = new { email = "Invalid email and/or password provided" }
+                Status = "User does not exist",
+                Data = new { email = "Invalid email and/or password provided" }
             });
         }
+        var user = response.FirstOrDefault();
 
-        if (!BCrypt.Net.BCrypt.Verify(request.Password, user.Credential.PasswordHash))
+
+        if (!BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
         {
             return Results.BadRequest(new Payload<object>
             {
@@ -226,7 +181,7 @@ public static class UserEndpoints
 
         var token = CreateToken(user, configurationSettings);
 
-        var response = new ResponseDTO<LoginSuccessDTO>
+        var result = new ResponseDTO<LoginSuccessDTO>
         {
             Status = "Success",
             Data = new LoginSuccessDTO
@@ -235,43 +190,24 @@ public static class UserEndpoints
                 User = UserFactory.GetUserDTO(user, PrivilegeLevel.Student)
             }
         };
-        return Results.Ok(response);
+        return Results.Ok(result);
     }
 
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public static async Task<IResult> GetUserById(IRepository<User> userRepository, int id, ClaimsPrincipal claimsPrincipal)
     {
-        var user = await userRepository.GetByIdAsync(
-            id,
-            user => user.Credential,
-            user => user.Profile,
-            user => user.Notes
-        );
-        if (user == null)
+        var response = await userRepository.GetByIdWithIncludes(x => x.Include(u => u.Notes), id);
+
+        if (response == null)
         {
             return TypedResults.NotFound();
         }
 
-        var response = new ResponseDTO<UserDTO>
-        {
-            Status = "success",
-            Data = UserFactory.GetUserDTO(user, PrivilegeLevel.Student)
-        };
+        var result = new UserDTO(response);
 
-        var userRole = claimsPrincipal.Role();
 
-        if (userRole == "Teacher")
-        {
-            response.Data.Notes = user.Notes.Select(note => new NoteDTO
-            {
-                Id = note.Id,
-                Title = note.Title,
-                Content = note.Content,
-                CreatedAt = note.CreatedAt,
-                UpdatedAt = note.UpdatedAt
-            }).ToList();
-        }
+       
 
         return TypedResults.Ok(response);
     }
@@ -281,16 +217,13 @@ public static class UserEndpoints
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public static async Task<IResult> UpdateUser(IRepository<User> userRepository, int id,
-        UpdateUserRequestDTO request,
-        IValidator<UpdateUserRequestDTO> validator, ClaimsPrincipal claimsPrinciple
+        PatchUserDTO request,
+        IValidator<PatchUserDTO> validator, ClaimsPrincipal claimsPrinciple
     )
     {
         // Only teacher can edit protected fields
         var authorized = AuthorizeTeacher(claimsPrinciple);
-        if (!authorized && (request.StartDate is not null 
-            || request.EndDate is not null 
-            || request.CohortId is not null
-            || request.Specialism is not null
+        if (!authorized && (request.Specialism is not null
             || request.Role is not null))
         {
             return Results.Unauthorized();
@@ -331,53 +264,36 @@ public static class UserEndpoints
             return Results.BadRequest(failResponse);
         }
 
-        var user = await userRepository.GetByIdAsync(
-            id,
-            user => user.Credential,
-            user => user.Profile
-        );
+
+        var user = await userRepository.GetByIdAsync(id);
         if (user == null)
         {
             return TypedResults.NotFound();
         }
 
-        if (request.Username != null) user.Credential.Username = request.Username;
-        if (request.Email != null) user.Credential.Email = request.Email;
+        if (request.Username != null) user.Username = request.Username;
+        if (request.Email != null) user.Email = request.Email;
         if (request.Password != null)
-            user.Credential.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
-        if (request.Phone != null) user.Profile.Phone = request.Phone;
-        if (request.Bio != null) user.Profile.Bio = request.Bio;
-        if (request.Github != null) user.Profile.Github = GITHUB_URL + request.Github;
-        if (request.FirstName != null) user.Profile.FirstName = request.FirstName;
-        if (request.LastName != null) user.Profile.LastName = request.LastName;
-        if (request.CohortId  != null) user.CohortId = request.CohortId;
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
+        if (request.Mobile != null) user.Mobile = request.Mobile;
+        if (request.Bio != null) user.Bio = request.Bio;
+        if (request.Github != null) user.Github = GITHUB_URL + request.Github;
+        if (request.FirstName != null) user.FirstName = request.FirstName;
+        if (request.LastName != null) user.LastName = request.LastName;
         if (request.Specialism != null)
-            user.Profile.Specialism = (Specialism)request.Specialism;
+            user.Specialism = (Specialism)request.Specialism;
         if (request.Role != null)
-            user.Credential.Role = (Role)request.Role;
+            user.Role = (Role)request.Role;
 
         userRepository.Update(user);
         await userRepository.SaveAsync();
 
-        var response = new ResponseDTO<UpdateUserSuccessDTO>()
+        var result = await userRepository.GetByIdWithIncludes(x => x.Include(u => u.Notes), id);
+
+        var response = new ResponseDTO<UserDTO>()
         {
             Status = "success",
-            Data = new UpdateUserSuccessDTO()
-            {
-                Id = user.Id,
-                Email = user.Credential.Email,
-                FirstName = user.Profile.FirstName,
-                LastName = user.Profile.LastName,
-                Bio = user.Profile.Bio,
-                Github = user.Profile.Github,
-                Username = user.Credential.Username,
-                Phone = user.Profile.Phone,
-                CohortId = user.CohortId,
-                Specialism = user.Profile.Specialism,
-                Role = user.Credential.Role,
-                StartDate = user.Profile.StartDate,
-                EndDate = user.Profile.EndDate
-            }
+            Data = new UserDTO(result)
         };
 
         return TypedResults.Ok(response);
@@ -396,11 +312,7 @@ public static class UserEndpoints
             return Results.Unauthorized();
         }
 
-        var user = await userRepository.GetByIdAsync(
-            id,
-            user => user.Credential,
-            user => user.Profile
-        );
+        var user = await userRepository.GetByIdWithIncludes(null, id);
         if (user == null)
         {
             return TypedResults.NotFound();
@@ -423,12 +335,12 @@ public static class UserEndpoints
         var claims = new List<Claim>
         {
             new(ClaimTypes.Sid, user.Id.ToString()),
-            new(ClaimTypes.Name, user.Credential.Username),
-            new(ClaimTypes.Email, user.Credential.Email),
-            new(ClaimTypes.Role, user.Credential.Role.ToString())
+            new(ClaimTypes.Name, user.Username),
+            new(ClaimTypes.Email, user.Email),
+            new(ClaimTypes.Role, user.Role.ToString())
         };
 
-        var tokenKey = Environment.GetEnvironmentVariable(Globals.EnvironmentEnvVariable) == "Staging"
+        var tokenKey = Environment.GetEnvironmentVariable(Globals.EnvironmentEnvVariable) == "Staging" 
             ? Globals.TestTokenKey
             : Globals.TokenKey;
         var rawToken = configurationSettings.GetValue(tokenKey);

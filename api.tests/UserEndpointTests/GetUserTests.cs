@@ -1,6 +1,7 @@
 ﻿using exercise.wwwapi.DTOs;
 using exercise.wwwapi.DTOs.GetUsers;
 using exercise.wwwapi.DTOs.Login;
+using exercise.wwwapi.DTOs.Users;
 using exercise.wwwapi.Endpoints;
 using System.Text.Json;
 
