@@ -58,7 +58,7 @@ public class UserDTO
         Mobile = model.Mobile;
         Specialism = model.Specialism;
         Role = model.Role.ToString();
-        Notes = [];
+        Notes = model.Notes.Select(n => new NoteDTO(n)).ToList();
 
 
     }

@@ -8,6 +8,7 @@ using exercise.wwwapi.Models;
 using exercise.wwwapi.Repository;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Win32;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
@@ -19,11 +20,13 @@ namespace exercise.wwwapi.Endpoints
         public static void ConfigureNoteApi(this WebApplication app)
         {
             var notes = app.MapGroup("/users/{userId}/notes");
-            notes.MapPost("/", CreateNote).RequireAuthorization().WithSummary("Create a note");
-            notes.MapGet("/", GetAllNotesForUser).RequireAuthorization().WithSummary("Get all notes for user");
-            app.MapGet("notes/{noteId}", GetNoteById).RequireAuthorization().WithSummary("Get note by id");
-            app.MapPatch("notes/{noteId}", UpdateNote).RequireAuthorization().WithSummary("Update note");
-            app.MapDelete("notes/{noteId}", DeleteNote).RequireAuthorization().WithSummary("Delete note");
+            notes.MapPost("/", CreateNote).RequireAuthorization().WithSummary("Create a note"); //OLDOK
+            notes.MapGet("/", GetAllNotesForUser).RequireAuthorization().WithSummary("Get all notes for user"); //OKOKOK
+            app.MapGet("notes/{noteId}", GetNoteById).RequireAuthorization().WithSummary("Get note by id"); //OKOKOK
+            app.MapPatch("notes/{noteId}", UpdateNote).RequireAuthorization().WithSummary("Update note"); //OLDOK
+            app.MapDelete("notes/{noteId}", DeleteNote).RequireAuthorization().WithSummary("Delete note"); //OLDOK
+
+
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -37,14 +40,16 @@ namespace exercise.wwwapi.Endpoints
                 return TypedResults.Unauthorized();
             }
 
-            var user = await userRepository.GetByIdAsync(userId, u => u.Notes);
+            //var user = await userRepository.GetByIdAsync(userId, u => u.Notes);
+            var response = await userRepository.GetByIdWithIncludes(u => u.Include(n => n.Notes), userId);
 
-            if (user is null)
+            if (response is null)
             {
                 return TypedResults.NotFound($"User with id {userId} was not found");
             }
 
-            var notes = user.Notes;
+            //var notes = user.Notes;
+            var notes = response.Notes;
 
             if (!String.IsNullOrWhiteSpace(searchTerm)) 
             {
@@ -55,7 +60,8 @@ namespace exercise.wwwapi.Endpoints
                 .ToList();
             }
 
-            var noteResponse = new List<NoteDTO>();
+            var result = notes.Select(n => new NoteDTO(n));
+            /*
             foreach (var note in notes)
             {
                 noteResponse.Add(NoteFactory.GetNoteDTO(note));
@@ -69,8 +75,9 @@ namespace exercise.wwwapi.Endpoints
                     Notes = noteResponse
                 }
             };
+            */
 
-            return TypedResults.Ok(response);
+            return TypedResults.Ok(result);
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -141,19 +148,22 @@ namespace exercise.wwwapi.Endpoints
                 return TypedResults.Unauthorized();
             }
 
-            var note = await noteRepository.GetByIdAsync(noteId);
-            if (note is null)
+            //var note = await noteRepository.GetByIdAsync(noteId);
+            var response = await noteRepository.GetByIdWithIncludes(n => n.Include(u => u.User), noteId);
+            if (response is null)
             {
                 return TypedResults.NotFound();
             }
-
+            /*
             var response = new ResponseDTO<NoteDTO>
             {
                 Status = "success",
                 Data = NoteFactory.GetNoteDTO(note)
             };
+            */
+            var result = new GetNoteDTO(response);
 
-            return TypedResults.Ok(response);
+            return TypedResults.Ok(result);
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]

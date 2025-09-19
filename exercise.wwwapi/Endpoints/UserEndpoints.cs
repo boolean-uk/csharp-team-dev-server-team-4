@@ -20,6 +20,7 @@ using System.Diagnostics;
 using exercise.wwwapi.Models;
 using exercise.wwwapi.Factories;
 using Microsoft.EntityFrameworkCore;
+using exercise.wwwapi.DTOs.Users;
 
 namespace exercise.wwwapi.EndPoints;
 
@@ -30,8 +31,9 @@ public static class UserEndpoints
     public static void ConfigureAuthApi(this WebApplication app)
     {
         var users = app.MapGroup("users");
-        users.MapPost("/", Register).WithSummary("Create user");
-        users.MapGet("/by_cohort/{id}", GetUsersByCohortCourse).WithSummary("Get all users from a cohort");
+        users.MapPost("/", Register).WithSummary("Create user"); //OKOKOK
+        users.MapGet("/by_cohortcourse/{id}", GetUsersByCohortCourse).WithSummary("Get all users from a cohortCourse"); //OKOKOK
+        users.MapGet("/by_cohort/{id}", GetUsersByCohort).WithSummary("Get all users from a cohort"); //OKOKOK
         users.MapGet("/", GetUsers).WithSummary("Get all users or filter by first name, last name or full name");
         users.MapGet("/{id}", GetUserById).WithSummary("Get user by user id");
         app.MapPost("/login", Login).WithSummary("Localhost Login");
@@ -71,23 +73,30 @@ public static class UserEndpoints
     }
 
     [ProducesResponseType(StatusCodes.Status200OK)]
+    private static async Task<IResult> GetUsersByCohort(IRepository<Cohort> repository, int course_id, ClaimsPrincipal claimsPrincipal)
+    {
+        var response = await repository.GetByIdWithIncludes(a => a.Include(p => p.CohortCourses).ThenInclude(b => b.UserCCs).ThenInclude(a => a.User).ThenInclude(u => u.Notes), course_id);
+        var results = response.CohortCourses.SelectMany(a => a.UserCCs).Select(a => a.User).ToList();
+        var dto_results = results.Select(a => new UserDTO(a));
+
+        return TypedResults.Ok(dto_results);
+    }
+
+    [ProducesResponseType(StatusCodes.Status200OK)]
     private static async Task<IResult> GetUsersByCohortCourse(IRepository<CohortCourse> ccRepository, int cc_id, ClaimsPrincipal claimsPrincipal)
     {
-        var response = await ccRepository.GetByIdWithIncludes(a => a.Include(b => b.UserCCs).ThenInclude(a => a.User), cc_id);
-
+        var response = await ccRepository.GetByIdWithIncludes(a => a.Include(b => b.UserCCs).ThenInclude(a => a.User).ThenInclude(u => u.Notes), cc_id);
         var results = response.UserCCs.Select(a => a.User).ToList();
         var dto_results = results.Select(a => new UserDTO(a));
 
-
         return TypedResults.Ok(dto_results);
-
     }
 
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    private static async Task<IResult> Register(RegisterRequestDTO request, IRepository<User> userRepository,
-        IRepository<Cohort> cohortRepository, IValidator<RegisterRequestDTO> validator)
+    private static async Task<IResult> Register(PostUserDTO request, IRepository<User> userRepository,
+        IRepository<Cohort> cohortRepository, IValidator<PostUserDTO> validator)
     {
         // Validate
         var validation = await validator.ValidateAsync(request);
@@ -107,31 +116,9 @@ public static class UserEndpoints
             return Results.BadRequest(failResponse);
         }
 
-        // Check if email already exists
-        var users = await userRepository.GetAllAsync(
-        );
-        if (users.Any(u => u.Email == request.Email))
-        {
-            var failureDto = new RegisterFailureDTO();
-            failureDto.EmailErrors.Add("Email already exists");
+        
 
-            var failResponse = new ResponseDTO<RegisterFailureDTO> { Status = "fail", Data = failureDto };
-            return Results.Conflict(failResponse);
-        }
-
-        // Check if CohortId exists
-        if (request.CohortId != null)
-        {
-            var cohort = await cohortRepository.GetByIdAsync(request.CohortId.Value);
-            if (cohort == null)
-            {
-                var failureDto = new RegisterFailureDTO();
-                failureDto.EmailErrors.Add("Invalid CohortId");
-
-                var failResponse = new ResponseDTO<RegisterFailureDTO> { Status = "fail", Data = failureDto };
-                return Results.BadRequest(failResponse);
-            }
-        }
+        
 
         var passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
 
@@ -146,7 +133,8 @@ public static class UserEndpoints
             Mobile = string.IsNullOrEmpty(request.Mobile) ? string.Empty : request.Mobile,
             Bio = string.IsNullOrEmpty(request.Bio) ? string.Empty : request.Bio,
             Github = string.IsNullOrEmpty(request.Github) ? string.Empty : request.Github,
-            Specialism = Specialism.None
+            Specialism = Specialism.None,
+            PhotoUrl = ""
         };
 
         userRepository.Insert(user);

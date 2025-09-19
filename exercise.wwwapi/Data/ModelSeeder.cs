@@ -255,7 +255,6 @@ public static class ModelSeeder
                 EndDate = new DateTime(2026, 3, 29),
             }
 
-
         );
     }
 
@@ -306,8 +305,6 @@ public static class ModelSeeder
                 CcId = 1,
                 UserId = 3
             }
-
-
         );
     }
 
