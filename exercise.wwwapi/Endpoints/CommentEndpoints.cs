@@ -7,6 +7,7 @@ using exercise.wwwapi.Repository;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using Post = exercise.wwwapi.Models.Post;
 
@@ -23,17 +24,17 @@ public static class CommentEndpoints
         app.MapGet("/posts/{postId}/comments", GetCommentsPerPost).WithSummary("Get all comments for a post");
         app.MapPost("/posts/{postId}/comments", CreateComment).RequireAuthorization().WithSummary("Create a comment");
     }
-
     [ProducesResponseType(StatusCodes.Status200OK)]
     private static async Task<IResult> GetCommentsPerPost(IRepository<Comment> commentRepository,
             ClaimsPrincipal comment, int postId)
     {
-        var results = await commentRepository.GetAllAsync(c => c.Post);
-        var filtered = results.Where(c => c.PostId == postId).ToList();
+        //var results = await commentRepository.GetAllAsync(c => c.Post);
+        //var filtered = results.Where(c => c.PostId == postId).ToList();
+        var commentsForPost = await commentRepository.GetWithIncludes(c => c.Where(c => c.PostId == postId));
 
         var commentData = new CommentsSuccessDTO
         {
-            Comments = filtered.Select(c => new CommentDTO
+            Comments = commentsForPost.Select(c => new CommentDTO
             {
                 Id = c.Id,
                 PostId = postId,
