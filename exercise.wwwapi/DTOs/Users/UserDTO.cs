@@ -59,7 +59,5 @@ public class UserDTO
         Specialism = model.Specialism;
         Role = model.Role.ToString();
         Notes = model.Notes.Select(n => new NoteDTO(n)).ToList();
-
-
     }
 }
