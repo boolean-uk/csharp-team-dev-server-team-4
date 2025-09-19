@@ -1,9 +1,10 @@
 ﻿using exercise.wwwapi.DTOs.UpdateUser;
+using exercise.wwwapi.DTOs.Users;
 using FluentValidation;
 
 namespace exercise.wwwapi.Validators.UserValidators;
 
-public class UserUpdateValidator : AbstractValidator<UpdateUserRequestDTO>
+public class UserUpdateValidator : AbstractValidator<PatchUserDTO>
 {
     public UserUpdateValidator()
     {

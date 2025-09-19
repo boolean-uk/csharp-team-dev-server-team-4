@@ -1,5 +1,5 @@
-﻿using exercise.wwwapi.DTOs;
-using exercise.wwwapi.DTOs.Notes;
+﻿using exercise.wwwapi.DTOs.Notes;
+using exercise.wwwapi.DTOs.Users;
 using exercise.wwwapi.Enums;
 using exercise.wwwapi.Models;
 using System.Numerics;
