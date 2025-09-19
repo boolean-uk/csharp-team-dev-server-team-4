@@ -181,7 +181,7 @@ public static class CommentEndpoints
             return Results.Unauthorized();
         }
 
-        var comment = await commentRepository.GetByIdAsync(id);
+        var comment = await commentRepository.GetByIdWithIncludes(c => c.Include(u => u.User), id);
 
         if (comment == null)
         {
