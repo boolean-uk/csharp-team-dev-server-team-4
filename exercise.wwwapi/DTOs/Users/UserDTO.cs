@@ -4,7 +4,7 @@ using exercise.wwwapi.Models;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
-namespace exercise.wwwapi.DTOs;
+namespace exercise.wwwapi.DTOs.Users;
 
 public class UserDTO
 {
@@ -59,7 +59,5 @@ public class UserDTO
         Specialism = model.Specialism;
         Role = model.Role.ToString();
         Notes = model.Notes.Select(n => new NoteDTO(n)).ToList();
-
-
     }
 }

@@ -1,11 +1,20 @@
-using System.Diagnostics;
+using exercise.wwwapi;
 using exercise.wwwapi.Configuration;
 using exercise.wwwapi.Data;
+using exercise.wwwapi.DTOs.Comments;
+using exercise.wwwapi.DTOs.Comments.UpdateComment;
+using exercise.wwwapi.DTOs.Notes;
+using exercise.wwwapi.DTOs.Posts;
+using exercise.wwwapi.DTOs.Posts.UpdatePost;
 using exercise.wwwapi.DTOs.Register;
 using exercise.wwwapi.DTOs.UpdateUser;
+using exercise.wwwapi.DTOs.Users;
 using exercise.wwwapi.Endpoints;
 using exercise.wwwapi.EndPoints;
+using exercise.wwwapi.Models;
 using exercise.wwwapi.Repository;
+using exercise.wwwapi.Validators.NoteValidators;
+using exercise.wwwapi.Validators.PostValidators;
 using exercise.wwwapi.Validators.UserValidators;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -13,17 +22,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Scalar.AspNetCore;
+using System.Diagnostics;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
-using exercise.wwwapi;
-using exercise.wwwapi.Models;
-using exercise.wwwapi.DTOs.Notes;
-using exercise.wwwapi.Validators.NoteValidators;
-using exercise.wwwapi.DTOs.Posts;
-using exercise.wwwapi.Validators.PostValidators;
-using exercise.wwwapi.DTOs.Posts.UpdatePost;
-using exercise.wwwapi.DTOs.Comments;
-using exercise.wwwapi.DTOs.Comments.UpdateComment;
-using exercise.wwwapi.DTOs.Users;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -51,7 +53,7 @@ builder.Services.AddScoped<ILogger, Logger<string>>();
 
 // Register validators
 builder.Services.AddScoped<IValidator<PostUserDTO>, UserRegisterValidator>();
-builder.Services.AddScoped<IValidator<UpdateUserRequestDTO>, UserUpdateValidator>();
+builder.Services.AddScoped<IValidator<PatchUserDTO>, UserUpdateValidator>();
 builder.Services.AddScoped<IValidator<CreateNoteRequestDTO>, CreateNoteValidator>();
 builder.Services.AddScoped<IValidator<UpdateNoteRequestDTO>, UpdateNoteValidator>();
 
@@ -170,8 +172,29 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger(c => c.OpenApiVersion = Microsoft.OpenApi.OpenApiSpecVersion.OpenApi2_0);
-    app.UseSwaggerUI();
-    app.UseSwaggerUI(options => options.SwaggerEndpoint("/openapi/v3.json", "Demo API"));
+
+    // Generate a JWT token using your existing signing key
+    var devJwtToken = GenerateDevJwtToken(token);
+
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Demo API");
+        c.SwaggerEndpoint("/openapi/v3.json", "Demo API");
+
+        c.HeadContent = $@"
+            <script>
+                window.addEventListener('load', function() {{
+                    setTimeout(function() {{
+                        if (window.ui && window.ui.preauthorizeApiKey) {{
+                            window.ui.preauthorizeApiKey('Bearer', 'Bearer {devJwtToken}');
+                            console.log('Swagger UI auto-authenticated with dev token');
+                        }} else {{
+                            console.log('Swagger UI not ready for auto-authentication');
+                        }}
+                    }}, 2000);
+                }});
+            </script>";
+    });
     app.MapScalarApiReference();
 }
 
@@ -196,6 +219,34 @@ app.ConfigureExerciseEndpoints();
 app.ConfigureCourseEndpoints();
 app.Run();
 
+static string GenerateDevJwtToken(string signingKey)
+{
+    var tokenHandler = new JwtSecurityTokenHandler();
+    var key = Encoding.UTF8.GetBytes(signingKey);
+
+    var claims = new List<Claim>
+    {
+        new Claim(ClaimTypes.Name, "Development User"),
+        new Claim(ClaimTypes.Email, "dev@localhost.com"),
+        new Claim(ClaimTypes.Role, "Teacher")
+    };
+
+    var tokenDescriptor = new SecurityTokenDescriptor
+    {
+        Subject = new ClaimsIdentity(claims),
+        Expires = DateTime.UtcNow.AddDays(30), 
+        SigningCredentials = new SigningCredentials(
+            new SymmetricSecurityKey(key),
+            SecurityAlgorithms.HmacSha256Signature)
+    };
+
+    var jwtToken = tokenHandler.CreateToken(tokenDescriptor);
+    return tokenHandler.WriteToken(jwtToken);
+}
+
 public partial class Program
 {
 } // needed for testing - please ignore
+
+
+
