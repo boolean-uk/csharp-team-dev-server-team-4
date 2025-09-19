@@ -224,7 +224,7 @@ public static async Task<IResult> CreatePost(
             return TypedResults.NotFound();
         }
 
-        if (post.AuthorId != userIdClaim)
+        if (post.AuthorId != userIdClaim && !claimsPrincipal.IsInRole("Teacher"))
         {
             return Results.Unauthorized();
         }
