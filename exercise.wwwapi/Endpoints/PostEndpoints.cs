@@ -110,7 +110,7 @@ public static async Task<IResult> CreatePost(
     private static async Task<IResult> GetPostById(IRepository<Post> postRepository, int id, ClaimsPrincipal user)
     {
         var response = await postRepository.GetByIdWithIncludes(p => p.Include(a => a.Author)
-                                                                      .Include(c => c.Comments)
+                                                                      .Include(c => c.Comments).ThenInclude(c => c.User)
                                                                       .Include(l => l.Likes), id);
         var result = new ResponseDTO<PostDTO>()
         {
@@ -144,7 +144,20 @@ public static async Task<IResult> CreatePost(
 
         if (post.AuthorId != userIdClaim)
         {
-            return Results.Unauthorized();
+            if (claimsPrincipal.IsInRole("Teacher"))
+            {
+                post.UpdatedAt = DateTime.UtcNow;
+                post.UpdatedById = userIdClaim;
+            }
+            else
+            { 
+                return Results.Unauthorized();
+            }
+        }
+        else
+        {
+            post.UpdatedAt = DateTime.UtcNow;
+            post.UpdatedById = userIdClaim;
         }
 
         var validation = await validator.ValidateAsync(request);
@@ -178,7 +191,10 @@ public static async Task<IResult> CreatePost(
                 Id = post.Id,
                 AuthorId = post.AuthorId,
                 Body = post.Body,
-                CreatedAt = post.CreatedAt
+                CreatedAt = post.CreatedAt,
+                UpdatedAt = post.UpdatedAt,
+                UpdatedById = post.UpdatedById
+               
             }
         };
 

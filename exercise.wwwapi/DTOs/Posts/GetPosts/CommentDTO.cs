@@ -8,8 +8,8 @@ namespace exercise.wwwapi.DTOs.Posts.GetPosts
         public int UserId { get; set; }
         public string Body { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; }
-        public string firstName { get; set; }
-        public string lastName { get; set; }
+        public string? firstName { get; set; }
+        public string? lastName { get; set; }
         public CommentDTO()
         {
         }
@@ -19,8 +19,11 @@ namespace exercise.wwwapi.DTOs.Posts.GetPosts
             UserId = model.UserId;
             Body = model.Body;
             CreatedAt = model.CreatedAt;
-            firstName = model.User.FirstName;
-            lastName = model.User.LastName;
+            if (model.User != null)
+            {
+                firstName = model.User.FirstName;
+                lastName = model.User.LastName;
+            }
         }
     }
 }

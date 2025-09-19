@@ -1,10 +1,9 @@
-﻿using System.Text.Json.Serialization;
+﻿using exercise.wwwapi.DTOs.Posts.GetPosts;
+using System.Text.Json.Serialization;
 
-namespace exercise.wwwapi.DTOs.Comments
+
+public class CommentsSuccessDTO
 {
-    public class CommentsSuccessDTO
-    {
-        [JsonPropertyName("comments")]
-        public List<CommentDTO> Comments { get; set; } = new();
-    }
+    [JsonPropertyName("comments")]
+    public List<CommentDTO> Comments { get; set; } = new();
 }

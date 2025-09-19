@@ -23,6 +23,9 @@ public class Post : IEntity
     [Column("created_at", TypeName = "date")]
     public DateTime CreatedAt { get; set; }
 
+    public DateTime? UpdatedAt { get; set; }
+    public int? UpdatedById { get; set; }
+
     public User Author { get; set; }
     public ICollection<Comment> Comments { get; set; } = new List<Comment>();
     public ICollection<Like> Likes { get; set; } = new List<Like>();

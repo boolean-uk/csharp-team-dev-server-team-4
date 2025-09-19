@@ -1,6 +1,7 @@
 ﻿using exercise.wwwapi.DTOs;
 using exercise.wwwapi.DTOs.Comments;
 using exercise.wwwapi.DTOs.Comments.UpdateComment;
+using exercise.wwwapi.DTOs.Posts.GetPosts;
 using exercise.wwwapi.Helpers;
 using exercise.wwwapi.Models;
 using exercise.wwwapi.Repository;
@@ -28,18 +29,11 @@ public static class CommentEndpoints
     private static async Task<IResult> GetCommentsPerPost(IRepository<Comment> commentRepository,
             ClaimsPrincipal comment, int postId)
     {
-        var commentsForPost = await commentRepository.GetWithIncludes(c => c.Where(c => c.PostId == postId));
+        var commentsForPost = await commentRepository.GetWithIncludes(c => c.Where(c => c.PostId == postId).Include(p => p.User));
 
         var commentData = new CommentsSuccessDTO
         {
-            Comments = commentsForPost.Select(c => new CommentDTO
-            {
-                Id = c.Id,
-                PostId = postId,
-                UserId = c.UserId,
-                Body = c.Body,
-                CreatedAt = c.CreatedAt
-            }).ToList()
+            Comments = commentsForPost.Select(c => new CommentDTO(c)).ToList()
         };
 
         var response = new ResponseDTO<CommentsSuccessDTO>
@@ -97,14 +91,7 @@ public static class CommentEndpoints
         commentRepository.Insert(comment);
         await commentRepository.SaveAsync();
 
-        var commentData = new CommentDTO
-        {
-            Id = comment.Id,
-            PostId = comment.PostId,
-            UserId = comment.UserId,
-            Body = comment.Body,
-            CreatedAt = comment.CreatedAt
-        };
+        var commentData = new CommentDTO(comment);
 
         var response = new ResponseDTO<CommentDTO>
         {
@@ -133,7 +120,7 @@ public static class CommentEndpoints
             return Results.Unauthorized();
         }
 
-        var comment = await commentRepository.GetByIdAsync(id);
+        var comment = await commentRepository.GetByIdWithIncludes(c => c.Include(u => u.User), id);
 
         if (comment == null)
         {
@@ -171,14 +158,7 @@ public static class CommentEndpoints
         var response = new ResponseDTO<CommentDTO>
         {
             Status = "success",
-            Data = new CommentDTO
-            {
-                Id = comment.Id,
-                PostId = comment.PostId,
-                UserId = comment.UserId,
-                Body = comment.Body,
-                CreatedAt = comment.CreatedAt,
-            }
+            Data = new CommentDTO(comment)
         };
 
         return TypedResults.Ok(response);
@@ -219,14 +199,7 @@ public static class CommentEndpoints
         var response = new ResponseDTO<CommentDTO>
         {
             Status = "success",
-            Data = new CommentDTO
-            {
-                Id = comment.Id,
-                PostId = comment.PostId,
-                UserId = comment.UserId,
-                Body = comment.Body,
-                CreatedAt = comment.CreatedAt
-            }
+            Data = new CommentDTO(comment)
         };
 
         return TypedResults.Ok(response);
