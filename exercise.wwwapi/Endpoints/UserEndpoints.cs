@@ -158,7 +158,7 @@ public static class UserEndpoints
     private static async Task<IResult> Login(LoginRequestDTO request, IRepository<User> userRepository,
         IConfigurationSettings configurationSettings)
     {
-        var response = await userRepository.GetWithIncludes(x => x.Where(u => u.Email == request.Email));
+        var response = await userRepository.GetWithIncludes(x => x.Where(u => u.Email == request.Email)); // uses where-statement to filter data before fetching
         if (response.Count == 0) 
         {
             return Results.BadRequest(new Payload<object>
