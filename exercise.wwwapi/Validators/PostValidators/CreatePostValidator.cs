@@ -14,7 +14,7 @@ namespace exercise.wwwapi.Validators.PostValidators
             RuleFor(x => x.Body)
                 .NotEmpty().WithMessage("Post body cannot be empty.")
                 .MaximumLength(1000).WithMessage("Post body cannot exceed 1000 characters.")
-                .MinimumLength(10).WithMessage("Post body must be at least 10 characters long.");
+                .MinimumLength(1).WithMessage("Post body must be at least 10 characters long.");
         }
     }
 }
