@@ -8,6 +8,7 @@ using exercise.wwwapi.Repository;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using Post = exercise.wwwapi.Models.Post;
 
@@ -19,8 +20,8 @@ public static class PostEndpoints
     {
         var posts = app.MapGroup("posts");
         posts.MapPost("/", CreatePost).WithSummary("Create post");
-        posts.MapGet("/", GetAllPosts).WithSummary("Get all posts");
-        posts.MapGet("/v2", GetAllPostsVol2).WithSummary("Get all posts with the required info");
+        posts.MapGet("/", GetAllPosts).WithSummary("Get all posts with the required info");
+        posts.MapGet("/{id}", GetPostById).WithSummary("Get post by id");
         posts.MapPatch("/{id}", UpdatePost).RequireAuthorization().WithSummary("Update a post");
         posts.MapDelete("/{id}", DeletePost).RequireAuthorization().WithSummary("Delete a post");
     }
@@ -81,46 +82,18 @@ public static async Task<IResult> CreatePost(
     return Results.Created($"/posts/{post.Id}", response);
 }
 
-
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     private static async Task<IResult> GetAllPosts(IRepository<Post> postRepository,
-            ClaimsPrincipal user)
-    {
-        var results = (await postRepository.GetAllAsync(
-            p => p.Author,
-            p => p.Comments
-        )).ToList();
-
-        var postData = new PostsSuccessDTO
-        {
-            Posts = results
-        };
-
-        var response = new ResponseDTO<PostsSuccessDTO>
-        {
-            Status = "success",
-            Data = postData
-        };
-
-        return TypedResults.Ok(response);
-    }
-
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-
-    private static async Task<IResult> GetAllPostsVol2(IRepository<Post> postRepository,
         ClaimsPrincipal user)
     {
-        var results = (await postRepository.GetAllAsync(
-            p => p.Author,
-            p => p.Comments,
-            p => p.Likes
-        )).ToList();
+        var results = await postRepository.GetWithIncludes(q => q.Include(p => p.Author)
+                                                                  .Include(c => c.Comments)
+                                                                  .Include(l => l.Likes));
 
         var postData = new PostsSuccessDTOVol2
         {
-            Posts = results.Select(r => new PostDTOVol2(r)).ToList()
+            Posts = results.Select(r => new PostDTO(r)).ToList()
         };
 
         var response = new ResponseDTO<PostsSuccessDTOVol2>
@@ -132,6 +105,20 @@ public static async Task<IResult> CreatePost(
         return TypedResults.Ok(response);
     }
 
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    private static async Task<IResult> GetPostById(IRepository<Post> postRepository, int id, ClaimsPrincipal user)
+    {
+        var response = await postRepository.GetByIdWithIncludes(p => p.Include(a => a.Author)
+                                                                      .Include(c => c.Comments).ThenInclude(c => c.User)
+                                                                      .Include(l => l.Likes), id);
+        var result = new ResponseDTO<PostDTO>()
+        {
+            Status = "success",
+            Data = new PostDTO(response)
+        };
+        return TypedResults.Ok(result);
+    }
     [Authorize]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -146,11 +133,9 @@ public static async Task<IResult> CreatePost(
             return Results.Unauthorized();
         }
 
-        var post = await postRepository.GetByIdAsync(
-            id,
-            p => p.Author,
-            p => p.Comments
-        );
+        var post = await postRepository.GetByIdWithIncludes(p => p.Include(a => a.Author)
+                                                                  .Include(c => c.Comments)
+                                                                  .Include(l => l.Likes), id);
 
         if (post == null)
         {
@@ -159,7 +144,20 @@ public static async Task<IResult> CreatePost(
 
         if (post.AuthorId != userIdClaim)
         {
-            return Results.Unauthorized();
+            if (claimsPrincipal.IsInRole("Teacher"))
+            {
+                post.UpdatedAt = DateTime.UtcNow;
+                post.UpdatedById = userIdClaim;
+            }
+            else
+            { 
+                return Results.Unauthorized();
+            }
+        }
+        else
+        {
+            post.UpdatedAt = DateTime.UtcNow;
+            post.UpdatedById = userIdClaim;
         }
 
         var validation = await validator.ValidateAsync(request);
@@ -193,7 +191,10 @@ public static async Task<IResult> CreatePost(
                 Id = post.Id,
                 AuthorId = post.AuthorId,
                 Body = post.Body,
-                CreatedAt = post.CreatedAt
+                CreatedAt = post.CreatedAt,
+                UpdatedAt = post.UpdatedAt,
+                UpdatedById = post.UpdatedById
+               
             }
         };
 
@@ -214,18 +215,16 @@ public static async Task<IResult> CreatePost(
             return Results.Unauthorized();
         }
 
-        var post = await postRepository.GetByIdAsync(
-            id,
-            p => p.Author,
-            p => p.Comments
-        );
+        var post = await postRepository.GetByIdWithIncludes(p => p.Include(a => a.Author)
+                                                                  .Include(c => c.Comments)
+                                                                  .Include(l => l.Likes), id);
 
         if (post == null)
         {
             return TypedResults.NotFound();
         }
 
-        if (post.AuthorId != userIdClaim)
+        if (post.AuthorId != userIdClaim && !claimsPrincipal.IsInRole("Teacher"))
         {
             return Results.Unauthorized();
         }

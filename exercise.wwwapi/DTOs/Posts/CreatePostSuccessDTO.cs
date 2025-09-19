@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using exercise.wwwapi.DTOs.Posts.GetPosts;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace exercise.wwwapi.DTOs.Posts
 {
