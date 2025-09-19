@@ -1,9 +1,10 @@
 ﻿using exercise.wwwapi.DTOs.Register;
+using exercise.wwwapi.DTOs.Users;
 using FluentValidation;
 
 namespace exercise.wwwapi.Validators.UserValidators;
 
-public class UserRegisterValidator : AbstractValidator<RegisterRequestDTO>
+public class UserRegisterValidator : AbstractValidator<PostUserDTO>
 {
     public UserRegisterValidator()
     {

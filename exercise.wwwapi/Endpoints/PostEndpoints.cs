@@ -57,7 +57,6 @@ public static async Task<IResult> CreatePost(
     {
         AuthorId = userId.Value,
         Body = request.Body!,
-        Likes = 0,
         CreatedAt = DateTime.UtcNow
     };
 
@@ -74,7 +73,6 @@ public static async Task<IResult> CreatePost(
                 Id = post.Id,
                 AuthorId = post.AuthorId,
                 Body = post.Body,
-                Likes = post.Likes,
                 CreatedAt = post.CreatedAt
             }
         }
@@ -90,7 +88,7 @@ public static async Task<IResult> CreatePost(
             ClaimsPrincipal user)
     {
         var results = (await postRepository.GetAllAsync(
-            p => p.Author.Profile,
+            p => p.Author,
             p => p.Comments
         )).ToList();
 
@@ -115,8 +113,9 @@ public static async Task<IResult> CreatePost(
         ClaimsPrincipal user)
     {
         var results = (await postRepository.GetAllAsync(
-            p => p.Author.Profile,
-            p => p.Comments
+            p => p.Author,
+            p => p.Comments,
+            p => p.Likes
         )).ToList();
 
         var postData = new PostsSuccessDTOVol2
@@ -194,7 +193,6 @@ public static async Task<IResult> CreatePost(
                 Id = post.Id,
                 AuthorId = post.AuthorId,
                 Body = post.Body,
-                Likes = post.Likes,
                 CreatedAt = post.CreatedAt
             }
         };
@@ -243,7 +241,6 @@ public static async Task<IResult> CreatePost(
                 Id = post.Id,
                 AuthorId = post.AuthorId,
                 Body = post.Body,
-                Likes = post.Likes,
                 CreatedAt = post.CreatedAt
             }
         };

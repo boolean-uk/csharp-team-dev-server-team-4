@@ -26,8 +26,8 @@ public class UpdateUserRequestDTO
     [JsonPropertyName("username")]
     public string? Username { get; set; }
         
-    [JsonPropertyName("phone")]
-    public string? Phone { get; set; }
+    [JsonPropertyName("mobile")]
+    public string? Mobile { get; set; }
 
     [JsonPropertyName("cohortId")]
     public int? CohortId { get; set; }

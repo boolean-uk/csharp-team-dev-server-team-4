@@ -1,19 +1,22 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using exercise.wwwapi.Repository;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace exercise.wwwapi.Models;
 
-[Table("course")]
-public class Course
+[Table("courses")]
+public class Course : IEntity
 {
     [Key]
     [Column("id")]
     public int Id { get; set; }
 
     [Required]
-    [Column("course_name", TypeName = "varchar(100)")]
-    public string CourseName { get; set; }
+    [Column("name", TypeName = "varchar(100)")]
+    public string Name { get; set; }
 
-    public ICollection<Module> Modules { get; set; } = new List<Module>();
-    public ICollection<Cohort> Cohorts { get; set; } = new List<Cohort>();
-}
+    public ICollection<CohortCourse> CohortCourses { get; set; } = new List<CohortCourse>();
+    public ICollection<CourseModule> CourseModules { get; set; } = new List<CourseModule>();
+
+}    
+
