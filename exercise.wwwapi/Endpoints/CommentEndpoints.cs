@@ -28,8 +28,6 @@ public static class CommentEndpoints
     private static async Task<IResult> GetCommentsPerPost(IRepository<Comment> commentRepository,
             ClaimsPrincipal comment, int postId)
     {
-        //var results = await commentRepository.GetAllAsync(c => c.Post);
-        //var filtered = results.Where(c => c.PostId == postId).ToList();
         var commentsForPost = await commentRepository.GetWithIncludes(c => c.Where(c => c.PostId == postId));
 
         var commentData = new CommentsSuccessDTO
