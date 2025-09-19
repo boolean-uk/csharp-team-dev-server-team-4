@@ -81,19 +81,7 @@ public static class CohortEndpoints
              .ThenInclude(cc => cc.Course)
         );
 
-        var cohortDTOs = cohorts.Select(c => new CohortDTO
-        {
-            Id = c.Id,
-            CohortNumber = c.CohortNumber,
-            CohortName = c.CohortName,
-            StartDate = c.StartDate,
-            EndDate = c.EndDate,
-            Courses = c.CohortCourses.Select(cc => new CourseDTO
-            {
-                Id = cc.Course.Id,
-                Name = cc.Course.Name
-            }).ToList()
-        }).ToList();
+        var cohortDTOs = cohorts.Select(c => new CohortDTO(c)).ToList();
 
         var response = new ResponseDTO<List<CohortDTO>>()
         {
@@ -106,7 +94,7 @@ public static class CohortEndpoints
 
     public static async Task<IResult> GetCohortById(IRepository<Cohort> cohortRepo, int id)
     {
-        // Bruk GetByIdWithIncludes for nested includes
+        // uses GetByIdWithIncludes for nested includes
         var cohort = await cohortRepo.GetByIdWithIncludes(q =>
             q.Include(c => c.CohortCourses)
              .ThenInclude(cc => cc.Course), id);
@@ -116,19 +104,7 @@ public static class CohortEndpoints
             return TypedResults.NotFound();
         }
 
-        var cohortDTO = new CohortDTO
-        {
-            Id = cohort.Id,
-            CohortNumber = cohort.CohortNumber,
-            CohortName = cohort.CohortName,
-            StartDate = cohort.StartDate,
-            EndDate = cohort.EndDate,
-            Courses = cohort.CohortCourses.Select(cc => new CourseDTO
-            {
-                Id = cc.Course.Id,
-                Name = cc.Course.Name
-            }).ToList()
-        };
+        var cohortDTO = new CohortDTO(cohort);
 
         var response = new ResponseDTO<CohortDTO>
         {

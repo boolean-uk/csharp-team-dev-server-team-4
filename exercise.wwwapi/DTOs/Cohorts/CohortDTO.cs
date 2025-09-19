@@ -15,4 +15,15 @@ public class CohortDTO
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
     public List<CourseDTO> Courses { get; set; }
+
+    public CohortDTO(){}
+    public CohortDTO(Cohort model)
+    {
+        Id = model.Id;
+        CohortNumber = model.CohortNumber;
+        CohortName = model.CohortName;
+        StartDate = model.StartDate;
+        EndDate = model.EndDate;
+        Courses = model.CohortCourses.Select(cc => new CourseDTO(cc)).ToList();
+    }
 }

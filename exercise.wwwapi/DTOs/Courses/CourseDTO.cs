@@ -1,4 +1,5 @@
 ﻿using exercise.wwwapi.Models;
+using System.Drawing;
 
 namespace exercise.wwwapi.DTOs.Courses
 {
@@ -12,5 +13,11 @@ namespace exercise.wwwapi.DTOs.Courses
             Id = model.Id;
             Name = model.Name;
         }
+        public CourseDTO(CohortCourse model)
+        {
+            Id = model.Course.Id;
+            Name = model.Course.Name;
+        }
     }
+    
 }
