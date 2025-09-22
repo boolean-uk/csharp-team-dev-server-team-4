@@ -49,23 +49,49 @@ public static class UserEndpoints
 
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
+            var terms = searchTerm
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Select(t => t.ToLowerInvariant())
+            .ToArray();
+
             results = results.Where(u =>
-                    $"{u.FirstName} {u.LastName}".Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
-                .ToList();
+            {
+                var first = u.FirstName?.ToLowerInvariant() ?? ""; 
+                var last = u.LastName?.ToLowerInvariant() ?? "";
+                var full = (first + " " + last).Trim();
+
+                // All search terms must be present in either first, last, or full name (order-insensitive)
+                return terms.All(term =>
+                    first.Contains(term) ||
+                    last.Contains(term) ||
+                    full.Contains(term)
+                );
+            }).ToList();
         }
         var userRole = claimPrincipal.Role();
         var authorizedAsTeacher = AuthorizeTeacher(claimPrincipal);
 
-        
+        var userData = new UsersSuccessDTO
+        {
+            Users = results.Select(user => authorizedAsTeacher
+            ? UserFactory.GetUserDTO(user, PrivilegeLevel.Teacher) //if teacher loads students, also load notes for students.
+            : UserFactory.GetUserDTO(user, PrivilegeLevel.Student))
+    .ToList()
+        };
 
-        var response = results.Select(u => new UserDTO(u)).ToList();
+        var response = new ResponseDTO<UsersSuccessDTO>
+        {
+            Status = "success",
+            Data = userData
+        };
+
         return TypedResults.Ok(response);
     }
 
     [ProducesResponseType(StatusCodes.Status200OK)]
-    private static async Task<IResult> GetUsersByCohort(IRepository<Cohort> repository, int course_id, ClaimsPrincipal claimsPrincipal)
+    private static async Task<IResult> GetUsersByCohort(IRepository<Cohort> repository, int cohort_id, ClaimsPrincipal claimsPrincipal)
     {
-        var response = await repository.GetByIdWithIncludes(a => a.Include(p => p.CohortCourses).ThenInclude(b => b.UserCCs).ThenInclude(a => a.User).ThenInclude(u => u.Notes), course_id);
+        var response = await repository.GetByIdWithIncludes(a => a.Include(p => p.CohortCourses).ThenInclude(b => b.UserCCs).ThenInclude(a => a.User).ThenInclude(u => u.Notes), cohort_id);
         var results = response.CohortCourses.SelectMany(a => a.UserCCs).Select(a => a.User).ToList();
         var dto_results = results.Select(a => new UserDTO(a));
 
@@ -102,13 +128,23 @@ public static class UserEndpoints
                     failureDto.PasswordErrors.Add(error.ErrorMessage);
             }
 
-            var failResponse = new ResponseDTO<RegisterFailureDTO> { Status = "fail", Data = failureDto };
+            var failResponse = new ResponseDTO<RegisterFailureDTO> { Status = "conflict", Data = failureDto };
             return Results.BadRequest(failResponse);
         }
 
-        
+        var response = await userRepository.GetWithIncludes(x => x.Where(u => u.Email == request.Email)); // uses where-statement to filter data before fetching
+        if (response.Count == 1)
+        {
+            return Results.Conflict(new Payload<object>
+            {
+                Status = "fail",
+                Data = "User already exists" 
+            });
+        }
 
-        
+
+
+
 
         var passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
 
@@ -130,7 +166,7 @@ public static class UserEndpoints
         userRepository.Insert(user);
         await userRepository.SaveAsync();
 
-        var response = new ResponseDTO<RegisterSuccessDTO>
+        var responseObject = new ResponseDTO<RegisterSuccessDTO>
         {
             Status = "success",
             Data = new RegisterSuccessDTO
@@ -149,8 +185,9 @@ public static class UserEndpoints
                 }
             }
         };
+        
 
-        return Results.Ok(response);
+        return Results.Ok(responseObject);
     }
 
     [ProducesResponseType(StatusCodes.Status200OK)]

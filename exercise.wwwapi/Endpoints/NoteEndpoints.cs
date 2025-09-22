@@ -66,18 +66,18 @@ namespace exercise.wwwapi.Endpoints
             {
                 noteResponse.Add(NoteFactory.GetNoteDTO(note));
             }
+            */
 
-            var response = new ResponseDTO<NotesResponseDTO>
+            var responseObject = new ResponseDTO<NotesResponseDTO>
             {
                 Status = "success",
                 Data = new NotesResponseDTO
                 {
-                    Notes = noteResponse
+                    Notes = result.ToList()
                 }
             };
-            */
 
-            return TypedResults.Ok(result);
+            return TypedResults.Ok(responseObject);
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -154,16 +154,16 @@ namespace exercise.wwwapi.Endpoints
             {
                 return TypedResults.NotFound();
             }
-            /*
-            var response = new ResponseDTO<NoteDTO>
+            
+            var responseObject = new ResponseDTO<NoteDTO>
             {
                 Status = "success",
-                Data = NoteFactory.GetNoteDTO(note)
+                Data = NoteFactory.GetNoteDTO(response)
             };
-            */
+            
             var result = new GetNoteDTO(response);
 
-            return TypedResults.Ok(result);
+            return TypedResults.Ok(responseObject);
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
