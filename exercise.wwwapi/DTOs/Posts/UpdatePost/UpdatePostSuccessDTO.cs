@@ -4,12 +4,6 @@ namespace exercise.wwwapi.DTOs.Posts.UpdatePost
 {
     public class UpdatePostSuccessDTO
     {
-        [JsonPropertyName("id")]
-        public int Id { get; set; }
-
-        [JsonPropertyName("author_id")]
-        public int AuthorId { get; set; }
-
         [JsonPropertyName("body")]
         public string Body { get; set; }
 
@@ -19,6 +13,6 @@ namespace exercise.wwwapi.DTOs.Posts.UpdatePost
         [JsonPropertyName("created_at")]
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
-        public int? UpdatedById { get; set; }
+        public string? UpdatedBy { get; set; }
     }
 }

@@ -24,7 +24,7 @@ public class Post : IEntity
     public DateTime CreatedAt { get; set; }
 
     public DateTime? UpdatedAt { get; set; }
-    public int? UpdatedById { get; set; }
+    public string? UpdatedBy { get; set; }
 
     public User Author { get; set; }
     public ICollection<Comment> Comments { get; set; } = new List<Comment>();

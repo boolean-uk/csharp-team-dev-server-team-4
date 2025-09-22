@@ -85,8 +85,6 @@ namespace api.tests.PostEndpointTests
             Assert.That(updatedResult, Is.Not.Null, "Update Failed");
             Assert.That(patchResponse.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.OK));
             Assert.That(updatedResult!.Data.Body, Is.EqualTo(newBody));
-            Assert.That(updatedResult!.Data.Id, Is.EqualTo(1));
-            Assert.That(updatedResult!.Data.AuthorId, Is.EqualTo(1));
         }
     }
 }

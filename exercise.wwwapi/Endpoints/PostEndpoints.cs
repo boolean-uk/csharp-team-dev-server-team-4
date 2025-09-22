@@ -4,6 +4,7 @@ using exercise.wwwapi.DTOs.Posts;
 using exercise.wwwapi.DTOs.Posts.GetPosts;
 using exercise.wwwapi.DTOs.Posts.UpdatePost;
 using exercise.wwwapi.Helpers;
+using exercise.wwwapi.Models;
 using exercise.wwwapi.Repository;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
@@ -71,8 +72,6 @@ public static async Task<IResult> CreatePost(
         {
             Posts = new PostDTO
             {
-                Id = post.Id,
-                AuthorId = post.AuthorId,
                 Body = post.Body,
                 CreatedAt = post.CreatedAt
             }
@@ -132,33 +131,23 @@ public static async Task<IResult> CreatePost(
         {
             return Results.Unauthorized();
         }
+        var userClaimName = claimsPrincipal.Identity?.Name;
 
         var post = await postRepository.GetByIdWithIncludes(p => p.Include(a => a.Author)
-                                                                  .Include(c => c.Comments)
-                                                                  .Include(l => l.Likes), id);
+                                                                    .Include(c => c.Comments)
+                                                                      .Include(l => l.Likes), id);
 
         if (post == null)
         {
             return TypedResults.NotFound();
         }
 
-        if (post.AuthorId != userIdClaim)
-        {
-            if (claimsPrincipal.IsInRole("Teacher"))
-            {
-                post.UpdatedAt = DateTime.UtcNow;
-                post.UpdatedById = userIdClaim;
-            }
-            else
-            { 
-                return Results.Unauthorized();
-            }
-        }
-        else
+        if (post.AuthorId == userIdClaim || claimsPrincipal.IsInRole("Teacher"))
         {
             post.UpdatedAt = DateTime.UtcNow;
-            post.UpdatedById = userIdClaim;
+            post.UpdatedBy = userClaimName;
         }
+        else { return Results.Unauthorized(); }
 
         var validation = await validator.ValidateAsync(request);
         if (!validation.IsValid)
@@ -188,12 +177,10 @@ public static async Task<IResult> CreatePost(
             Status = "success",
             Data = new UpdatePostSuccessDTO
             {
-                Id = post.Id,
-                AuthorId = post.AuthorId,
                 Body = post.Body,
                 CreatedAt = post.CreatedAt,
                 UpdatedAt = post.UpdatedAt,
-                UpdatedById = post.UpdatedById
+                UpdatedBy = post.UpdatedBy
                
             }
         };
@@ -237,8 +224,8 @@ public static async Task<IResult> CreatePost(
             Status = "success",
             Data = new PostDTO
             {
-                Id = post.Id,
-                AuthorId = post.AuthorId,
+                //Id = post.Id,
+                //AuthorId = post.AuthorId,
                 Body = post.Body,
                 CreatedAt = post.CreatedAt
             }
