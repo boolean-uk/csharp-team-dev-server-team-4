@@ -17,7 +17,6 @@ public class UpdateUserRequestDTO
     [JsonPropertyName("lastName")]
     public string? LastName { get; set; }
         
-    [JsonPropertyName("bio")]
     public string? Bio { get; set; }
         
     [JsonPropertyName("github")]

@@ -23,9 +23,9 @@ public class CreateUserTests
     [Test]
     public async Task RegisterUserExistsTest()
     {
-        const string email = "test1@test1";
-        const string password = "Test1test1%";
-        const string username = "TestTestTest";
+        const string email = "test2@test2";
+        const string password = "Test2test2%";
+        const string username = "test2@test2";
 
         var newUser = new RegisterRequestDTO
         {
