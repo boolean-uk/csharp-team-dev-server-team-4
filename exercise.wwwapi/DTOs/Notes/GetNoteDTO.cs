@@ -8,7 +8,7 @@ namespace exercise.wwwapi.DTOs.Notes
     {
         public int Id { get; set; }
         public int UserId { get; set; }
-        public UserDTO User { get; set; }
+        public User_noNotes User { get; set; }
         public string Title { get; set; }
         public string Content { get; set; }
         public DateTime CreatedAt { get; set; }
@@ -19,7 +19,7 @@ namespace exercise.wwwapi.DTOs.Notes
         {
             Id = model.Id;
             UserId = model.UserId;
-            User = new UserDTO(model.User);
+            User = new User_noNotes(model.User);
             Title = model.Title;
             Content = model.Content;
             CreatedAt = model.CreatedAt;
