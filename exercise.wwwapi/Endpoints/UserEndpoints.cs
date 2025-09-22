@@ -56,7 +56,7 @@ public static class UserEndpoints
 
             results = results.Where(u =>
             {
-                var first = u.FirstName?.ToLowerInvariant() ?? "";
+                var first = u.FirstName?.ToLowerInvariant() ?? ""; //if teacher loads students, also load notes for students.
                 var last = u.LastName?.ToLowerInvariant() ?? "";
                 var full = (first + " " + last).Trim();
 
