@@ -12,7 +12,7 @@ namespace exercise.wwwapi.Validators.PostValidators
             RuleFor(x => x.Body)
                 .NotEmpty().WithMessage("Comment body cannot be empty.")
                 .MaximumLength(1000).WithMessage("Comment body cannot exceed 1000 characters.")
-                .MinimumLength(10).WithMessage("Comment body must be at least 10 characters long.");
+                .MinimumLength(1).WithMessage("Comment body must be at least 10 characters long.");
         }
     }
 }

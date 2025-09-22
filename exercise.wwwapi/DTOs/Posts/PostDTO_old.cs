@@ -2,7 +2,7 @@
 
 namespace exercise.wwwapi.DTOs.Posts
 {
-    public class PostDTO
+    public class PostDTO_old
     {
         [JsonPropertyName("id")]
         public int Id { get; set; }

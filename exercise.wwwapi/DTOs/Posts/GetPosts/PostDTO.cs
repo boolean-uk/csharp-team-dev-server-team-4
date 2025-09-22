@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace exercise.wwwapi.DTOs.Posts.GetPosts
 {
-    public class PostDTOVol2
+    public class PostDTO
     {
         public int Id { get; set; }
         public int AuthorId { get; set; }
@@ -14,11 +14,11 @@ namespace exercise.wwwapi.DTOs.Posts.GetPosts
         public List<CommentDTO> Comments { get; set; } = new List<CommentDTO>();
         public List<LikeDTO> Likes { get; set; } = new List<LikeDTO>();
 
-        public PostDTOVol2()
+        public PostDTO()
         {
             
         }
-        public PostDTOVol2(Post model)
+        public PostDTO(Post model)
         {
             Id = model.Id;
             AuthorId = model.AuthorId;

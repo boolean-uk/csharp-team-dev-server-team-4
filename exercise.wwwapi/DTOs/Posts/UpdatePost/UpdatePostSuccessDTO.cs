@@ -18,5 +18,7 @@ namespace exercise.wwwapi.DTOs.Posts.UpdatePost
 
         [JsonPropertyName("created_at")]
         public DateTime CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
+        public int? UpdatedById { get; set; }
     }
 }
