@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace exercise.wwwapi.DTOs.Notes
 {
-    public class User_noNotes
+    public class User_noNoteDTO
     {
         public int Id { get; set; }
         public string Username { get; set; }
@@ -20,14 +20,9 @@ namespace exercise.wwwapi.DTOs.Notes
         public string? Bio { get; set; }
         public string? PhotoUrl { get; set; }
         public Specialism? Specialism { get; set; }
-        public ICollection<Post> Posts { get; set; } = new List<Post>();
-        public ICollection<Like> Likes { get; set; } = new List<Like>();
-        public ICollection<Comment> Comments { get; set; } = new List<Comment>();
-        public ICollection<UserExercise> User_Exercises { get; set; } = new List<UserExercise>();
-        public ICollection<UserCC> User_CC { get; set; } = new List<UserCC>();
 
-        public User_noNotes() { }
-        public User_noNotes(User model)
+        public User_noNoteDTO() { }
+        public User_noNoteDTO(User model)
         {
             Id = model.Id;
             Username = model.Username;

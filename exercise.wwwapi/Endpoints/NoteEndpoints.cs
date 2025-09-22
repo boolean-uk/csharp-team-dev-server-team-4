@@ -128,10 +128,10 @@ namespace exercise.wwwapi.Endpoints
             noteRepository.Insert(note);
             await noteRepository.SaveAsync();
 
-            var response = new ResponseDTO<NoteDTO>
+            var response = new ResponseDTO<GetUser_noNote>
             {
                 Status = "success",
-                Data = NoteFactory.GetNoteDTO(note)
+                Data = new GetUser_noNote(note)
             };
 
             return TypedResults.Ok(response);
@@ -154,11 +154,11 @@ namespace exercise.wwwapi.Endpoints
             {
                 return TypedResults.NotFound();
             }
-            
-            var responseObject = new ResponseDTO<NoteDTO>
+
+            var responseObject = new ResponseDTO<GetUser_noNote>
             {
                 Status = "success",
-                Data = NoteFactory.GetNoteDTO(response)
+                Data = new GetUser_noNote(response)
             };
             
 
