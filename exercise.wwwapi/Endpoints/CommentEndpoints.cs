@@ -9,6 +9,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using System.Security.Claims;
 using Post = exercise.wwwapi.Models.Post;
 
@@ -49,6 +50,7 @@ public static class CommentEndpoints
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public static async Task<IResult> CreateComment(
         CreateCommentRequestDTO request,
         IRepository<Comment> commentRepository,
@@ -74,24 +76,31 @@ public static class CommentEndpoints
             return Results.BadRequest(failResponse);
         }
 
-        var post = await postRepository.GetByIdAsync(postId);
-        if (post == null)
-        {
-            return Results.NotFound();
-        }
-
         var comment = new Comment
         {
             PostId = postId,
             UserId = userIdClaim.Value,
             Body = request.Body,
-            CreatedAt = DateTime.UtcNow,
+            CreatedAt = DateTime.UtcNow
         };
 
         commentRepository.Insert(comment);
-        await commentRepository.SaveAsync();
+        try
+        {
+            await commentRepository.SaveAsync();
+        }
+        catch (DbUpdateException ex)
+        {
+            if (ex.InnerException is PostgresException CohortNumberEx &&
+                 CohortNumberEx.SqlState == "23503") //23503 = FK violation (Post Id or User Id did not exist)
+            {
+                return TypedResults.NotFound($"Post with id: {postId} was not found");
+            }       
+        }
 
-        var commentData = new CommentDTO(comment);
+        var commentWithUser = await commentRepository.GetByIdWithIncludes(c => c.Include(c => c.User), comment.Id);
+
+        var commentData = new CommentDTO(commentWithUser);
 
         var response = new ResponseDTO<CommentDTO>
         {
@@ -106,6 +115,7 @@ public static class CommentEndpoints
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public static async Task<IResult> UpdateComment(
         IRepository<Comment> commentRepository,
         int id,
@@ -191,7 +201,7 @@ public static class CommentEndpoints
             return TypedResults.NotFound();
         }
 
-        if (comment.UserId != userIdClaim)
+        if (comment.UserId != userIdClaim && !claimsPrincipal.IsInRole("Teacher"))
         {
             return Results.Unauthorized();
         }

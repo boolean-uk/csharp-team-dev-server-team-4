@@ -174,7 +174,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger(c => c.OpenApiVersion = Microsoft.OpenApi.OpenApiSpecVersion.OpenApi2_0);
 
     // Generate a JWT token using your existing signing key
-    var devJwtToken = GenerateDevJwtToken(token);
+    var devJwtToken = CreateToken(config);
 
     app.UseSwaggerUI(c =>
     {
@@ -220,31 +220,35 @@ app.ConfigureCourseEndpoints();
 app.ConfigureLikeEndpoints();
 app.Run();
 
-static string GenerateDevJwtToken(string signingKey)
+static string CreateToken(IConfigurationSettings configurationSettings)
 {
-    var tokenHandler = new JwtSecurityTokenHandler();
-    var key = Encoding.UTF8.GetBytes(signingKey);
-
     var claims = new List<Claim>
-    {
-        new Claim(ClaimTypes.Name, "Development User"),
-        new Claim(ClaimTypes.Email, "dev@localhost.com"),
-        new Claim(ClaimTypes.Role, "Teacher")
-    };
+        {
+            new(ClaimTypes.Sid, "2"),
+            new(ClaimTypes.Name, "test2"),
+            new(ClaimTypes.Email, "test2@test2"),
+            new(ClaimTypes.Role, "Teacher")
+        };
 
-    var tokenDescriptor = new SecurityTokenDescriptor
+    var tokenKey = Environment.GetEnvironmentVariable(Globals.EnvironmentEnvVariable) == "Staging"
+        ? Globals.TestTokenKey
+        : Globals.TokenKey;
+    var rawToken = configurationSettings.GetValue(tokenKey);
+    if (rawToken == null)
     {
-        Subject = new ClaimsIdentity(claims),
-        Expires = DateTime.UtcNow.AddDays(30), 
-        SigningCredentials = new SigningCredentials(
-            new SymmetricSecurityKey(key),
-            SecurityAlgorithms.HmacSha256Signature)
-    };
+        throw new Exception($"TokenKey: {tokenKey} could not be found.");
+    }
 
-    var jwtToken = tokenHandler.CreateToken(tokenDescriptor);
-    return tokenHandler.WriteToken(jwtToken);
+    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(rawToken));
+    var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
+    var token = new JwtSecurityToken(
+        claims: claims,
+        expires: DateTime.MaxValue,
+        signingCredentials: credentials
+    );
+    var jwt = new JwtSecurityTokenHandler().WriteToken(token);
+    return jwt;
 }
-
 public partial class Program
 {
 } // needed for testing - please ignore
