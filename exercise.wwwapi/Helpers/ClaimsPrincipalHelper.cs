@@ -35,4 +35,15 @@ public static class ClaimsPrincipalHelper
         return int.Parse(claim?.Value);
     }
 
+    public static string? FirstName(this ClaimsPrincipal user)
+    {
+        Claim? claim = user.FindFirst("FirstName");
+        return claim?.Value;
+    }
+    public static string? LastName(this ClaimsPrincipal user)
+    {
+        Claim? claim = user.FindFirst("LastName");
+        return claim?.Value;
+    }
+
 }
