@@ -1,4 +1,5 @@
-﻿using exercise.wwwapi.Models;
+﻿using exercise.wwwapi.DTOs.Users;
+using exercise.wwwapi.Models;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace exercise.wwwapi.DTOs.Notes
@@ -7,7 +8,7 @@ namespace exercise.wwwapi.DTOs.Notes
     {
         public int Id { get; set; }
         public int UserId { get; set; }
-        public User_noNotes User { get; set; }
+        public UserDTO User { get; set; }
         public string Title { get; set; }
         public string Content { get; set; }
         public DateTime CreatedAt { get; set; }
@@ -18,7 +19,7 @@ namespace exercise.wwwapi.DTOs.Notes
         {
             Id = model.Id;
             UserId = model.UserId;
-            User = new User_noNotes(model.User);
+            User = new UserDTO(model.User);
             Title = model.Title;
             Content = model.Content;
             CreatedAt = model.CreatedAt;

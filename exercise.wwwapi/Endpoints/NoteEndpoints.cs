@@ -161,7 +161,6 @@ namespace exercise.wwwapi.Endpoints
                 Data = NoteFactory.GetNoteDTO(response)
             };
             
-            var result = new GetNoteDTO(response);
 
             return TypedResults.Ok(responseObject);
         }
