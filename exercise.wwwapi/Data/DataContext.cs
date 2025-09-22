@@ -13,6 +13,7 @@ public sealed class DataContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        ModelSeeder.Seed(modelBuilder);
+        var seeder = new ModelSeeder();
+        seeder.Seed(modelBuilder);
     }
 }

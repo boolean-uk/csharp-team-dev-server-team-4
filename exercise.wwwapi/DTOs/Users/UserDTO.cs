@@ -1,5 +1,6 @@
 ﻿using exercise.wwwapi.DTOs.Notes;
 using exercise.wwwapi.Enums;
+using exercise.wwwapi.Factories;
 using exercise.wwwapi.Models;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
@@ -7,10 +8,7 @@ using System.Text.Json.Serialization;
 namespace exercise.wwwapi.DTOs.Users;
 
 public class UserDTO
-{
-    [JsonPropertyName("id")]
-    public int Id { get; set; }
-        
+{       
     [JsonPropertyName("email")]
     public string Email { get; set; }
         
@@ -35,6 +33,12 @@ public class UserDTO
     [JsonPropertyName("specialism")]
     public Specialism? Specialism { get; set; }
 
+    public int? CohortId { get; set; }
+
+    public DateTime? CurrentStartdate { get; set; }
+    public DateTime? CurrentEnddate { get; set; }
+
+
     [JsonPropertyName("notes")]
     
     public ICollection<NoteDTO> Notes { get; set; } = new List<NoteDTO>();
@@ -48,7 +52,6 @@ public class UserDTO
 
     public UserDTO(User model)
     {
-        Id = model.Id;
         Email = model.Email;
         FirstName = model.FirstName;
         LastName = model.LastName;
@@ -58,6 +61,31 @@ public class UserDTO
         Mobile = model.Mobile;
         Specialism = model.Specialism;
         Role = model.Role.ToString();
+        CohortId = model.User_CC.LastOrDefault()?.CohortCourse.CohortId; //autofetching the first element of usercc
+        CurrentStartdate = model.User_CC.LastOrDefault().CohortCourse.Cohort.StartDate; //autofetching the first element of usercc
+        CurrentEnddate = model.User_CC.LastOrDefault().CohortCourse.Cohort.EndDate; //autofetching the first element of usercc
         Notes = model.Notes.Select(n => new NoteDTO(n)).ToList();
+    }
+
+    public UserDTO(User model, PrivilegeLevel privilegeLevel)
+    {
+        Email = model.Email;
+        FirstName = model.FirstName;
+        LastName = model.LastName;
+        Bio = model.Bio;
+        Github = model.Github;
+        Username = model.Username;
+        Mobile = model.Mobile;
+        Specialism = model.Specialism;
+        Role = model.Role.ToString();
+        CohortId = model.User_CC.LastOrDefault()?.CohortCourse.CohortId; //autofetching the first element of usercc
+        CurrentStartdate = model.User_CC.LastOrDefault().CohortCourse.Cohort.StartDate; //autofetching the first element of usercc
+        CurrentEnddate = model.User_CC.LastOrDefault().CohortCourse.Cohort.EndDate; //autofetching the first element of usercc
+        
+
+        if (privilegeLevel == PrivilegeLevel.Teacher)
+        {
+            Notes = model.Notes.Select(n => new NoteDTO(n)).ToList();
+        }
     }
 }
