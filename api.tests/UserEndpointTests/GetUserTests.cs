@@ -74,7 +74,7 @@ public class GetUserTests
     [Test]
     public async Task GetFilteredUsersByLastNameTest()
     {
-        var getUsersResponse = await _client.GetAsync($"users?searchTerm=Jackson");
+        var getUsersResponse = await _client.GetAsync($"users?searchTerm=jordan");
         var jsonResponse = await getUsersResponse.Content.ReadAsStringAsync();
         var result = JsonSerializer.Deserialize<ResponseDTO<UsersSuccessDTO>>(jsonResponse);
 
@@ -94,7 +94,7 @@ public class GetUserTests
     [Test]
     public async Task GetFilteredUsersByFullNameTest()
     {
-        var getUsersResponse = await _client.GetAsync($"users?searchTerm=Michael%20Jackson");
+        var getUsersResponse = await _client.GetAsync($"users?searchTerm=Michael%20Jordan");
         var jsonResponse = await getUsersResponse.Content.ReadAsStringAsync();
         var result = JsonSerializer.Deserialize<ResponseDTO<UsersSuccessDTO>>(jsonResponse);
 
@@ -108,7 +108,7 @@ public class GetUserTests
         var jsonResponse = await getUsersResponse.Content.ReadAsStringAsync();
         var result = JsonSerializer.Deserialize<ResponseDTO<UsersSuccessDTO>>(jsonResponse);
 
-        Assert.That(result.Data.Users.Count, Is.EqualTo(3));
+        Assert.That(result.Data.Users.Count, Is.EqualTo(2));
     }
 
 }
