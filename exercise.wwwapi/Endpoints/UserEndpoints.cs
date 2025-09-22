@@ -56,7 +56,7 @@ public static class UserEndpoints
 
             results = results.Where(u =>
             {
-                var first = u.FirstName?.ToLowerInvariant() ?? ""; 
+                var first = u.FirstName?.ToLowerInvariant() ?? "";
                 var last = u.LastName?.ToLowerInvariant() ?? "";
                 var full = (first + " " + last).Trim();
 
@@ -73,9 +73,8 @@ public static class UserEndpoints
 
 
 
-
         var userData = new UsersSuccessDTO
-        {            
+        {
             Users = results.Select(user => authorizedAsTeacher
             ? new UserDTO(user, PrivilegeLevel.Teacher) //if teacher loads students, also load notes for students.
             : new UserDTO(user, PrivilegeLevel.Student)).ToList() //if teacher loads students, also load notes for students.
@@ -140,7 +139,7 @@ public static class UserEndpoints
             return Results.Conflict(new Payload<object>
             {
                 Status = "fail",
-                Data = "User already exists" 
+                Data = "User already exists"
             });
         }
 
@@ -186,7 +185,7 @@ public static class UserEndpoints
                 }
             }
         };
-        
+
 
         return Results.Ok(responseObject);
     }
@@ -197,7 +196,7 @@ public static class UserEndpoints
         IConfigurationSettings configurationSettings)
     {
         var response = await userRepository.GetWithIncludes(x => x.Where(u => u.Email == request.Email)); // uses where-statement to filter data before fetching
-        if (response.Count == 0) 
+        if (response.Count == 0)
         {
             return Results.BadRequest(new Payload<object>
             {
@@ -379,12 +378,10 @@ public static class UserEndpoints
             new(ClaimTypes.Sid, user.Id.ToString()),
             new(ClaimTypes.Name, user.Username),
             new(ClaimTypes.Email, user.Email),
-            new(ClaimTypes.Role, user.Role.ToString()),
-            new("FirstName", user.FirstName),
-            new("LastName", user.LastName)
+            new(ClaimTypes.Role, user.Role.ToString())
         };
 
-        var tokenKey = Environment.GetEnvironmentVariable(Globals.EnvironmentEnvVariable) == "Staging" 
+        var tokenKey = Environment.GetEnvironmentVariable(Globals.EnvironmentEnvVariable) == "Staging"
             ? Globals.TestTokenKey
             : Globals.TokenKey;
         var rawToken = configurationSettings.GetValue(tokenKey);
