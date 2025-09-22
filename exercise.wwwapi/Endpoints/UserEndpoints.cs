@@ -56,7 +56,7 @@ public static class UserEndpoints
 
             results = results.Where(u =>
             {
-                var first = u.FirstName?.ToLowerInvariant() ?? ""; //if teacher loads students, also load notes for students.
+                var first = u.FirstName?.ToLowerInvariant() ?? ""; 
                 var last = u.LastName?.ToLowerInvariant() ?? "";
                 var full = (first + " " + last).Trim();
 
@@ -74,7 +74,7 @@ public static class UserEndpoints
         var userData = new UsersSuccessDTO
         {
             Users = results.Select(user => authorizedAsTeacher
-            ? UserFactory.GetUserDTO(user, PrivilegeLevel.Teacher)
+            ? UserFactory.GetUserDTO(user, PrivilegeLevel.Teacher) //if teacher loads students, also load notes for students.
             : UserFactory.GetUserDTO(user, PrivilegeLevel.Student))
     .ToList()
         };
