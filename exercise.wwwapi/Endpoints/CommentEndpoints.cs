@@ -119,6 +119,7 @@ public static class CommentEndpoints
         {
             return Results.Unauthorized();
         }
+        var userClaimName = claimsPrincipal.Identity?.Name;
 
         var comment = await commentRepository.GetByIdWithIncludes(c => c.Include(u => u.User), id);
 
@@ -127,12 +128,14 @@ public static class CommentEndpoints
             return TypedResults.NotFound();
         }
 
-        if (comment.UserId != userIdClaim)
+        if (comment.UserId == userIdClaim || claimsPrincipal.IsInRole("Teacher"))
         {
-            return Results.Unauthorized();
+            comment.UpdatedAt = DateTime.UtcNow;
+            comment.UpdatedBy = userClaimName;
         }
+        else { return Results.Unauthorized(); }
 
-        var validation = await validator.ValidateAsync(request);
+            var validation = await validator.ValidateAsync(request);
         if (!validation.IsValid)
         {
             var failureDto = new UpdateCommentFailureDTO();

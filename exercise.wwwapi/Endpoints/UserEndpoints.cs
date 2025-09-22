@@ -379,7 +379,9 @@ public static class UserEndpoints
             new(ClaimTypes.Sid, user.Id.ToString()),
             new(ClaimTypes.Name, user.Username),
             new(ClaimTypes.Email, user.Email),
-            new(ClaimTypes.Role, user.Role.ToString())
+            new(ClaimTypes.Role, user.Role.ToString()),
+            new("FirstName", user.FirstName),
+            new("LastName", user.LastName)
         };
 
         var tokenKey = Environment.GetEnvironmentVariable(Globals.EnvironmentEnvVariable) == "Staging" 

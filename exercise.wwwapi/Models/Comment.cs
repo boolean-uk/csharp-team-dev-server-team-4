@@ -26,6 +26,8 @@ public class Comment : IEntity
 
     [Column("created_at")]
     public DateTime CreatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
+    public string? UpdatedBy { get; set; }
 
     [JsonIgnore]
     public Post Post { get; set; }
