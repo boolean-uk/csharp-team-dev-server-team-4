@@ -12,7 +12,7 @@ namespace exercise.wwwapi.Validators.PostValidators
                     .WithMessage("Post body cannot be empty if provided.")
                     .MaximumLength(1000).WithMessage("Post body cannot exceed 1000 characters.")
                     .MinimumLength(1).When(x => !string.IsNullOrWhiteSpace(x.Body))
-                    .WithMessage("Post body must be at least 10 characters long.");
+                    .WithMessage("Post body must be at least 1 characters long.");
         }
     }
 }
