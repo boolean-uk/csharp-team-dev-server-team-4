@@ -45,7 +45,7 @@ public static class UserEndpoints
     private static async Task<IResult> GetUsers(IRepository<User> userRepository, string? searchTerm,
         ClaimsPrincipal claimPrincipal)
     {
-        var results = await userRepository.GetWithIncludes(a => a.Include(u => u.Notes));     
+        var results = await userRepository.GetWithIncludes(x => x.Include(u => u.User_CC).ThenInclude(c => c.CohortCourse).ThenInclude(d => d.Cohort).Include(p => p.Notes));
 
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
@@ -71,12 +71,14 @@ public static class UserEndpoints
         var userRole = claimPrincipal.Role();
         var authorizedAsTeacher = AuthorizeTeacher(claimPrincipal);
 
+
+
+
         var userData = new UsersSuccessDTO
-        {
+        {            
             Users = results.Select(user => authorizedAsTeacher
-            ? UserFactory.GetUserDTO(user, PrivilegeLevel.Teacher) //if teacher loads students, also load notes for students.
-            : UserFactory.GetUserDTO(user, PrivilegeLevel.Student))
-    .ToList()
+            ? new UserDTO(user, PrivilegeLevel.Teacher) //if teacher loads students, also load notes for students.
+            : new UserDTO(user, PrivilegeLevel.Student)).ToList() //if teacher loads students, also load notes for students.
         };
 
         var response = new ResponseDTO<UsersSuccessDTO>
@@ -101,7 +103,7 @@ public static class UserEndpoints
     [ProducesResponseType(StatusCodes.Status200OK)]
     private static async Task<IResult> GetUsersByCohortCourse(IRepository<CohortCourse> ccRepository, int cc_id, ClaimsPrincipal claimsPrincipal)
     {
-        var response = await ccRepository.GetByIdWithIncludes(a => a.Include(b => b.UserCCs).ThenInclude(a => a.User).ThenInclude(u => u.Notes), cc_id);
+        var response = await ccRepository.GetByIdWithIncludes(a => a.Include(z => z.Cohort).Include(b => b.UserCCs).ThenInclude(a => a.User).ThenInclude(u => u.Notes), cc_id);
         var results = response.UserCCs.Select(a => a.User).ToList();
         var dto_results = results.Select(a => new UserDTO(a));
 
@@ -173,7 +175,6 @@ public static class UserEndpoints
             {
                 User =
                 {
-                    Id = user.Id,
                     FirstName = user.FirstName,
                     LastName = user.LastName,
                     Bio = user.Bio,
@@ -234,20 +235,24 @@ public static class UserEndpoints
     [ProducesResponseType(StatusCodes.Status200OK)]
     public static async Task<IResult> GetUserById(IRepository<User> userRepository, int id, ClaimsPrincipal claimsPrincipal)
     {
-        var response = await userRepository.GetByIdWithIncludes(x => x.Include(u => u.Notes), id);
+        var response = await userRepository.GetByIdWithIncludes(x => x.Include(u => u.User_CC).ThenInclude(c => c.CohortCourse).ThenInclude(d => d.Cohort).Include(p => p.Notes), id);
 
         if (response == null)
         {
             return TypedResults.NotFound();
         }
 
-        var result = new UserDTO(response);
-
-
-       
-
-        return TypedResults.Ok(response);
+        var userData = new UserDTO(response);
+        // userData.CurrentStartdate = response.User_CC.ElementAt(0).CohortCourse.Cohort.StartDate;
+        var responseObject = new ResponseDTO<UserDTO>
+        {
+            Status = "success",
+            Data = userData
+        };
+        return TypedResults.Ok(responseObject);
     }
+
+
 
     [Authorize]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -325,7 +330,7 @@ public static class UserEndpoints
         userRepository.Update(user);
         await userRepository.SaveAsync();
 
-        var result = await userRepository.GetByIdWithIncludes(x => x.Include(u => u.Notes), id);
+        var result = await userRepository.GetByIdWithIncludes(x => x.Include(u => u.User_CC).ThenInclude(c => c.CohortCourse).ThenInclude(d => d.Cohort).Include(p => p.Notes), id);
 
         var response = new ResponseDTO<UserDTO>()
         {
@@ -349,7 +354,7 @@ public static class UserEndpoints
             return Results.Unauthorized();
         }
 
-        var user = await userRepository.GetByIdWithIncludes(null, id);
+        var user = await userRepository.GetByIdWithIncludes(x => x.Include(u => u.User_CC).ThenInclude(c => c.CohortCourse).ThenInclude(d => d.Cohort).Include(p => p.Notes), id);
         if (user == null)
         {
             return TypedResults.NotFound();

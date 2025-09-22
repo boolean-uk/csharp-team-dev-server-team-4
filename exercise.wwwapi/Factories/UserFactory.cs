@@ -12,7 +12,6 @@ namespace exercise.wwwapi.Factories
         {
             var userDTO = new UserDTO()
             {
-                Id = user.Id,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Bio = user.Bio,

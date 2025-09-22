@@ -217,6 +217,7 @@ app.ConfigurePostEndpoints();
 app.ConfigureCommentEndpoints();
 app.ConfigureExerciseEndpoints();
 app.ConfigureCourseEndpoints();
+app.ConfigureLikeEndpoints();
 app.Run();
 
 static string GenerateDevJwtToken(string signingKey)
