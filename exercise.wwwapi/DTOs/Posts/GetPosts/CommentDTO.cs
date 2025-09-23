@@ -4,6 +4,7 @@ namespace exercise.wwwapi.DTOs.Posts.GetPosts
 {
     public class CommentDTO
     {
+        public int Id { get; set; }
         public string? firstName { get; set; }
         public string? lastName { get; set; }
         public string Body { get; set; } = string.Empty;
@@ -13,6 +14,7 @@ namespace exercise.wwwapi.DTOs.Posts.GetPosts
         public CommentDTO() { }
         public CommentDTO(Comment model)
         {
+            Id = model.Id;
             Body = model.Body;
             CreatedAt = model.CreatedAt;
             if (model.User != null)
