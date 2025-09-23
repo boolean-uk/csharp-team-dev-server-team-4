@@ -20,7 +20,7 @@ public class Post : IEntity
     [Column("body", TypeName = "varchar(1000)")]
     public string Body { get; set; }
 
-    [Column("created_at", TypeName = "date")]
+    [Column("created_at")]
     public DateTime CreatedAt { get; set; }
 
     public DateTime? UpdatedAt { get; set; }
