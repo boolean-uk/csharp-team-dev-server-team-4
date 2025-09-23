@@ -25,9 +25,18 @@ public static class CohortEndpoints
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public static async Task<IResult> CreateCohort(IRepository<Cohort> cohortRepo, CohortPostDTO? postCohort)
     {
-        if (postCohort == null || postCohort.StartDate == DateTime.MinValue || postCohort.EndDate == DateTime.MinValue)
+        // Check for missing or invalid data
+        if (postCohort == null ||
+            string.IsNullOrWhiteSpace(postCohort.CohortName) ||
+            postCohort.StartDate == DateTime.MinValue ||
+            postCohort.EndDate == DateTime.MinValue)
         {
-            return TypedResults.BadRequest("Missing cohort data");
+            return TypedResults.BadRequest("Missing or invalid cohort data");
+        }
+        // Check if end date is before start date
+        if (postCohort.EndDate < postCohort.StartDate)
+        {
+            return TypedResults.BadRequest("End date cannot be before start date");
         }
 
         bool success = false;
@@ -73,6 +82,7 @@ public static class CohortEndpoints
         return TypedResults.Created($"/cohorts/{newCohortNumber}");
     }
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public static async Task<IResult> GetAllCohorts(IRepository<Cohort> cohortRepo)
     {
         // Use GetWithIncludes to include CohortCourses and their Course
@@ -91,7 +101,8 @@ public static class CohortEndpoints
         return TypedResults.Ok(response);
     }
     [ProducesResponseType(StatusCodes.Status200OK)]
-
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public static async Task<IResult> GetCohortById(IRepository<Cohort> cohortRepo, int id)
     {
         // uses GetByIdWithIncludes for nested includes
@@ -125,23 +136,27 @@ public static class CohortEndpoints
             return TypedResults.NotFound();
         }
 
-        if (!string.IsNullOrWhiteSpace(updateDto.CohortName))
-            cohort.CohortName = updateDto.CohortName;
-        if (updateDto.StartDate != DateTime.MinValue)
-            cohort.StartDate = updateDto.StartDate;
-        if (updateDto.EndDate != DateTime.MinValue)
-            cohort.EndDate = updateDto.EndDate;
+        // Check for missing or invalid data
+        if (string.IsNullOrWhiteSpace(updateDto.CohortName) ||
+            updateDto.StartDate == DateTime.MinValue ||
+            updateDto.EndDate == DateTime.MinValue)
+        {
+            return TypedResults.BadRequest("Missing or invalid cohort data");
+        }
+        // Check if end date is before start date
+        if (updateDto.EndDate < updateDto.StartDate)
+        {
+            return TypedResults.BadRequest("End date cannot be before start date");
+        }
+
+        cohort.CohortName = updateDto.CohortName;
+        cohort.StartDate = updateDto.StartDate;
+        cohort.EndDate = updateDto.EndDate;
 
         cohortRepo.Update(cohort);
         await cohortRepo.SaveAsync();
 
-        var cohortDTO = new CohortDTO
-        {
-            CohortNumber = cohort.CohortNumber,
-            CohortName = cohort.CohortName,
-            StartDate = cohort.StartDate,
-            EndDate = cohort.EndDate
-        };
+        var cohortDTO = new CohortDTO(cohort);
 
         var response = new ResponseDTO<CohortDTO>
         {
@@ -152,6 +167,7 @@ public static class CohortEndpoints
         return TypedResults.Ok(response);
     }
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public static async Task<IResult> DeleteCohortById(IRepository<Cohort> cohortRepo, int id)
     {
