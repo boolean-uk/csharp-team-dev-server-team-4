@@ -89,7 +89,7 @@ public static async Task<IResult> CreatePost(
         ClaimsPrincipal user)
     {
         var results = await postRepository.GetWithIncludes(q => q.Include(p => p.Author)
-                                                                  .Include(c => c.Comments)
+                                                                  .Include(c => c.Comments).ThenInclude(u => u.User)
                                                                   .Include(l => l.Likes));
 
         var postData = new PostsSuccessDTOVol2
