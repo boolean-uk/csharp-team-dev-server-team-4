@@ -11,7 +11,7 @@ public class CohortDTO
 {
     public int Id { get; set; }
     public int CohortNumber { get; set; }
-    public string CohortName { get; set; }
+    public string CohortName { get; set; } 
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
     public List<CourseDTO> Courses { get; set; }
