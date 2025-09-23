@@ -164,7 +164,7 @@ public static class ExerciseEndpoints
             return TypedResults.NotFound();
         }
 
-        var newUnit = new Unit { ModuleId = id, Name = name, Module = module };
+        var newUnit = new Unit { ModuleId = id, Name = name };
 
         unitRepository.Insert(newUnit);
         await unitRepository.SaveAsync();
@@ -264,7 +264,7 @@ public static class ExerciseEndpoints
             return TypedResults.NotFound();
         }
 
-        var newExercise = new Exercise { UnitId = id, Name = exerciseDTO.Name, GitHubLink = exerciseDTO.GitHubLink, Description = exerciseDTO.Description, Unit = unit };
+        var newExercise = new Exercise { UnitId = id, Name = exerciseDTO.Name, GitHubLink = exerciseDTO.GitHubLink, Description = exerciseDTO.Description };
         exerciseRepository.Insert(newExercise);
         await exerciseRepository.SaveAsync();
 
@@ -343,8 +343,6 @@ public static class ExerciseEndpoints
         response.Description = exerciseDTO.Description;
         response.GitHubLink = exerciseDTO.GitHubLink;
         response.UnitId = exerciseDTO.UnitId;
-        response.Unit = unit;
-
 
         exerciseRepository.Update(response);
         await exerciseRepository.SaveAsync();
