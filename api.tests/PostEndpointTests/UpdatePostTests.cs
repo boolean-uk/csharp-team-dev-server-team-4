@@ -39,7 +39,8 @@ namespace api.tests.PostEndpointTests
         [Test]
         public async Task UpdatePostAuthorizationReturns401()
         {
-            var loginUser = new LoginRequestDTO { Email = "test2@test2", Password = "Test2test2%" };
+            //logging in as user not author of post and not teacher
+            var loginUser = new LoginRequestDTO { Email = "test1@test1", Password = "Test1test1%" };
             var contentLogin = new StringContent(JsonSerializer.Serialize(loginUser), System.Text.Encoding.UTF8, "application/json");
             var loginResponse = await _client.PostAsync("login", contentLogin);
             Assert.That(loginResponse.IsSuccessStatusCode, Is.True);
@@ -53,7 +54,7 @@ namespace api.tests.PostEndpointTests
             var updatePost = new UpdatePostRequestDTO { Body = "Should not be allowed" };
             var content = new StringContent(JsonSerializer.Serialize(updatePost), System.Text.Encoding.UTF8, "application/json");
 
-            var patchResponse = await _client.PatchAsync("posts/1", content);
+            var patchResponse = await _client.PatchAsync("posts/2", content);
 
             Assert.That(patchResponse.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.Unauthorized));
         }

@@ -66,10 +66,11 @@ namespace api.tests.PostEndpointTests
         [Test]
         public async Task DeletePostForbiddenWhenNotOwnerTest()
         {
+            // login to a different user that is not a teacher
             var loginUser = new LoginRequestDTO
             {
-                Email = "test2@test2",
-                Password = "Test2test2%"
+                Email = "test1@test1",
+                Password = "Test1test1%"
             };
 
             var contentLogin = new StringContent(
@@ -88,7 +89,7 @@ namespace api.tests.PostEndpointTests
             _client.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Bearer", result!.Data.Token);
 
-            var deleteResponse = await _client.DeleteAsync("posts/1");
+            var deleteResponse = await _client.DeleteAsync("posts/2");
             Assert.That(deleteResponse.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.Unauthorized));
         }
     }

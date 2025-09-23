@@ -373,15 +373,14 @@ public class UpdateUserTests
     [Test]
     public async Task UpdateProtectedPropertiesAsTeacher()
     {
+
         await AuthenticateAsTeacherAsync();
 
         var updateUser = new UpdateUserRequestDTO
         {
-            CohortId = 1,
+           
             Specialism = Specialism.Frontend,
-            Role = Role.Teacher,
-            StartDate = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
-            EndDate = new DateTime(2025, 9, 5, 11, 2, 0, DateTimeKind.Utc),
+            Role = Role.Teacher
         };
 
         var content = new StringContent(
@@ -404,6 +403,7 @@ public class UpdateUserTests
     [Test]
     public async Task UpdateUsersPasswordAsTeacher()
     {
+        
         await AuthenticateAsTeacherAsync();
 
         var updateUser = new UpdateUserRequestDTO

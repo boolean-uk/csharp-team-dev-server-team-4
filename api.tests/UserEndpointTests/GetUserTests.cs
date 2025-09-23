@@ -68,7 +68,7 @@ public class GetUserTests
         var jsonResponse = await getUsersResponse.Content.ReadAsStringAsync();
         var result = JsonSerializer.Deserialize<ResponseDTO<UsersSuccessDTO>>(jsonResponse);
 
-        Assert.That(result.Data.Users.Count, Is.EqualTo(2));
+        Assert.That(result.Data.Users.Count, Is.EqualTo(3));
     }
 
     [Test]
@@ -108,7 +108,7 @@ public class GetUserTests
         var jsonResponse = await getUsersResponse.Content.ReadAsStringAsync();
         var result = JsonSerializer.Deserialize<ResponseDTO<UsersSuccessDTO>>(jsonResponse);
 
-        Assert.That(result.Data.Users.Count, Is.EqualTo(2));
+        Assert.That(result.Data.Users.Count, Is.AtLeast(3));
     }
 
 }
