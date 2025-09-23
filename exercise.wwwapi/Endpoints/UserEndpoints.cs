@@ -32,8 +32,8 @@ public static class UserEndpoints
     {
         var users = app.MapGroup("users");
         users.MapPost("/", Register).WithSummary("Create user"); //OKOKOK
-        users.MapGet("/by_cohortcourse/{id}", GetUsersByCohortCourse).WithSummary("Get all users from a cohortCourse"); //OKOKOK
-        users.MapGet("/by_cohort/{id}", GetUsersByCohort).WithSummary("Get all users from a cohort"); //OKOKOK
+        users.MapGet("/by_cohortcourse/{cc_id}", GetUsersByCohortCourse).WithSummary("Get all users from a cohortCourse"); //OKOKOK
+        users.MapGet("/by_cohort/{cohort_id}", GetUsersByCohort).WithSummary("Get all users from a cohort"); //OKOKOK
         users.MapGet("/", GetUsers).WithSummary("Get all users or filter by first name, last name or full name");//OKOKOK
         users.MapGet("/{id}", GetUserById).WithSummary("Get user by user id"); //OKOKOK
         app.MapPost("/login", Login).WithSummary("Localhost Login"); //OKOKOK
@@ -96,7 +96,18 @@ public static class UserEndpoints
         var results = response.CohortCourses.SelectMany(a => a.UserCCs).Select(a => a.User).ToList();
         var dto_results = results.Select(a => new UserDTO(a));
 
-        return TypedResults.Ok(dto_results);
+        var userData = new UsersSuccessDTO
+        {
+            Users = results.Select(u => new UserDTO(u)).ToList() //if teacher loads students, also load notes for students.
+        };
+
+        var responseObject = new ResponseDTO<UsersSuccessDTO>
+        {
+            Status = "success",
+            Data = userData
+        };
+
+        return TypedResults.Ok(responseObject);
     }
 
     [ProducesResponseType(StatusCodes.Status200OK)]
