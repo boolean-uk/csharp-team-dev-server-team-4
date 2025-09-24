@@ -22,6 +22,7 @@ using exercise.wwwapi.Factories;
 using Microsoft.EntityFrameworkCore;
 using exercise.wwwapi.Models.Exercises;
 using exercise.wwwapi.DTOs.Exercises;
+using System.Linq;
 
 namespace exercise.wwwapi.EndPoints;
 
@@ -45,6 +46,7 @@ public static class ExerciseEndpoints
         units.MapPut("/{id}", UpdateUnit).WithSummary("Update unit with provided id");
 
         var modules = app.MapGroup("modules");
+        modules.MapGet("/by_user/{user_id}", GetModulesByUserId).WithSummary("Returns all modules for a given user");
         modules.MapGet("/", GetModules).WithSummary("Returns all modules");
         modules.MapGet("/{id}", GetModuleById).WithSummary("Returns module with provided id");
         modules.MapPost("/", CreateModule).WithSummary("Create a new module");
@@ -55,6 +57,32 @@ public static class ExerciseEndpoints
 
 
     }
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)] // will implement if some users should not have access
+    private static async Task<IResult> GetModulesByUserId(IRepository<User> userRepository, ClaimsPrincipal claimsPrincipal, int user_id)
+    {
+        var response = await userRepository.GetByIdWithIncludes(a => a
+                                                                        .Include(b => b.User_CC)
+                                                                            .ThenInclude(c => c.CohortCourse)
+                                                                            .ThenInclude(d => d.Course)
+                                                                            .ThenInclude(e => e.CourseModules)
+                                                                            .ThenInclude(f => f.Module)
+                                                                            .ThenInclude(g => g.Units)
+                                                                            .ThenInclude(h => h.Exercises)
+                                                                        .Include(i => i.User_Exercises), user_id);
+
+        if (response == null)
+        {
+            return TypedResults.NotFound("user does not exist");
+        }
+
+
+
+        var result = response.User_CC.LastOrDefault().CohortCourse.Course.CourseModules.Select(a => new GetModuleForUserDTO(a.Module, response.User_Exercises)).ToList();
+        return TypedResults.Ok(result);
+    }
+
 
     [ProducesResponseType(StatusCodes.Status200OK)]
     private static async Task<IResult> GetModules(IRepository<Module> moduleRepository, ClaimsPrincipal claimsPrincipal)
