@@ -96,9 +96,14 @@ public static class UserEndpoints
         var results = response.CohortCourses.SelectMany(a => a.UserCCs).Select(a => a.User).ToList();
         var dto_results = results.Select(a => new UserDTO(a));
 
+        var userRole = claimsPrincipal.Role();
+        var authorizedAsTeacher = AuthorizeTeacher(claimsPrincipal);
+
         var userData = new UsersSuccessDTO
         {
-            Users = results.Select(u => new UserDTO(u)).ToList() //if teacher loads students, also load notes for students.
+            Users = results.Select(user => authorizedAsTeacher
+            ? new UserDTO(user, PrivilegeLevel.Teacher) //if teacher loads students, also load notes for students.
+            : new UserDTO(user, PrivilegeLevel.Student)).ToList() //if teacher loads students, also load notes for students.
         };
 
         var responseObject = new ResponseDTO<UsersSuccessDTO>
@@ -117,7 +122,23 @@ public static class UserEndpoints
         var results = response.UserCCs.Select(a => a.User).ToList();
         var dto_results = results.Select(a => new UserDTO(a));
 
-        return TypedResults.Ok(dto_results);
+        var userRole = claimsPrincipal.Role();
+        var authorizedAsTeacher = AuthorizeTeacher(claimsPrincipal);
+
+        var userData = new UsersSuccessDTO
+        {
+            Users = results.Select(user => authorizedAsTeacher
+            ? new UserDTO(user, PrivilegeLevel.Teacher) //if teacher loads students, also load notes for students.
+            : new UserDTO(user, PrivilegeLevel.Student)).ToList() //if teacher loads students, also load notes for students.
+        };
+
+        var responseObject = new ResponseDTO<UsersSuccessDTO>
+        {
+            Status = "success",
+            Data = userData
+        };
+
+        return TypedResults.Ok(responseObject);
     }
 
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -252,13 +273,20 @@ public static class UserEndpoints
             return TypedResults.NotFound();
         }
 
-        var userData = new UserDTO(response);
-        // userData.CurrentStartdate = response.User_CC.ElementAt(0).CohortCourse.Cohort.StartDate;
+        var userRole = claimsPrincipal.Role();
+        var authorizedAsTeacher = AuthorizeTeacher(claimsPrincipal);
+
+        var userData = authorizedAsTeacher
+            ? new UserDTO(response, PrivilegeLevel.Teacher) //if teacher loads students, also load notes for students.
+            : new UserDTO(response, PrivilegeLevel.Student); //if teacher loads students, also load notes for students.
+        
+
         var responseObject = new ResponseDTO<UserDTO>
         {
             Status = "success",
             Data = userData
         };
+
         return TypedResults.Ok(responseObject);
     }
 
