@@ -74,22 +74,12 @@ builder.Services.AddDbContext<DataContext>(options =>
     }
     else
     {
-        var host = builder.Configuration["Neon:Host"];
-        var database = builder.Configuration["Neon:Database"];
-        var username = builder.Configuration["Neon:Username"];
-        var password = builder.Configuration["Neon:Password"];
-
         const string defaultConnectionName = "DefaultConnection";
         var connectionString = builder.Configuration.GetConnectionString(defaultConnectionName);
-        if (connectionString == null)
+        if (string.IsNullOrWhiteSpace(connectionString))
         {
             throw new Exception("Could not find connection string with name: " + defaultConnectionName);
         }
-
-        connectionString = connectionString.Replace("${Neon:Host}", host);
-        connectionString = connectionString.Replace("${Neon:Database}", database);
-        connectionString = connectionString.Replace("${Neon:Username}", username);
-        connectionString = connectionString.Replace("${Neon:Password}", password);
 
         options.UseNpgsql(connectionString);
         options.LogTo(message => Debug.WriteLine(message));
