@@ -24,6 +24,6 @@ public class CohortDTO
         CohortName = model.CohortName;
         StartDate = model.StartDate;
         EndDate = model.EndDate;
-        Courses = model.CohortCourses.Select(cc => new CourseDTO(cc)).ToList();
+        Courses = model.CohortCourses.Select(cc => new CourseDTO(cc.Course)).ToList();
     }
 }
