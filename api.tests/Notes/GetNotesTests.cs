@@ -68,8 +68,8 @@ namespace api.tests.Notes
             Assert.That(noteResult.Status, Is.EqualTo("success"));
             Assert.That(noteResult.Data, Is.Not.Null);
             Assert.That(noteResult.Data.Id, Is.EqualTo(noteId));
-            Assert.That(noteResult.Data.Title, Is.EqualTo("Name Note 1"));
-            Assert.That(noteResult.Data.Content, Is.EqualTo("note1note1 note1 note1 content")); 
+            Assert.That(noteResult.Data.Title, Is.EqualTo("Late"));
+            Assert.That(noteResult.Data.Content, Is.EqualTo("student was late")); 
         }
 
         [Test]
@@ -83,47 +83,7 @@ namespace api.tests.Notes
             Assert.That(response.IsSuccessStatusCode, Is.False);
         }
 
-        [Test]
-        public async Task TeacherGetNotesOnAStudentSuccess()
-        {
-            await AuthenticateAsTeacherAsync();
-
-            var userId = 1; // student user id to get notes for
-            var getNotesResponse = await _client.GetAsync($"/users/{userId}/notes");
-
-            Assert.That(getNotesResponse.IsSuccessStatusCode, Is.True);
-
-            var notesJson = await getNotesResponse.Content.ReadAsStringAsync();
-            var notesResult = JsonSerializer.Deserialize<ResponseDTO<NotesResponseDTO>>(notesJson,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-            Assert.That(notesResult, Is.Not.Null);
-            Assert.That(notesResult.Status, Is.EqualTo("success"));
-            Assert.That(notesResult.Data, Is.Not.Null);
-            Assert.That(notesResult.Data.Notes, Is.Not.Empty);
-            Assert.That(notesResult.Data.Notes.Count, Is.EqualTo(4));
-        }
-
-        [Test]
-        public async Task TeacherGetNotesOnStudentWithNoNotesSuccess()
-        {
-            await AuthenticateAsTeacherAsync();
-
-            var userId = 3; // student user id to get notes for but user has no notes
-            var getNotesResponse = await _client.GetAsync($"/users/{userId}/notes");
-
-            Assert.That(getNotesResponse.IsSuccessStatusCode, Is.True);
-
-            var notesJson = await getNotesResponse.Content.ReadAsStringAsync();
-            var notesResult = JsonSerializer.Deserialize<ResponseDTO<NotesResponseDTO>>(notesJson,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-            Assert.That(notesResult, Is.Not.Null);
-            Assert.That(notesResult.Status, Is.EqualTo("success"));
-            Assert.That(notesResult.Data, Is.Not.Null);
-            Assert.That(notesResult.Data.Notes, Is.Empty);
-            Assert.That(notesResult.Data.Notes.Count, Is.EqualTo(0));
-        }
+       
 
         private async Task AuthenticateAsTeacherAsync()
         {

@@ -79,7 +79,8 @@ namespace api.tests.PostEndpointTests
 
             var found = posts.EnumerateArray().Any(p =>
                 p.GetProperty("id").GetInt32() == 1 &&
-                p.GetProperty("authorId").GetInt32() == 1
+                p.GetProperty("firstname").GetString() == "Lionel" &&
+                p.GetProperty("lastname").GetString() == "Richie"
             );
 
             Assert.That(found, Is.True, "Expected to find seeded post with id=1 and authorId=1.");
