@@ -13,7 +13,7 @@ namespace exercise.wwwapi.DTOs.Courses
             Id = model.Id;
             Name = model.Name;
         }
-        public CourseDTO(CohortCourse model)
+        public CourseDTO(Models.CohortCourse model)
         {
             Id = model.Course.Id;
             Name = model.Course.Name;
