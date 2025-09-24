@@ -386,8 +386,11 @@ public static class UserEndpoints
     public static async Task<IResult> DeleteUser(IRepository<User> userRepository, int id,
         ClaimsPrincipal claimsPrincipal)
     {
+        var userRole = claimsPrincipal.Role();
+        var authorizedAsTeacher = AuthorizeTeacher(claimsPrincipal);
+
         var userIdClaim = claimsPrincipal.UserRealId();
-        if (userIdClaim == null || userIdClaim != id)
+        if (!authorizedAsTeacher && (userIdClaim == null || userIdClaim != id))
         {
             return Results.Unauthorized();
         }
