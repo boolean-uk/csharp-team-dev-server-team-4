@@ -19,7 +19,6 @@ namespace exercise.wwwapi.DTOs.Notes
         public string? Github { get; set; }
         public string? Bio { get; set; }
         public string? PhotoUrl { get; set; }
-        public Specialism? Specialism { get; set; }
 
         public User_noNoteDTO() { }
         public User_noNoteDTO(User model)
@@ -34,7 +33,6 @@ namespace exercise.wwwapi.DTOs.Notes
             Github = model.Github;
             Bio = model.Bio;
             PhotoUrl = model.PhotoUrl;
-            Specialism = model.Specialism;
         }
     }
 }

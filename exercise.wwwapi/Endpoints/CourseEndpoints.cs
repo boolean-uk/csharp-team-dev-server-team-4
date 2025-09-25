@@ -64,7 +64,7 @@ namespace exercise.wwwapi.Endpoints;
                     return TypedResults.BadRequest("Course data missing in request");
             }
 
-            Course newCourse = new Course { Name = postedCourse.Name };
+            Course newCourse = new Course(postedCourse);
             repository.Insert(newCourse);
             await repository.SaveAsync();
             GetCourseDTO response = new GetCourseDTO(newCourse);
@@ -114,6 +114,7 @@ namespace exercise.wwwapi.Endpoints;
                 return TypedResults.BadRequest("Missing update data in request");
             }
             course.Name = updatedCourse.Name;
+            course.SpecialismName = updatedCourse.SpecialismName;
             repository.Update(course);
             await repository.SaveAsync();
 

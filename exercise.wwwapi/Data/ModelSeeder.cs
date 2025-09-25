@@ -99,13 +99,7 @@ public class ModelSeeder
             Role.Student,
             Role.Teacher
         };
-    private List<Specialism> _specialisms = new List<Specialism>()
-        {
-            Specialism.Frontend,
-            Specialism.Backend,
-            Specialism.Fullstack,
-            Specialism.None
-        };
+ 
 
     private List<string> _firstPart = new List<string>()
         {
@@ -201,7 +195,6 @@ public class ModelSeeder
             Mobile = "1234567890",
             Github = "",
             Bio = "",
-            Specialism = Specialism.Frontend,
             PhotoUrl = ""
         };
         _users.Add(user1);
@@ -218,7 +211,6 @@ public class ModelSeeder
             Mobile = "1234123",
             Github = "",
             Bio = "",
-            Specialism = Specialism.Backend,
             PhotoUrl = ""
         };
         _users.Add(user2);
@@ -235,7 +227,6 @@ public class ModelSeeder
             Mobile = "55555555",
             Github = "",
             Bio = "",
-            Specialism = Specialism.Frontend,
             PhotoUrl = ""
         };
         _users.Add(user3);
@@ -252,7 +243,6 @@ public class ModelSeeder
             Mobile = "98987878",
             Github = "",
             Bio = "",
-            Specialism = Specialism.Backend,
             PhotoUrl = ""
         };
         _users.Add(user4);
@@ -269,7 +259,6 @@ public class ModelSeeder
             Mobile = "111222333",
             Github = "",
             Bio = "",
-            Specialism = Specialism.Frontend,
             PhotoUrl = ""
         };
         _users.Add(user5);
@@ -292,7 +281,6 @@ public class ModelSeeder
                 Mobile = userRandom.Next(12345678, 23456789).ToString(),
                 Github = $"{username}git",
                 Bio = $"{_firstword[userRandom.Next(_firstword.Count)]}{_secondword[userRandom.Next(_secondword.Count)]}{_thirdword[userRandom.Next(_thirdword.Count)]}",
-                Specialism = _specialisms[userRandom.Next(_specialisms.Count)],
                 PhotoUrl = ""
             };
             _users.Add(user);
@@ -455,14 +443,17 @@ public class ModelSeeder
         Course course1 = new Course
         {
             Id = 1,
-            Name = "Java",
+            Name = "Java Development",
+            SpecialismName = "Java Developer"
+
         };
         _courses.Add(course1);
 
         Course course2 = new Course
         {
             Id = 2,
-            Name = ".NET",
+            Name = ".NET Development",
+            SpecialismName = ".NET Developer"
         };
         _courses.Add(course2);
 
