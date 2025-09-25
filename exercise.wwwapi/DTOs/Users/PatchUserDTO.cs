@@ -16,7 +16,6 @@ namespace exercise.wwwapi.DTOs.Users
         public string? Github { get; set; }
         public string? Username { get; set; }
         public string? Mobile { get; set; }
-        public Specialism? Specialism { get; set; }
         public Role? Role { get; set; }
     }
 }

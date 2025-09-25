@@ -32,7 +32,7 @@ public class UserDTO
     public string? Mobile { get; set; }
 
     [JsonPropertyName("specialism")]
-    public Specialism? Specialism { get; set; }
+    public string? Specialism { get; set; }
 
     public int? CohortId { get; set; }
     public int? CohortCourseId { get; set; }
@@ -62,7 +62,7 @@ public class UserDTO
         Github = model.Github;
         Username = model.Username;
         Mobile = model.Mobile;
-        Specialism = model.Specialism;
+        Specialism = model.User_CC?.LastOrDefault()?.CohortCourse.Course.SpecialismName;
         Role = model.Role.ToString();
         CohortId = model.User_CC?.LastOrDefault()?.CohortCourse.CohortId;
         CohortCourseId = model.User_CC?.LastOrDefault()?.Id; //autofetching the first element of usercc
@@ -80,8 +80,8 @@ public class UserDTO
         Bio = model.Bio;
         Github = model.Github;
         Username = model.Username;
-        Mobile = model.Mobile;
-        Specialism = model.Specialism;
+        Mobile = model.Mobile; 
+        Specialism = model.User_CC?.LastOrDefault()?.CohortCourse?.Course?.SpecialismName;
         Role = model.Role.ToString();
         CohortId = model.User_CC?.LastOrDefault()?.CohortCourse.CohortId;
         CohortCourseId = model.User_CC?.LastOrDefault()?.CohortCourse.CohortId; //autofetching the first element of usercc
