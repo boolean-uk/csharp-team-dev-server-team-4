@@ -62,12 +62,12 @@ public class UserDTO
         Github = model.Github;
         Username = model.Username;
         Mobile = model.Mobile;
-        Specialism = model.User_CC?.LastOrDefault()?.CohortCourse.Course.SpecialismName;
+        Specialism = model.User_CC?.OrderBy(a => a.Id).LastOrDefault()?.CohortCourse.Course.SpecialismName;
         Role = model.Role.ToString();
-        CohortId = model.User_CC?.LastOrDefault()?.CohortCourse.CohortId;
-        CohortCourseId = model.User_CC?.LastOrDefault()?.Id; //autofetching the first element of usercc
-        CurrentStartdate = model.User_CC?.LastOrDefault()?.CohortCourse.Cohort.StartDate; //autofetching the first element of usercc
-        CurrentEnddate = model.User_CC?.LastOrDefault()?.CohortCourse.Cohort.EndDate; //autofetching the first element of usercc
+        CohortId = model.User_CC?.OrderBy(a => a.Id).LastOrDefault()?.CohortCourse.CohortId;
+        CohortCourseId = model.User_CC?.OrderBy(a => a.Id).LastOrDefault()?.CohortCourse.Id; //autofetching the first element of usercc
+        CurrentStartdate = model.User_CC?.OrderBy(a => a.Id).LastOrDefault()?.CohortCourse.Cohort.StartDate; //autofetching the first element of usercc
+        CurrentEnddate = model.User_CC?.OrderBy(a => a.Id).LastOrDefault()?.CohortCourse.Cohort.EndDate; //autofetching the first element of usercc
         Notes = model.Notes.Select(n => new NoteDTO(n)).ToList();
     }
 
@@ -81,12 +81,12 @@ public class UserDTO
         Github = model.Github;
         Username = model.Username;
         Mobile = model.Mobile; 
-        Specialism = model.User_CC?.LastOrDefault()?.CohortCourse?.Course?.SpecialismName;
+        Specialism = model.User_CC?.OrderBy(a => a.Id).LastOrDefault()?.CohortCourse?.Course?.SpecialismName;
         Role = model.Role.ToString();
-        CohortId = model.User_CC?.LastOrDefault()?.CohortCourse.CohortId;
-        CohortCourseId = model.User_CC?.LastOrDefault()?.CohortCourse.CohortId; //autofetching the first element of usercc
-        CurrentStartdate = model.User_CC?.LastOrDefault()?.CohortCourse.Cohort.StartDate; //autofetching the first element of usercc
-        CurrentEnddate = model.User_CC?.LastOrDefault()?.CohortCourse.Cohort.EndDate; //autofetching the first element of usercc
+        CohortId = model.User_CC?.OrderBy(a => a.Id).LastOrDefault()?.CohortCourse.CohortId;
+        CohortCourseId = model.User_CC?.OrderBy(a => a.Id).LastOrDefault()?.CohortCourse.Id; //autofetching the first element of usercc
+        CurrentStartdate = model.User_CC?.OrderBy(a => a.Id).LastOrDefault()?.CohortCourse.Cohort.StartDate; //autofetching the first element of usercc
+        CurrentEnddate = model.User_CC?.OrderBy(a => a.Id).LastOrDefault()?.CohortCourse.Cohort.EndDate; //autofetching the first element of usercc
         
 
         if (privilegeLevel == PrivilegeLevel.Teacher)
