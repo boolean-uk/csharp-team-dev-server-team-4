@@ -208,6 +208,7 @@ app.ConfigureCommentEndpoints();
 app.ConfigureExerciseEndpoints();
 app.ConfigureCourseEndpoints();
 app.ConfigureLikeEndpoints();
+app.ConfigureCohortCourseEndpoints();
 app.Run();
 
 static string CreateToken(IConfigurationSettings configurationSettings)
