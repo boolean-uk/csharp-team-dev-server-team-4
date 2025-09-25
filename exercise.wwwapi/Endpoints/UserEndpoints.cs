@@ -99,23 +99,30 @@ public static class UserEndpoints
     [ProducesResponseType(StatusCodes.Status200OK)]
     private static async Task<IResult> GetUsersByCohort(IRepository<Cohort> repository, int cohort_id, ClaimsPrincipal claimsPrincipal)
     {
-        var response = await repository.GetByIdWithIncludes(a => a
+        var response = await repository.GetWithIncludes(a => a
                                                                 .Include(p => p.CohortCourses)
                                                                     .ThenInclude(b => b.Course)
                                                                 .Include(p => p.CohortCourses)
                                                                     .ThenInclude(b => b.UserCCs)
                                                                     .ThenInclude(a => a.User)
-                                                                    .ThenInclude(u => u.Notes), cohort_id);
+                                                                    .ThenInclude(u => u.Notes));
 
-        var results = response.CohortCourses.SelectMany(a => a.UserCCs).Select(a => a.User).ToList();
-        var dto_results = results.Select(a => new UserDTO(a));
+        var cohortCourses = response.SelectMany(c => c.CohortCourses).ToList();
+        var userCohortCourses = cohortCourses.SelectMany(cc => cc.UserCCs).ToList();
+        var groupedUserCohortCourses = userCohortCourses.GroupBy(uc => uc.UserId).ToList();
+        var currentUserCohortCourses = groupedUserCohortCourses.Select(g => g.OrderBy(f => f.Id).LastOrDefault()).ToList();
+        var userCohortCoursesInCohort = currentUserCohortCourses.Where(f => f.CohortCourse.CohortId == cohort_id).ToList();
+        var usersInCohort = userCohortCoursesInCohort.Select(uc => uc.User).ToList();
+
+
+
 
         var userRole = claimsPrincipal.Role();
         var authorizedAsTeacher = AuthorizeTeacher(claimsPrincipal);
 
         var userData = new UsersSuccessDTO
         {
-            Users = results.Select(user => authorizedAsTeacher
+            Users = usersInCohort.Select(user => authorizedAsTeacher
             ? new UserDTO(user, PrivilegeLevel.Teacher) //if teacher loads students, also load notes for students.
             : new UserDTO(user, PrivilegeLevel.Student)).ToList() //if teacher loads students, also load notes for students.
         };
@@ -132,22 +139,27 @@ public static class UserEndpoints
     [ProducesResponseType(StatusCodes.Status200OK)]
     private static async Task<IResult> GetUsersByCohortCourse(IRepository<CohortCourse> ccRepository, int cc_id, ClaimsPrincipal claimsPrincipal)
     {
-        var response = await ccRepository.GetByIdWithIncludes(a => a
+        var response = await ccRepository.GetWithIncludes(a => a
                                                                 .Include(z => z.Cohort)
                                                                 .Include(z => z.Course)
                                                                 .Include(b => b.UserCCs)
-                                                                    .ThenInclude(a => a.User)
-                                                                    .ThenInclude(u => u.Notes), cc_id);
-        
-        var results = response.UserCCs.Select(a => a.User).ToList();
-        var dto_results = results.Select(a => new UserDTO(a));
+                                                                    .ThenInclude(a => a.User)                                                                   
+                                                                    .ThenInclude(u => u.Notes));
+
+        var userCohortCourses = response.SelectMany(cc => cc.UserCCs).ToList();
+        var groupedUserCohortCourses = userCohortCourses.GroupBy(uc => uc.UserId).ToList();
+        var currentUserCohortCourses = groupedUserCohortCourses.Select(g => g.OrderBy(f => f.Id).LastOrDefault()).ToList();
+        var userCohortCoursesInCohortCourse = currentUserCohortCourses.Where(f => f.CohortCourse.Id == cc_id).ToList();
+        var usersInCohortCourse = userCohortCoursesInCohortCourse.Select(uc => uc.User).ToList();
+
+
 
         var userRole = claimsPrincipal.Role();
         var authorizedAsTeacher = AuthorizeTeacher(claimsPrincipal);
 
         var userData = new UsersSuccessDTO
         {
-            Users = results.Select(user => authorizedAsTeacher
+            Users = usersInCohortCourse.Select(user => authorizedAsTeacher
             ? new UserDTO(user, PrivilegeLevel.Teacher) //if teacher loads students, also load notes for students.
             : new UserDTO(user, PrivilegeLevel.Student)).ToList() //if teacher loads students, also load notes for students.
         };

@@ -3,11 +3,14 @@ using exercise.wwwapi.DTOs.CohortCourse;
 using exercise.wwwapi.DTOs.Courses;
 using exercise.wwwapi.DTOs.Exercises;
 using exercise.wwwapi.Enums;
+using exercise.wwwapi.Helpers;
 using exercise.wwwapi.Models;
 using exercise.wwwapi.Repository;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
+using System.Net.NetworkInformation;
+using System.Security.Claims;
 
 namespace exercise.wwwapi.Endpoints;
 
@@ -18,9 +21,44 @@ public static class CohortCourseEndpoints
         var cohortcourses = app.MapGroup("cohortcourses");
         cohortcourses.MapGet("/", GetAllCohortCourses).WithSummary("Get all cohort_courses");
         cohortcourses.MapGet("/{id}", GetCohortCourseById).WithSummary("Get cohort_course by id");
+        cohortcourses.MapPost("/moveUser{user_id}", MoveUser).WithSummary("Creates a new user_cc to move student");
     }
-    
+
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public static async Task<IResult> MoveUser(IRepository<UserCC> userCCRepository, IRepository<CohortCourse> cohortCourseRepository, IRepository<User> userRepository, int user_id, PostUserCohortCourseDTO userCC, ClaimsPrincipal claimPrincipal)
+    {
+        if (userCC == null)
+        {
+            return TypedResults.BadRequest("No user_id provided");
+        }
+        var cohortCourse = await cohortCourseRepository.GetWithIncludes(a => a.Where(b => b.CohortId == userCC.CohortId && b.CourseId == userCC.CourseId));
+        if (cohortCourse == null || cohortCourse.Count == 0)
+        {
+            return TypedResults.NotFound("No cohort_course with that cohort_id and course_id exists");
+        }
+        //implement later
+        //if usercc-combo already exists, delete old and create new
+        
+        var userRole = claimPrincipal.Role();
+        var authorizedAsTeacher = claimPrincipal.IsInRole("Teacher");
+        if(!authorizedAsTeacher)
+        {
+            return TypedResults.Unauthorized();
+        }
+        userCCRepository.Insert(new UserCC
+        {
+            UserId = user_id,
+            CcId = cohortCourse.First().Id
+        });
+        await userCCRepository.SaveAsync();
+        return TypedResults.Ok("User moved successfully");
+    }
+
+
+
+        [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public static async Task<IResult> GetAllCohortCourses(IRepository<CohortCourse> cohortCourseRepository)
     {
