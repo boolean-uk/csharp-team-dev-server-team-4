@@ -9,6 +9,7 @@ using exercise.wwwapi.DTOs.Posts.UpdatePost;
 using exercise.wwwapi.DTOs.Register;
 using exercise.wwwapi.DTOs.UpdateUser;
 using exercise.wwwapi.DTOs.Users;
+using exercise.wwwapi.Encryption;
 using exercise.wwwapi.Endpoints;
 using exercise.wwwapi.EndPoints;
 using exercise.wwwapi.Models;
@@ -162,6 +163,7 @@ builder.Services.AddSwaggerGen(s =>
     });
 });
 builder.Services.AddAuthorization();
+builder.Services.AddSingleton<EncryptionHelper>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
