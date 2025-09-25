@@ -35,6 +35,7 @@ public class UserDTO
     public Specialism? Specialism { get; set; }
 
     public int? CohortId { get; set; }
+    public int? CohortCourseId { get; set; }
 
     public DateTime? CurrentStartdate { get; set; }
     public DateTime? CurrentEnddate { get; set; }
@@ -63,7 +64,8 @@ public class UserDTO
         Mobile = model.Mobile;
         Specialism = model.Specialism;
         Role = model.Role.ToString();
-        CohortId = model.User_CC?.LastOrDefault()?.CohortCourse.CohortId; //autofetching the first element of usercc
+        CohortId = model.User_CC?.LastOrDefault()?.CohortCourse.CohortId;
+        CohortCourseId = model.User_CC?.LastOrDefault()?.Id; //autofetching the first element of usercc
         CurrentStartdate = model.User_CC?.LastOrDefault()?.CohortCourse.Cohort.StartDate; //autofetching the first element of usercc
         CurrentEnddate = model.User_CC?.LastOrDefault()?.CohortCourse.Cohort.EndDate; //autofetching the first element of usercc
         Notes = model.Notes.Select(n => new NoteDTO(n)).ToList();
@@ -81,7 +83,8 @@ public class UserDTO
         Mobile = model.Mobile;
         Specialism = model.Specialism;
         Role = model.Role.ToString();
-        CohortId = model.User_CC?.LastOrDefault()?.CohortCourse.CohortId; //autofetching the first element of usercc
+        CohortId = model.User_CC?.LastOrDefault()?.CohortCourse.CohortId;
+        CohortCourseId = model.User_CC?.LastOrDefault()?.CohortCourse.CohortId; //autofetching the first element of usercc
         CurrentStartdate = model.User_CC?.LastOrDefault()?.CohortCourse.Cohort.StartDate; //autofetching the first element of usercc
         CurrentEnddate = model.User_CC?.LastOrDefault()?.CohortCourse.Cohort.EndDate; //autofetching the first element of usercc
         

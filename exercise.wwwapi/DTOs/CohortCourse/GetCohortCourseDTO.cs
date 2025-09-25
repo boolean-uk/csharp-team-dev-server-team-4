@@ -13,8 +13,8 @@ namespace exercise.wwwapi.DTOs.CohortCourse;
 
         public string CohortName { get; set; }
         public string CourseName { get; set; }
-        public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
+        public string StartDate { get; set; }
+        public string EndDate { get; set; }
         public ICollection<UserDTO> Users { get; set; } = new List<UserDTO>();
 
         public GetCohortCourseDTO() { }
@@ -25,8 +25,8 @@ namespace exercise.wwwapi.DTOs.CohortCourse;
             CourseId = model.CourseId;
             CohortName = model.Cohort.CohortName;
             CourseName = model.Course.Name;
-            StartDate = model.Cohort.StartDate;
-            EndDate = model.Cohort.EndDate;
+            StartDate = $"{model.Cohort.StartDate:MMMM} {model.Cohort.StartDate:yyyy}";
+            EndDate = $"{model.Cohort.EndDate:MMMM} {model.Cohort.EndDate:yyyy}";
             Users = model.UserCCs.Select(uc => new UserDTO(uc.User)).ToList();
 
 
