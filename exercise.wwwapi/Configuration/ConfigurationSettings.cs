@@ -6,7 +6,11 @@ public class ConfigurationSettings : IConfigurationSettings
 
     public ConfigurationSettings()
     {
-        _configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").AddUserSecrets<Program>().Build();
+        _configuration = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json", optional: true)
+            .AddUserSecrets<Program>(optional: true)
+            .AddEnvironmentVariables()
+            .Build();
     }
 
     public string GetValue(string key)
