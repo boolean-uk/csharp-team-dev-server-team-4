@@ -19,9 +19,45 @@ public static class CohortCourseEndpoints
     public static void ConfigureCohortCourseEndpoints(this WebApplication app)
     {
         var cohortcourses = app.MapGroup("cohortcourses");
+        cohortcourses.MapPost("/cohortCourse", CreateCohortCourse).WithSummary("creates a new cohort course");
         cohortcourses.MapGet("/", GetAllCohortCourses).WithSummary("Get all cohort_courses");
         cohortcourses.MapGet("/{id}", GetCohortCourseById).WithSummary("Get cohort_course by id");
         cohortcourses.MapPost("/moveUser{user_id}", MoveUser).WithSummary("Creates a new user_cc to move student");
+    }
+
+
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public static async Task<IResult> CreateCohortCourse(IRepository<CohortCourse> cohortCourseRepository, PostCohortCourseDTO model, ClaimsPrincipal claimPrincipal)
+    {
+        var userRole = claimPrincipal.Role();
+        var authorizedAsTeacher = claimPrincipal.IsInRole("Teacher");
+        if (!authorizedAsTeacher)
+        {
+            return TypedResults.Unauthorized();
+        }
+        if (model == null)
+        {
+            return TypedResults.BadRequest("provide cohortid and courseid");
+        }
+
+        var response = await cohortCourseRepository.GetWithIncludes(a => a.Where(b => b.CohortId == model.CohortId && b.CourseId == model.CourseId));
+        if (response != null && response?.Count != 0)
+        {
+            return TypedResults.BadRequest("CohortCourse already exists.");
+        }
+        //implement later
+        //if usercc-combo already exists, delete old and create new
+
+        
+        cohortCourseRepository.Insert(new CohortCourse
+        {
+            CohortId = model.CohortId,
+            CourseId = model.CourseId
+        });
+        await cohortCourseRepository.SaveAsync();
+        return TypedResults.Ok("CohortCourse created");
     }
 
     [ProducesResponseType(StatusCodes.Status200OK)]
