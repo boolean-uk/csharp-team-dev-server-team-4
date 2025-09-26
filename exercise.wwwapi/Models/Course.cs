@@ -1,4 +1,5 @@
-﻿using exercise.wwwapi.Repository;
+﻿using exercise.wwwapi.DTOs.Courses;
+using exercise.wwwapi.Repository;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -15,8 +16,20 @@ public class Course : IEntity
     [Column("name", TypeName = "varchar(100)")]
     public string Name { get; set; }
 
+    [Required]
+    [Column("specialism_name", TypeName = "varchar(100)")]
+    public string SpecialismName { get; set; }
+
     public ICollection<CohortCourse> CohortCourses { get; set; } = new List<CohortCourse>();
     public ICollection<CourseModule> CourseModules { get; set; } = new List<CourseModule>();
+
+    public Course(){}
+
+    public Course(CoursePostDTO model)
+    {
+        Name = model.Name;
+        SpecialismName = model.SpecialismName;
+    }
 
 }    
 

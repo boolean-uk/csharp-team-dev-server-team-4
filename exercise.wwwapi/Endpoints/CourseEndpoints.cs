@@ -1,4 +1,5 @@
-﻿using exercise.wwwapi.DTOs.Courses;
+﻿using exercise.wwwapi.DTOs;
+using exercise.wwwapi.DTOs.Courses;
 using exercise.wwwapi.DTOs.Exercises;
 using exercise.wwwapi.Models;
 using exercise.wwwapi.Models.Exercises;
@@ -15,6 +16,7 @@ namespace exercise.wwwapi.Endpoints;
         public static void ConfigureCourseEndpoints(this WebApplication app)
         {
             var courses = app.MapGroup("courses");
+            courses.MapGet("/info", GetAllCoursesInfo).WithSummary("returns id and name for all courses");
             courses.MapGet("/", GetCourses).WithSummary("Returns all courses");
             courses.MapGet("/{id}", GetCourseById).WithSummary("Returns course with provided id");
             courses.MapPost("/", CreateCourse).WithSummary("Create a new course");
@@ -22,8 +24,21 @@ namespace exercise.wwwapi.Endpoints;
             courses.MapPut("/{id}", UpdateCourse).WithSummary("Update a course name");
     }
 
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public static async Task<IResult> GetAllCoursesInfo(IRepository<Course> courseRepository)
+    {
 
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        // Use GetWithIncludes to include CohortCourses and their Course
+        var response = await courseRepository.GetWithIncludes(null);
+
+        var courses = response.Select(c => new GetCourseInfoDTO(c));
+
+  
+        return TypedResults.Ok(courses);
+    }
+
+
+    [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         private static async Task<IResult> GetCourses(IRepository<Course> repository, ClaimsPrincipal claimsPrincipal)
         {
@@ -64,7 +79,7 @@ namespace exercise.wwwapi.Endpoints;
                     return TypedResults.BadRequest("Course data missing in request");
             }
 
-            Course newCourse = new Course { Name = postedCourse.Name };
+            Course newCourse = new Course(postedCourse);
             repository.Insert(newCourse);
             await repository.SaveAsync();
             GetCourseDTO response = new GetCourseDTO(newCourse);
@@ -114,6 +129,7 @@ namespace exercise.wwwapi.Endpoints;
                 return TypedResults.BadRequest("Missing update data in request");
             }
             course.Name = updatedCourse.Name;
+            course.SpecialismName = updatedCourse.SpecialismName;
             repository.Update(course);
             await repository.SaveAsync();
 

@@ -45,7 +45,14 @@ public static class UserEndpoints
     private static async Task<IResult> GetUsers(IRepository<User> userRepository, string? searchTerm,
         ClaimsPrincipal claimPrincipal)
     {
-        var results = await userRepository.GetWithIncludes(x => x.Include(u => u.User_CC).ThenInclude(c => c.CohortCourse).ThenInclude(d => d.Cohort).Include(p => p.Notes));
+        var results = await userRepository.GetWithIncludes(x => x
+                                                                .Include(u => u.User_CC)
+                                                                    .ThenInclude(c => c.CohortCourse)
+                                                                    .ThenInclude(d => d.Cohort)
+                                                                .Include(u => u.User_CC)
+                                                                    .ThenInclude(c => c.CohortCourse)
+                                                                    .ThenInclude(d => d.Course)
+                                                                .Include(p => p.Notes));
 
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
@@ -92,16 +99,30 @@ public static class UserEndpoints
     [ProducesResponseType(StatusCodes.Status200OK)]
     private static async Task<IResult> GetUsersByCohort(IRepository<Cohort> repository, int cohort_id, ClaimsPrincipal claimsPrincipal)
     {
-        var response = await repository.GetByIdWithIncludes(a => a.Include(p => p.CohortCourses).ThenInclude(b => b.UserCCs).ThenInclude(a => a.User).ThenInclude(u => u.Notes), cohort_id);
-        var results = response.CohortCourses.SelectMany(a => a.UserCCs).Select(a => a.User).ToList();
-        var dto_results = results.Select(a => new UserDTO(a));
+        var response = await repository.GetWithIncludes(a => a
+                                                                .Include(p => p.CohortCourses)
+                                                                    .ThenInclude(b => b.Course)
+                                                                .Include(p => p.CohortCourses)
+                                                                    .ThenInclude(b => b.UserCCs)
+                                                                    .ThenInclude(a => a.User)
+                                                                    .ThenInclude(u => u.Notes));
+
+        var cohortCourses = response.SelectMany(c => c.CohortCourses).ToList();
+        var userCohortCourses = cohortCourses.SelectMany(cc => cc.UserCCs).ToList();
+        var groupedUserCohortCourses = userCohortCourses.GroupBy(uc => uc.UserId).ToList();
+        var currentUserCohortCourses = groupedUserCohortCourses.Select(g => g.OrderBy(f => f.Id).LastOrDefault()).ToList();
+        var userCohortCoursesInCohort = currentUserCohortCourses.Where(f => f.CohortCourse.CohortId == cohort_id).ToList();
+        var usersInCohort = userCohortCoursesInCohort.Select(uc => uc.User).ToList();
+
+
+
 
         var userRole = claimsPrincipal.Role();
         var authorizedAsTeacher = AuthorizeTeacher(claimsPrincipal);
 
         var userData = new UsersSuccessDTO
         {
-            Users = results.Select(user => authorizedAsTeacher
+            Users = usersInCohort.Select(user => authorizedAsTeacher
             ? new UserDTO(user, PrivilegeLevel.Teacher) //if teacher loads students, also load notes for students.
             : new UserDTO(user, PrivilegeLevel.Student)).ToList() //if teacher loads students, also load notes for students.
         };
@@ -118,16 +139,27 @@ public static class UserEndpoints
     [ProducesResponseType(StatusCodes.Status200OK)]
     private static async Task<IResult> GetUsersByCohortCourse(IRepository<CohortCourse> ccRepository, int cc_id, ClaimsPrincipal claimsPrincipal)
     {
-        var response = await ccRepository.GetByIdWithIncludes(a => a.Include(z => z.Cohort).Include(b => b.UserCCs).ThenInclude(a => a.User).ThenInclude(u => u.Notes), cc_id);
-        var results = response.UserCCs.Select(a => a.User).ToList();
-        var dto_results = results.Select(a => new UserDTO(a));
+        var response = await ccRepository.GetWithIncludes(a => a
+                                                                .Include(z => z.Cohort)
+                                                                .Include(z => z.Course)
+                                                                .Include(b => b.UserCCs)
+                                                                    .ThenInclude(a => a.User)                                                                   
+                                                                    .ThenInclude(u => u.Notes));
+
+        var userCohortCourses = response.SelectMany(cc => cc.UserCCs).ToList();
+        var groupedUserCohortCourses = userCohortCourses.GroupBy(uc => uc.UserId).ToList();
+        var currentUserCohortCourses = groupedUserCohortCourses.Select(g => g.OrderBy(f => f.Id).LastOrDefault()).ToList();
+        var userCohortCoursesInCohortCourse = currentUserCohortCourses.Where(f => f.CohortCourse.Id == cc_id).ToList();
+        var usersInCohortCourse = userCohortCoursesInCohortCourse.Select(uc => uc.User).ToList();
+
+
 
         var userRole = claimsPrincipal.Role();
         var authorizedAsTeacher = AuthorizeTeacher(claimsPrincipal);
 
         var userData = new UsersSuccessDTO
         {
-            Users = results.Select(user => authorizedAsTeacher
+            Users = usersInCohortCourse.Select(user => authorizedAsTeacher
             ? new UserDTO(user, PrivilegeLevel.Teacher) //if teacher loads students, also load notes for students.
             : new UserDTO(user, PrivilegeLevel.Student)).ToList() //if teacher loads students, also load notes for students.
         };
@@ -192,7 +224,6 @@ public static class UserEndpoints
             Mobile = string.IsNullOrEmpty(request.Mobile) ? string.Empty : request.Mobile,
             Bio = string.IsNullOrEmpty(request.Bio) ? string.Empty : request.Bio,
             Github = string.IsNullOrEmpty(request.Github) ? string.Empty : request.Github,
-            Specialism = Specialism.None,
             PhotoUrl = ""
         };
 
@@ -213,7 +244,6 @@ public static class UserEndpoints
                     Username = user.Username,
                     Email = user.Email,
                     Mobile = user.Mobile,
-                    Specialism = user.Specialism,
                 }
             }
         };
@@ -266,7 +296,14 @@ public static class UserEndpoints
     [ProducesResponseType(StatusCodes.Status200OK)]
     public static async Task<IResult> GetUserById(IRepository<User> userRepository, int id, ClaimsPrincipal claimsPrincipal)
     {
-        var response = await userRepository.GetByIdWithIncludes(x => x.Include(u => u.User_CC).ThenInclude(c => c.CohortCourse).ThenInclude(d => d.Cohort).Include(p => p.Notes), id);
+        var response = await userRepository.GetByIdWithIncludes(x => x
+                                                                .Include(u => u.User_CC)
+                                                                    .ThenInclude(c => c.CohortCourse)
+                                                                    .ThenInclude(d => d.Cohort)
+                                                                .Include(u => u.User_CC)
+                                                                    .ThenInclude(c => c.CohortCourse)
+                                                                    .ThenInclude(d => d.Course)
+                                                                .Include(p => p.Notes), id);
 
         if (response == null)
         {
@@ -303,8 +340,7 @@ public static class UserEndpoints
     {
         // Only teacher can edit protected fields
         var authorized = AuthorizeTeacher(claimsPrinciple);
-        if (!authorized && (request.Specialism is not null
-            || request.Role is not null))
+        if (!authorized && (request.Role is not null))
         {
             return Results.Unauthorized();
         }
@@ -360,15 +396,20 @@ public static class UserEndpoints
         if (request.Github != null) user.Github = GITHUB_URL + request.Github;
         if (request.FirstName != null) user.FirstName = request.FirstName;
         if (request.LastName != null) user.LastName = request.LastName;
-        if (request.Specialism != null)
-            user.Specialism = (Specialism)request.Specialism;
         if (request.Role != null)
             user.Role = (Role)request.Role;
 
         userRepository.Update(user);
         await userRepository.SaveAsync();
 
-        var result = await userRepository.GetByIdWithIncludes(x => x.Include(u => u.User_CC).ThenInclude(c => c.CohortCourse).ThenInclude(d => d.Cohort).Include(p => p.Notes), id);
+        var result = await userRepository.GetByIdWithIncludes(x => x
+                                                                .Include(u => u.User_CC)
+                                                                    .ThenInclude(c => c.CohortCourse)
+                                                                    .ThenInclude(d => d.Cohort)
+                                                                .Include(u => u.User_CC)
+                                                                    .ThenInclude(c => c.CohortCourse)
+                                                                    .ThenInclude(d => d.Course)
+                                                                .Include(p => p.Notes), id);
 
         var response = new ResponseDTO<UserDTO>()
         {
@@ -395,7 +436,14 @@ public static class UserEndpoints
             return Results.Unauthorized();
         }
 
-        var user = await userRepository.GetByIdWithIncludes(x => x.Include(u => u.User_CC).ThenInclude(c => c.CohortCourse).ThenInclude(d => d.Cohort).Include(p => p.Notes), id);
+        var user = await userRepository.GetByIdWithIncludes(x => x
+                                                                .Include(u => u.User_CC)
+                                                                    .ThenInclude(c => c.CohortCourse)
+                                                                    .ThenInclude(d => d.Cohort)
+                                                                .Include(u => u.User_CC)
+                                                                    .ThenInclude(c => c.CohortCourse)
+                                                                    .ThenInclude(d => d.Course)
+                                                                .Include(p => p.Notes), id);
         if (user == null)
         {
             return TypedResults.NotFound();

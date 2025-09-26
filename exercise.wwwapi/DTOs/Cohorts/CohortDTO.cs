@@ -14,6 +14,8 @@ public class CohortDTO
     public string CohortName { get; set; } 
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
+    public string StartDateFormatted => $"{StartDate:MMMM} {StartDate:yyyy}";
+    public string EndDateFormatted => $"{EndDate:MMMM} {EndDate:yyyy}";
     public List<CourseDTO> Courses { get; set; }
 
     public CohortDTO(){}

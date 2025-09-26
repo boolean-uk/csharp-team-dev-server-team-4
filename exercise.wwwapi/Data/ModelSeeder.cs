@@ -100,13 +100,7 @@ public class ModelSeeder
             Role.Student,
             Role.Teacher
         };
-    private List<Specialism> _specialisms = new List<Specialism>()
-        {
-            Specialism.Frontend,
-            Specialism.Backend,
-            Specialism.Fullstack,
-            Specialism.None
-        };
+ 
 
     private List<string> _firstPart = new List<string>()
         {
@@ -202,7 +196,6 @@ public class ModelSeeder
             Mobile = "1234567890",
             Github = "",
             Bio = "",
-            Specialism = Specialism.Frontend,
             PhotoUrl = ""
         };
         _users.Add(user1);
@@ -219,7 +212,6 @@ public class ModelSeeder
             Mobile = "1234123",
             Github = "",
             Bio = "",
-            Specialism = Specialism.Backend,
             PhotoUrl = ""
         };
         _users.Add(user2);
@@ -236,7 +228,6 @@ public class ModelSeeder
             Mobile = "55555555",
             Github = "",
             Bio = "",
-            Specialism = Specialism.Frontend,
             PhotoUrl = ""
         };
         _users.Add(user3);
@@ -253,7 +244,6 @@ public class ModelSeeder
             Mobile = "98987878",
             Github = "",
             Bio = "",
-            Specialism = Specialism.Backend,
             PhotoUrl = ""
         };
         _users.Add(user4);
@@ -270,7 +260,6 @@ public class ModelSeeder
             Mobile = "111222333",
             Github = "",
             Bio = "",
-            Specialism = Specialism.Frontend,
             PhotoUrl = ""
         };
         _users.Add(user5);
@@ -291,8 +280,7 @@ public class ModelSeeder
                 Role = _roles[_random.Next(_roles.Count)],
                 Mobile = _random.Next(12345678, 23456789).ToString(),
                 Github = $"{username}git",
-                Bio = $"{_firstword[_random.Next(_firstword.Count)]}{_secondword[_random.Next(_secondword.Count)]}{_thirdword[_random.Next(_thirdword.Count)]}",
-                Specialism = _specialisms[_random.Next(_specialisms.Count)],
+                Bio = $"{_firstword[userRandom.Next(_firstword.Count)]}{_secondword[userRandom.Next(_secondword.Count)]}{_thirdword[userRandom.Next(_thirdword.Count)]}",
                 PhotoUrl = ""
             };
             _users.Add(user);
@@ -453,14 +441,17 @@ public class ModelSeeder
         Course course1 = new Course
         {
             Id = 1,
-            Name = "Java",
+            Name = "Java Development",
+            SpecialismName = "Java Developer"
+
         };
         _courses.Add(course1);
 
         Course course2 = new Course
         {
             Id = 2,
-            Name = ".NET",
+            Name = ".NET Development",
+            SpecialismName = ".NET Developer"
         };
         _courses.Add(course2);
 
@@ -468,7 +459,7 @@ public class ModelSeeder
         {
             Id = 1,
             CohortNumber = 1,
-            CohortName = "August 2025",
+            CohortName = "Cohort 1",
             StartDate = new DateTime(2025, 8, 1),
             EndDate = new DateTime(2025, 9, 29),
         };
@@ -478,7 +469,7 @@ public class ModelSeeder
         {
             Id = 2,
             CohortNumber = 2,
-            CohortName = "February 2026",
+            CohortName = "Cohort 2",
             StartDate = new DateTime(2026, 2, 1),
             EndDate = new DateTime(2026, 3, 29),
         };

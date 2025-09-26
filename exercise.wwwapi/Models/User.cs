@@ -37,8 +37,6 @@ public class User : IEntity
         public string? Bio { get; set; }
         [Column ("photo_url", TypeName = "varchar(100)")]
         public string? PhotoUrl { get; set; }
-        [Column ("specialism")]
-        public Specialism? Specialism { get; set; }
         public ICollection<Post> Posts { get; set; } = new List<Post>();
         public ICollection<Like> Likes { get; set; } = new List<Like>();
         public ICollection<Comment> Comments { get; set; } = new List<Comment>();

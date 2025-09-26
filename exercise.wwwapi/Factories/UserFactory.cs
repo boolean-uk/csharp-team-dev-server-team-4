@@ -10,18 +10,7 @@ namespace exercise.wwwapi.Factories
     {
         public static UserDTO GetUserDTO(User user, PrivilegeLevel privilegeLevel)
         {
-            var userDTO = new UserDTO()
-            {
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Bio = user.Bio,
-                Github = user.Github,
-                Username = user.Username,
-                Email = user.Email,
-                Mobile = user.Mobile,
-                Specialism = user.Specialism,
-                Role = user.Role.ToString()
-            };
+            var userDTO = new UserDTO(user);
 
             if (privilegeLevel == PrivilegeLevel.Teacher) 
             {

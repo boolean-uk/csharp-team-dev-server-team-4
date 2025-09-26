@@ -20,6 +20,10 @@ public static class CohortEndpoints
         cohorts.MapPatch("/{id}", UpdateCohortById).WithSummary("Update cohort");
         cohorts.MapDelete("/{id}", DeleteCohortById).WithSummary("Delete cohort");
     }
+
+    
+
+
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
