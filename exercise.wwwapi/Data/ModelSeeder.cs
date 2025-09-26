@@ -10,6 +10,7 @@ public class ModelSeeder
 {
     private static readonly DateTime _seedTime = new DateTime(2025, 01, 01, 0, 0, 0, DateTimeKind.Utc);
 
+    private readonly Random _random = new(123456);
     private static string[] _passwordHashes =
     [
         "$2a$11$NlNrSkH2Uop6Nl90BHeF9udj/s5N79m9j94htBwtiwPMzoJ5EXozW", // Test1test1%
@@ -183,7 +184,7 @@ public class ModelSeeder
     private List<Module> _modules = new List<Module>();
     private List<CourseModule> _courseModules = new List<CourseModule>();
     private List<UserExercise> _userExercises = new List<UserExercise>();
-    
+
 
 
     public  void Seed(ModelBuilder modelBuilder)
@@ -276,9 +277,8 @@ public class ModelSeeder
 
         for (int i = 6; i < 50; i++)
         {
-            Random userRandom = new Random();
-            var firstname = _firstnames[userRandom.Next(_firstnames.Count)];
-            var lastname = _lastnames[userRandom.Next(_lastnames.Count)];
+            var firstname = _firstnames[_random.Next(_firstnames.Count)];
+            var lastname = _lastnames[_random.Next(_lastnames.Count)];
             var username = $"{firstname}{lastname}{i}";
             User user = new User()
             {
@@ -286,13 +286,13 @@ public class ModelSeeder
                 FirstName = firstname,
                 LastName = lastname,
                 Username = username,
-                Email = $"{username}@{_domain[userRandom.Next(_domain.Count)]}",
+                Email = $"{username}@{_domain[_random.Next(_domain.Count)]}",
                 PasswordHash = _passwordHashes[5],
-                Role = _roles[userRandom.Next(_roles.Count)],
-                Mobile = userRandom.Next(12345678, 23456789).ToString(),
+                Role = _roles[_random.Next(_roles.Count)],
+                Mobile = _random.Next(12345678, 23456789).ToString(),
                 Github = $"{username}git",
-                Bio = $"{_firstword[userRandom.Next(_firstword.Count)]}{_secondword[userRandom.Next(_secondword.Count)]}{_thirdword[userRandom.Next(_thirdword.Count)]}",
-                Specialism = _specialisms[userRandom.Next(_specialisms.Count)],
+                Bio = $"{_firstword[_random.Next(_firstword.Count)]}{_secondword[_random.Next(_secondword.Count)]}{_thirdword[_random.Next(_thirdword.Count)]}",
+                Specialism = _specialisms[_random.Next(_specialisms.Count)],
                 PhotoUrl = ""
             };
             _users.Add(user);
@@ -341,12 +341,11 @@ public class ModelSeeder
 
         for (int i = 6; i < 20; i++)
         {
-            Random postRandom = new Random();
             Post p = new Post()
             {
                 Id = i,
-                AuthorId = postRandom.Next(_users.Count),
-                Body = $"{_firstPart[postRandom.Next(_firstPart.Count)]} {_lastPart[postRandom.Next(_lastPart.Count)]}",
+                AuthorId = _random.Next(_users.Count),
+                Body = $"{_firstPart[_random.Next(_firstPart.Count)]} {_lastPart[_random.Next(_lastPart.Count)]}",
                 CreatedAt = _seedTime
             };
             _posts.Add(p);
@@ -404,15 +403,14 @@ public class ModelSeeder
 
         for (int i = 6; i < 50; i++)
         {
-            Random commentRandom = new Random();
-            int postId = _posts[commentRandom.Next(_posts.Count)].Id;
-            int userId = _users[commentRandom.Next(_users.Count)].Id;
+            int postId = _posts[_random.Next(_posts.Count)].Id;
+            int userId = _users[_random.Next(_users.Count)].Id;
             Comment c = new Comment
             {
                 Id = i,
                 PostId = postId,
                 UserId = userId,
-                Body = _commentText[commentRandom.Next(_commentText.Count)],
+                Body = _commentText[_random.Next(_commentText.Count)],
                 CreatedAt = _seedTime,
             };
             _comments.Add(c);
@@ -537,9 +535,8 @@ public class ModelSeeder
 
         for (int i = 4; i <= _users.Count; i++)
         {
-            Random userCCRandom = new Random();
             var userId = i;
-            var ccId = _cohortCourses[userCCRandom.Next(_cohortCourses.Count)].Id;
+            var ccId = _cohortCourses[_random.Next(_cohortCourses.Count)].Id;
 
             UserCC ucc = new UserCC
             {
@@ -770,13 +767,12 @@ public class ModelSeeder
             var user = _users[i];
             if (user.Role == Role.Student)
             {
-                Random noteRandom = new Random();
                 Note n = new Note
                 {
                     Id = noteId++,
                     UserId = user.Id,
                     Title = $"Note for {user.FirstName}",
-                    Content = _commentText[noteRandom.Next(_commentText.Count)],
+                    Content = _commentText[_random.Next(_commentText.Count)],
                     CreatedAt = _seedTime,
                     UpdatedAt = _seedTime
                 };
