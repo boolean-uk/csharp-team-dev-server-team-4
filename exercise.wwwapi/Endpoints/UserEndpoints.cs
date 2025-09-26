@@ -340,8 +340,7 @@ public static class UserEndpoints
     {
         // Only teacher can edit protected fields
         var authorized = AuthorizeTeacher(claimsPrinciple);
-        if (!authorized && (request is not null
-            || request.Role is not null))
+        if (!authorized && (request.Role is not null))
         {
             return Results.Unauthorized();
         }
