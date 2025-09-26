@@ -461,7 +461,7 @@ public class ModelSeeder
         {
             Id = 1,
             CohortNumber = 1,
-            CohortName = "August 2025",
+            CohortName = "Cohort 1",
             StartDate = new DateTime(2025, 8, 1),
             EndDate = new DateTime(2025, 9, 29),
         };
@@ -471,7 +471,7 @@ public class ModelSeeder
         {
             Id = 2,
             CohortNumber = 2,
-            CohortName = "February 2026",
+            CohortName = "Cohort 2",
             StartDate = new DateTime(2026, 2, 1),
             EndDate = new DateTime(2026, 3, 29),
         };
