@@ -134,16 +134,36 @@ public static class CohortCourseEndpoints
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public static async Task<IResult> GetCohortCourseById(IRepository<CohortCourse> cohortCourseRepository, int id)
     {
-        var response = await cohortCourseRepository.GetByIdWithIncludes(a => a
+        var response = await cohortCourseRepository.GetWithIncludes(a => a
                                                                             .Include(b => b.Cohort)
                                                                             .Include(c => c.Course)
                                                                             .Include(d => d.UserCCs)
-                                                                                .ThenInclude(e => e.User), id);
-
-        if (response == null) return TypedResults.NotFound("No cohort_course with that id exists");
-
-        var result = new GetCohortCourseDTO(response);
-
+                                                                                .ThenInclude(e => e.User));
+    
+        var requestedCC = response.FirstOrDefault(cc => cc.Id == id);
+    
+    
+    
+        if (requestedCC == null) return TypedResults.NotFound("No cohort_course with that id exists");
+    
+    
+        var allUserCCs = response.SelectMany(cc => cc.UserCCs).ToList();
+    
+        var latestUserCCs = allUserCCs
+        .GroupBy(uc => uc.UserId)
+        .Select(g => g.OrderByDescending(uc => uc.Id).First())
+        .ToList();
+    
+    
+    
+        var users = latestUserCCs
+        .Where(uc => uc.CcId == id)
+        .Select(uc => new UserDTO(uc.User))
+        .ToList();
+    
+        var result = new GetCohortCourseDTO(requestedCC);
+        result.Users = users;
+    
         return TypedResults.Ok(result);
     }
    
