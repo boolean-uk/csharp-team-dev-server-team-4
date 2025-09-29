@@ -2,6 +2,7 @@
 using exercise.wwwapi.DTOs.CohortCourse;
 using exercise.wwwapi.DTOs.Courses;
 using exercise.wwwapi.DTOs.Exercises;
+using exercise.wwwapi.DTOs.Users;
 using exercise.wwwapi.Enums;
 using exercise.wwwapi.Helpers;
 using exercise.wwwapi.Models;
@@ -102,9 +103,27 @@ public static class CohortCourseEndpoints
                                                                             .Include(b => b.Cohort)
                                                                             .Include(c => c.Course)
                                                                             .Include(d => d.UserCCs)
-                                                                                .ThenInclude(e => e.User));
+                                                                                .ThenInclude(e => e.User)
+                                                                                .ThenInclude(f => f.Notes));
 
-        var result = response.Select(cc => new GetCohortCourseDTO(cc)).ToList();
+        var allUserCCs = response.SelectMany(cc => cc.UserCCs).ToList();
+
+        var latestUserCCs = allUserCCs
+        .GroupBy(uc => uc.UserId)
+        .Select(g => g.OrderByDescending(uc => uc.Id).First())
+        .ToList();
+
+        var result = response.Select(cc =>
+        {
+            var users = latestUserCCs
+                .Where(uc => uc.CcId == cc.Id)
+                .Select(uc => new UserDTO(uc.User))
+                .ToList();
+
+            var dto = new GetCohortCourseDTO(cc);
+            dto.Users = users;
+            return dto;
+        }).ToList();
 
         return TypedResults.Ok(result);
 
